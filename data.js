@@ -110,6 +110,41 @@ export const investigations = [
           "Links divergentes, login invalido e acesso parcial em apenas um e-mail.",
       },
     ],
+    requestComparisons: [
+      {
+        requestTitle: "Obitos maternos 2020-presente",
+        expected:
+          "Obitos maternos por ano, municipio, idade, raca/cor, tipo de parto e causa basica.",
+        received:
+          "Base parcial com campos demograficos, mas sem tipo de parto consistente.",
+        missing: "Tipo de parto, completude de causa basica e explicacao sobre campos ignorados.",
+        deadlineStatus: "Respondido no prazo",
+        editorialDecision: "Usar com ressalva metodologica",
+        nextStep: "Fazer pedido complementar focado apenas nos campos ausentes.",
+      },
+      {
+        requestTitle: "Mortes fetais, neonatais e maternas por maternidade",
+        expected:
+          "Dados por maternidade, ano, municipio, tipo de morte, causa basica e unidade.",
+        received:
+          "Resposta afirma envio de anexos, mas os anexos nao aparecem no sistema.",
+        missing: "Arquivo original, comprovante de envio e canal alternativo de acesso.",
+        deadlineStatus: "Atrasado",
+        editorialDecision: "Nao usar como evidencia substantiva",
+        nextStep: "Enviar cobranca formal e registrar evidencia do problema de acesso.",
+      },
+      {
+        requestTitle: "Manifestacoes sobre violencia obstetrica",
+        expected:
+          "Manifestacoes por ano, municipio, unidade, classificacao e desfecho.",
+        received:
+          "Links divergentes e acesso parcial por e-mail, com falhas de login.",
+        missing: "Base completa, link valido, orientacao de acesso e dicionario de campos.",
+        deadlineStatus: "Resposta com problema",
+        editorialDecision: "Tratar como falha de acesso, nao como dado final",
+        nextStep: "Pedir reenvio por e-mail e documentar prints das telas de erro.",
+      },
+    ],
     gaps: [
       {
         description: "Tipo de parto ausente ou informado como ignorado.",
@@ -249,6 +284,28 @@ export const investigations = [
           "Minutes, agendas and attachments for meetings where education technology vendors were discussed.",
         responseSummary:
           "Minutes found online. Attachments require separate request.",
+      },
+    ],
+    requestComparisons: [
+      {
+        requestTitle: "Vendor contracts and invoices",
+        expected:
+          "Contracts, invoices and purchase orders for education technology vendors from 2021 to 2026.",
+        received: "Contracts for 2024-2026, with invoices and earlier years missing.",
+        missing: "Invoices, purchase orders, 2021-2023 records and archive location.",
+        deadlineStatus: "Partial response",
+        editorialDecision: "Use only to describe the partial production",
+        nextStep: "Send a narrowed follow-up request for invoices and older records.",
+      },
+      {
+        requestTitle: "School board minutes and attachments",
+        expected:
+          "Minutes, agendas and attachments for meetings where education technology vendors were discussed.",
+        received: "Minutes found online, but attachments require a separate request.",
+        missing: "Meeting attachments and file names for the relevant agenda items.",
+        deadlineStatus: "Response received",
+        editorialDecision: "Use minutes for timeline, not for contract detail",
+        nextStep: "Request attachments for the specific meeting dates.",
       },
     ],
     gaps: [

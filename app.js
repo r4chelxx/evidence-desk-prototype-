@@ -32,6 +32,13 @@ function countOpenGaps(investigation) {
   return investigation.gaps.filter((gap) => !["resolvida", "resolved"].includes(gap.status.toLowerCase())).length;
 }
 
+function countRequestFollowUps(investigation) {
+  return investigation.requestComparisons.filter((comparison) => {
+    const decision = comparison.editorialDecision.toLowerCase();
+    return decision.includes("ressalva") || decision.includes("nao usar") || decision.includes("partial");
+  }).length;
+}
+
 function renderShell(content) {
   app.innerHTML = `
     <header class="topbar">
@@ -59,8 +66,8 @@ function renderDashboard() {
           <p>${item.centralQuestion}</p>
           <div class="metrics-grid compact">
             <div><strong>${item.requests.length}</strong><span>requests</span></div>
+            <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
             <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
-            <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
@@ -107,6 +114,7 @@ function renderInvestigation() {
     ["evidence", "Evidence blocks"],
     ["sources", "Sources"],
     ["requests", "Requests"],
+    ["comparison", "Request comparison"],
     ["gaps", "Gaps"],
     ["claims", "Claims"],
     ["methodology", "Methodology"],
@@ -147,6 +155,7 @@ function renderTab(item) {
     evidence: renderEvidenceBlocks,
     sources: renderSources,
     requests: renderRequests,
+    comparison: renderRequestComparison,
     gaps: renderGaps,
     claims: renderClaims,
     methodology: renderMethodology,
@@ -165,6 +174,7 @@ function renderOverview(item) {
       <div><strong>${item.hypotheses.length}</strong><span>hypotheses</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>evidence blocks</span></div>
       <div><strong>${item.requests.length}</strong><span>requests</span></div>
+      <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
     </section>
@@ -300,6 +310,56 @@ function renderRequests(item) {
   `;
 }
 
+function renderRequestComparison(item) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Request comparison</p>
+      <h2>Compare what was asked, what arrived and what still needs action.</h2>
+    </section>
+    <div class="comparison-grid">
+      ${item.requestComparisons
+        .map(
+          (comparison) => `
+            <article class="panel comparison-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">Request</p>
+                  <h3>${comparison.requestTitle}</h3>
+                </div>
+                <span class="pill ${statusClass(comparison.deadlineStatus)}">${comparison.deadlineStatus}</span>
+              </div>
+              <div class="comparison-lane">
+                <div>
+                  <strong>Expected</strong>
+                  <p>${comparison.expected}</p>
+                </div>
+                <div>
+                  <strong>Received</strong>
+                  <p>${comparison.received}</p>
+                </div>
+                <div>
+                  <strong>Missing or unclear</strong>
+                  <p>${comparison.missing}</p>
+                </div>
+              </div>
+              <dl class="detail-list">
+                <div>
+                  <dt>Editorial decision</dt>
+                  <dd>${comparison.editorialDecision}</dd>
+                </div>
+                <div>
+                  <dt>Next step</dt>
+                  <dd>${comparison.nextStep}</dd>
+                </div>
+              </dl>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderGaps(item) {
   return `
     <section class="content-header">
@@ -362,6 +422,9 @@ function renderClaims(item) {
 
 function methodologyMarkdown(item) {
   const requests = item.requests.map((request) => `- ${request.title}: ${request.status}`).join("\n");
+  const comparisons = item.requestComparisons
+    .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
+    .join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
@@ -377,6 +440,9 @@ ${item.centralQuestion}
 
 ## Requests tracked
 ${requests}
+
+## Request comparison
+${comparisons}
 
 ## Open gaps and limitations
 ${gaps}

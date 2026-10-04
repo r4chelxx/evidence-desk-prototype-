@@ -350,6 +350,41 @@ dd {
   margin-top: 1.25rem;
 }
 
+.comparison-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.comparison-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.comparison-lane {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.comparison-lane div {
+  background: #fbf8ef;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  padding: 0.85rem;
+}
+
+.comparison-lane strong {
+  display: block;
+  font-size: 0.78rem;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.comparison-lane p {
+  margin: 0;
+}
+
 .row-card {
   align-items: center;
   background: var(--paper);
@@ -460,7 +495,8 @@ tr:last-child td {
   .hero,
   .cards-grid,
   .workspace,
-  .two-column {
+  .two-column,
+  .comparison-lane {
     grid-template-columns: 1fr;
   }
 

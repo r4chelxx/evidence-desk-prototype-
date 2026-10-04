@@ -10,7 +10,9 @@ This prototype is a static site. It does not need a build step.
    - `404.html`
    - `.nojekyll`
    - `README.md`
-   - `src/`
+   - `app.js`
+   - `data.js`
+   - `styles.css`
 3. Go to repository settings.
 4. Open **Pages**.
 5. In **Build and deployment**, choose:
@@ -41,8 +43,7 @@ Then enable GitHub Pages from `main` and `/root`.
 ## Notes
 
 - This prototype has no backend.
-- All test content is stored in `src/data.js`.
-- Interface logic is in `src/app.js`.
-- Styling is in `src/styles.css`.
+- All test content is stored in `data.js`.
+- Interface logic is in `app.js`.
+- Styling is in `styles.css`.
 - It is safe to host as a public static prototype as long as no private documents or real sensitive data are added.
-

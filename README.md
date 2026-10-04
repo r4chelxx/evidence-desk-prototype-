@@ -4,7 +4,7 @@ Static MVP prototype for **Evidence Desk**, a workflow tool for investigative jo
 
 The prototype tests whether a journalist can move from:
 
-`investigative question -> hypotheses -> evidence blocks -> sources/requests -> gaps -> claims -> methodology`
+`investigative question -> hypotheses -> evidence blocks -> sources/requests -> request comparison -> gaps -> claims -> methodology`
 
 without backend, login, external integrations or AI.
 
@@ -36,7 +36,7 @@ See `GITHUB_PAGES_DEPLOY.md`.
 ## Files
 
 - `index.html`: static entry point.
-- `src/app.js`: UI rendering and interactions.
-- `src/data.js`: mock investigations.
-- `src/styles.css`: interface styles.
+- `app.js`: UI rendering and interactions.
+- `data.js`: mock investigations.
+- `styles.css`: interface styles.
 - `GITHUB_PAGES_DEPLOY.md`: deployment instructions.
