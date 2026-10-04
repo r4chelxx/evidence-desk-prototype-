@@ -4,7 +4,7 @@ Static MVP prototype for **Evidence Desk**, a workflow tool for investigative jo
 
 The prototype tests whether a journalist can move from:
 
-`investigative question -> hypotheses -> evidence blocks -> sources/requests -> request comparison -> gaps -> claims -> methodology`
+`investigative question -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> request comparison -> gaps -> claims -> methodology`
 
 without backend, login, external integrations or AI.
 
