@@ -12,6 +12,7 @@ without backend, login, external integrations or AI.
 
 - Investigation dashboard with Brazil and U.S. test cases.
 - Jurisdiction/access-law guidance for each case.
+- Language/localization guidance for English, Portuguese and Spanish use.
 - Evidence blocks, sources and request tracking.
 - Deadline and escalation guidance.
 - Request vs response comparison.
