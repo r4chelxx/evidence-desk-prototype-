@@ -6,10 +6,22 @@ export const investigations = [
     jurisdiction: "Bahia",
     language: "Portugues",
     topic: "Saude publica",
-    status: "Em apuracao",
+    status: "Em revisao",
     period: "2020-2026",
     territory: "Salvador, RMS e interior da Bahia",
-    updatedAt: "2026-09-30",
+    updatedAt: "2026-10-04",
+    freshness: {
+      status: "Needs reporter review",
+      checkedAt: "2026-10-04",
+      summary:
+        "This case has active LAI follow-ups and legal/escalation steps in progress. Do not treat the request log as final before reviewing the transparency diary.",
+    },
+    nextReviewItems: [
+      "Update the SESAB/CGAI/CIPOF escalation status from the transparency diary.",
+      "Keep the DPE-BA issue separate because it follows a different manifestation path.",
+      "Confirm which attachments or links were received, broken or missing before using them as evidence.",
+      "Review whether the count of delayed requests is still four after the latest authority-monitoring action.",
+    ],
     centralQuestion:
       "O poder publico tem produzido e fornecido dados suficientes para monitorar mortalidade materna e violencia obstetrica na Bahia entre 2020 e 2026?",
     description:
@@ -32,8 +44,8 @@ export const investigations = [
       },
       {
         stage: "Atraso ou silencio",
-        action: "Acionar instancia recursal, ouvidoria ou autoridade de monitoramento conforme o caso.",
-        output: "Plano de escalonamento",
+        action: "Acionar OGE, autoridade de monitoramento ou dossie juridico, separando orgaos por fluxo.",
+        output: "Plano de escalonamento com evidencias",
       },
     ],
     hypotheses: [
@@ -85,10 +97,10 @@ export const investigations = [
       },
       {
         name: "DPE-BA",
-        type: "Caminho provavel",
-        status: "Fonte a confirmar",
+        type: "Fluxo separado",
+        status: "Em manifestacao propria",
         use: "Atendimentos, acoes e acordos relacionados a gestantes e maternidades.",
-        limits: "Canal de e-SIC apresentou erro de cadastro.",
+        limits: "Nao deve ser misturado ao dossie SESAB/CGAI enquanto seguir por manifestacao diferente.",
       },
     ],
     requests: [
@@ -112,11 +124,11 @@ export const investigations = [
         protocol: "YL5LHVVX",
         sentDate: "2026-08-10",
         dueDate: "2026-08-30",
-        status: "Atrasado",
+        status: "Em escalonamento",
         requestedItems:
           "Dados por maternidade, ano, municipio, tipo de morte, causa basica e unidade.",
         responseSummary:
-          "SESAB informou genericamente que enviou, mas anexos nao foram localizados.",
+          "SESAB informou genericamente que enviou, mas anexos nao foram localizados. Caso segue em dossie SESAB/CGAI.",
       },
       {
         title: "Manifestacoes sobre violencia obstetrica",
@@ -129,7 +141,33 @@ export const investigations = [
         requestedItems:
           "Manifestacoes sobre violencia obstetrica por ano, municipio, unidade e classificacao.",
         responseSummary:
-          "Links divergentes, login invalido e acesso parcial em apenas um e-mail.",
+          "Links divergentes, login invalido e acesso parcial em apenas um e-mail. Precisa rechecagem antes de classificacao final.",
+      },
+      {
+        title: "Procedimentos instaurados sobre saude materno-infantil",
+        agency: "MP-BA / CESAU",
+        channel: "SEI + e-mail",
+        protocol: "Certidao CESAU",
+        sentDate: "2026-09-01",
+        dueDate: "2026-09-21",
+        status: "Resposta recebida",
+        requestedItems:
+          "Procedimentos, orientacoes e registros centralizados sobre saude materno-infantil e violencia obstetrica.",
+        responseSummary:
+          "MP informou que nao centraliza alguns dados e orientou acionar promotorias, DPE e SESAB.",
+      },
+      {
+        title: "Comite de mortalidade materna",
+        agency: "CEPOIF / SESAB",
+        channel: "Queremos Saber",
+        protocol: "VEZ8KTNX",
+        sentDate: "2026-09-01",
+        dueDate: "2026-09-21",
+        status: "A verificar",
+        requestedItems:
+          "Informacoes sobre comite, fluxos, reunioes, encaminhamentos e monitoramento de mortalidade materna.",
+        responseSummary:
+          "Status precisa ser atualizado a partir do diario da transparencia e do dossie juridico.",
       },
     ],
     requestComparisons: [
@@ -151,9 +189,9 @@ export const investigations = [
         received:
           "Resposta afirma envio de anexos, mas os anexos nao aparecem no sistema.",
         missing: "Arquivo original, comprovante de envio e canal alternativo de acesso.",
-        deadlineStatus: "Atrasado",
+        deadlineStatus: "Em escalonamento",
         editorialDecision: "Nao usar como evidencia substantiva",
-        nextStep: "Enviar cobranca formal e registrar evidencia do problema de acesso.",
+        nextStep: "Manter no dossie SESAB/CGAI com prints, protocolos e historico de contestacao.",
       },
       {
         requestTitle: "Manifestacoes sobre violencia obstetrica",
@@ -165,6 +203,17 @@ export const investigations = [
         deadlineStatus: "Resposta com problema",
         editorialDecision: "Tratar como falha de acesso, nao como dado final",
         nextStep: "Pedir reenvio por e-mail e documentar prints das telas de erro.",
+      },
+      {
+        requestTitle: "Procedimentos instaurados sobre saude materno-infantil",
+        expected:
+          "Procedimentos, orientacoes, eventuais registros centralizados e indicacao de unidades responsaveis.",
+        received:
+          "Certidao informa ausencia de centralizacao e orienta acionar promotorias, DPE e SESAB.",
+        missing: "Mapa de promotorias responsaveis, criterios de busca e eventuais procedimentos locais.",
+        deadlineStatus: "Resposta recebida",
+        editorialDecision: "Usar como evidencia sobre limite institucional, nao como ausencia definitiva de casos",
+        nextStep: "Transformar a resposta em nova frente de pedidos direcionados.",
       },
     ],
     gaps: [
@@ -179,8 +228,8 @@ export const investigations = [
         description: "Resposta menciona envio de anexos, mas anexos nao constam no sistema.",
         origin: "VO-LAI-02",
         severity: "Critica",
-        status: "Aguardando resposta",
-        nextStep: "Enviar follow-up formal e manter evidencias do problema de acesso.",
+        status: "Em escalonamento",
+        nextStep: "Manter no dossie SESAB/CGAI e aguardar retorno da OGE/autoridade de monitoramento.",
       },
       {
         description: "Links da Ouvidoria SUS retornam erro de login ou acesso invalido.",
@@ -188,6 +237,13 @@ export const investigations = [
         severity: "Alta",
         status: "Aberta",
         nextStep: "Registrar prints e solicitar reenvio por e-mail.",
+      },
+      {
+        description: "DPE-BA segue em fluxo separado e nao deve entrar no dossie SESAB/CGAI.",
+        origin: "Manifestacao propria DPE-BA",
+        severity: "Media",
+        status: "Separada",
+        nextStep: "Atualizar somente quando houver retorno especifico da manifestacao da DPE-BA.",
       },
     ],
     claims: [
@@ -205,7 +261,7 @@ export const investigations = [
         evidence: "Diario de transparencia e protocolos",
         strength: "Forte",
         risk: "Baixo",
-        status: "Sustentada",
+        status: "Precisa de rechecagem temporal",
       },
       {
         text: "Ha subnotificacao de violencia obstetrica nos registros oficiais.",
