@@ -356,6 +356,21 @@ dd {
   margin-top: 1.25rem;
 }
 
+.freshness-panel {
+  margin: 1.25rem 0;
+}
+
+.review-list {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.review-list li + li {
+  margin-top: 0.35rem;
+}
+
 .deadline-grid {
   display: grid;
   gap: 0.85rem;
