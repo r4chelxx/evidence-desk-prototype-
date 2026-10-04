@@ -15,8 +15,11 @@ function getCurrentInvestigation() {
 function statusClass(value = "") {
   const normalized = value.toLowerCase();
   if (normalized.includes("critica") || normalized.includes("high") || normalized.includes("alto")) return "danger";
+  if (normalized.includes("blocked")) return "danger";
   if (normalized.includes("parcial") || normalized.includes("partial") || normalized.includes("media")) return "warning";
   if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
+  if (normalized.includes("update") || normalized.includes("progress")) return "warning";
+  if (normalized.includes("ready") || normalized.includes("low")) return "success";
   if (normalized.includes("sustentada") || normalized.includes("supported") || normalized.includes("forte")) return "success";
   if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
   return "neutral";
@@ -35,6 +38,10 @@ function countOpenGaps(investigation) {
 
 function countReviewItems(investigation) {
   return investigation.nextReviewItems?.length || 0;
+}
+
+function countQaBlockers(investigation) {
+  return (investigation.qaChecklist || []).filter((item) => statusClass(item.status) === "danger").length;
 }
 
 function getRequestTiming(request) {
@@ -94,7 +101,7 @@ function renderDashboard() {
           <div class="metrics-grid compact">
             <div><strong>${item.requests.length}</strong><span>requests</span></div>
             <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
-            <div><strong>${countReviewItems(item) || countOpenGaps(item)}</strong><span>${countReviewItems(item) ? "review items" : "open gaps"}</span></div>
+            <div><strong>${countQaBlockers(item)}</strong><span>QA blockers</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
@@ -145,6 +152,7 @@ function renderInvestigation() {
     ["comparison", "Request comparison"],
     ["gaps", "Gaps"],
     ["claims", "Claims"],
+    ["qa", "QA checklist"],
     ["methodology", "Methodology"],
   ];
 
@@ -187,6 +195,7 @@ function renderTab(item) {
     comparison: renderRequestComparison,
     gaps: renderGaps,
     claims: renderClaims,
+    qa: renderQaChecklist,
     methodology: renderMethodology,
   };
   return renderers[state.currentTab](item);
@@ -208,6 +217,7 @@ function renderOverview(item) {
       <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
       <div><strong>${countReviewItems(item)}</strong><span>review items</span></div>
+      <div><strong>${countQaBlockers(item)}</strong><span>QA blockers</span></div>
     </section>
     ${renderFreshnessPanel(item)}
     <section class="two-column">
@@ -549,12 +559,49 @@ function renderClaims(item) {
   `;
 }
 
+function renderQaChecklist(item) {
+  const checklist = item.qaChecklist || [];
+  const blockers = countQaBlockers(item);
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">QA checklist</p>
+      <h2>Review risk before treating evidence as publishable.</h2>
+      <p>${blockers ? `${blockers} blocker${blockers === 1 ? "" : "s"} need attention before demo or publication.` : "No blocking QA issues recorded."}</p>
+    </section>
+    <div class="qa-grid">
+      ${checklist
+        .map(
+          (item) => `
+            <article class="panel qa-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${item.area}</p>
+                  <h3>${item.question}</h3>
+                </div>
+                <div class="pill-column">
+                  <span class="pill ${statusClass(item.status)}">${item.status}</span>
+                  <span class="pill ${statusClass(item.risk)}">${item.risk} risk</span>
+                </div>
+              </div>
+              <p><strong>Action:</strong> ${item.action}</p>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function methodologyMarkdown(item) {
   const requests = item.requests.map((request) => `- ${request.title}: ${request.status}`).join("\n");
   const comparisons = item.requestComparisons
     .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
     .join("\n");
   const reviews = (item.nextReviewItems || []).map((reviewItem) => `- ${reviewItem}`).join("\n");
+  const qaItems = (item.qaChecklist || [])
+    .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
+    .join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
@@ -577,6 +624,9 @@ ${comparisons}
 ## Freshness and review
 ${item.freshness?.summary || "No freshness warning recorded."}
 ${reviews}
+
+## QA checklist
+${qaItems || "No QA checklist recorded."}
 
 ## Open gaps and limitations
 ${gaps}
