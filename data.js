@@ -22,6 +22,33 @@ export const investigations = [
       "Confirm which attachments or links were received, broken or missing before using them as evidence.",
       "Review whether the count of delayed requests is still four after the latest authority-monitoring action.",
     ],
+    accessLaw: {
+      framework: "Brazilian LAI",
+      deadline: "20 days, with possible 10-day extension when justified.",
+      escalation:
+        "Internal appeal, ombudsman channel, authority-monitoring request and legal/public accountability dossier when access failures persist.",
+      requestChannels:
+        "Official transparency portal, Queremos Saber when available, agency e-mail and ombudsman systems.",
+      reporterWarning:
+        "The national law is shared, but each agency can operate with different systems, attachments, logins and appeal routines.",
+    },
+    sourceDiscovery: [
+      {
+        source: "Transparency diary",
+        purpose: "Single source of truth for protocols, dates, appeals, screenshots and follow-ups.",
+        verification: "Every platform status must match the diary before demo or publication.",
+      },
+      {
+        source: "Agency response files",
+        purpose: "Datasets, spreadsheets, certificates, e-mails and access links received through LAI.",
+        verification: "Open each file and record missing fields, broken links and absent attachments.",
+      },
+      {
+        source: "Public accountability bodies",
+        purpose: "OGE, authority-monitoring channels, MP, DPE and ombudsman offices.",
+        verification: "Keep separate flows when an agency has a different appeal or manifestation path.",
+      },
+    ],
     qaChecklist: [
       {
         area: "Request log",
@@ -324,6 +351,34 @@ export const investigations = [
       "Replace generic county references with one real jurisdiction before user testing.",
       "Add state-specific deadline and appeal language.",
       "Confirm whether procurement records, invoices and board attachments follow separate request paths.",
+    ],
+    accessLaw: {
+      framework: "U.S. public records law",
+      deadline:
+        "Varies by state and agency. Federal FOIA has a 20-working-day response target, but school districts usually follow state law.",
+      escalation:
+        "State-specific appeal, mediation, attorney general/public records office, court option or narrowed follow-up request.",
+      requestChannels:
+        "Agency public records e-mail, online portal, clerk office, board office and public websites.",
+      reporterWarning:
+        "Do not suggest a deadline or appeal path until the state and agency type are identified.",
+    },
+    sourceDiscovery: [
+      {
+        source: "School board website",
+        purpose: "Minutes, agendas, votes, policy documents and public attachments.",
+        verification: "Separate public minutes from attachments that require a records request.",
+      },
+      {
+        source: "Procurement portal",
+        purpose: "Contracts, bids, purchase orders, invoices and vendor identifiers.",
+        verification: "Check whether older years are archived or held by another office.",
+      },
+      {
+        source: "State public records guide",
+        purpose: "Deadline, exemptions, appeal route and fee rules for the jurisdiction.",
+        verification: "Select the state before generating any deadline or escalation advice.",
+      },
     ],
     qaChecklist: [
       {
