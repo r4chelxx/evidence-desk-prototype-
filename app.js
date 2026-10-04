@@ -184,6 +184,7 @@ function renderInvestigation() {
   const tabs = [
     ["overview", "Overview"],
     ["jurisdiction", "Jurisdiction"],
+    ["language", "Language"],
     ["hypotheses", "Hypotheses"],
     ["evidence", "Evidence blocks"],
     ["sources", "Sources"],
@@ -229,6 +230,7 @@ function renderTab(item) {
   const renderers = {
     overview: renderOverview,
     jurisdiction: renderJurisdiction,
+    language: renderLanguagePlan,
     hypotheses: renderHypotheses,
     evidence: renderEvidenceBlocks,
     sources: renderSources,
@@ -350,6 +352,64 @@ function renderJurisdiction(item) {
           `,
         )
         .join("")}
+    </div>
+  `;
+}
+
+function renderLanguagePlan(item) {
+  const plan = item.languagePlan;
+  const interfaceLanguages = plan.interfaceLanguages.map((language) => `<span class="pill neutral">${language}</span>`).join("");
+  const publicationLanguages = plan.publicationLanguages.map((language) => `<span class="pill success">${language}</span>`).join("");
+  const notes = plan.localizationNotes.map((note) => `<li>${note}</li>`).join("");
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Language and localization</p>
+      <h2>Separate translation from legal and editorial localization.</h2>
+      <p>A global tool needs multilingual access, but access-law guidance still depends on jurisdiction.</p>
+    </section>
+    <section class="two-column">
+      <article class="panel language-card">
+        <h3>Language plan</h3>
+        <dl class="detail-list">
+          <div><dt>Working language</dt><dd>${plan.workingLanguage}</dd></div>
+          <div><dt>Interface options</dt><dd class="pill-row">${interfaceLanguages}</dd></div>
+          <div><dt>Publication languages</dt><dd class="pill-row">${publicationLanguages}</dd></div>
+        </dl>
+      </article>
+      <article class="panel accent">
+        <h3>Localization rule</h3>
+        <p>
+          Translate interface labels freely, but localize laws, deadlines, agencies and source types only
+          when the jurisdiction is known and reviewed by the reporter.
+        </p>
+      </article>
+    </section>
+    <section class="content-header process-header">
+      <p class="eyebrow">Translation notes</p>
+      <h2>Terms that need human review.</h2>
+    </section>
+    <div class="language-grid">
+      <article class="panel">
+        <h3>Notes</h3>
+        <ul class="review-list">${notes}</ul>
+      </article>
+      <article class="panel">
+        <h3>Glossary</h3>
+        <div class="glossary-list">
+          ${plan.glossary
+            .map(
+              (entry) => `
+                <div>
+                  <strong>${entry.term}</strong>
+                  <p>${entry.meaning}</p>
+                  <p class="muted">${entry.handling}</p>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
     </div>
   `;
 }
@@ -730,6 +790,9 @@ function methodologyMarkdown(item) {
   const sourceDiscovery = (item.sourceDiscovery || [])
     .map((source) => `- ${source.source}: ${source.purpose}. Verify: ${source.verification}`)
     .join("\n");
+  const languagePlan = item.languagePlan
+    ? `- Working language: ${item.languagePlan.workingLanguage}\n- Interface languages: ${item.languagePlan.interfaceLanguages.join(", ")}\n- Publication languages: ${item.languagePlan.publicationLanguages.join(", ")}\n- Localization notes: ${item.languagePlan.localizationNotes.join(" ")}`
+    : "No language plan recorded.";
   const followUps = (item.followUpDrafts || [])
     .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. Reporter check: ${draft.riskNote}`)
     .join("\n");
@@ -754,6 +817,9 @@ ${law}
 
 ## Source discovery
 ${sourceDiscovery || "No source discovery map recorded."}
+
+## Language and localization
+${languagePlan}
 
 ## Requests tracked
 ${requests}
