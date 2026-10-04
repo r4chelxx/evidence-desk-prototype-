@@ -16,6 +16,7 @@ function statusClass(value = "") {
   const normalized = value.toLowerCase();
   if (normalized.includes("critica") || normalized.includes("high") || normalized.includes("alto")) return "danger";
   if (normalized.includes("parcial") || normalized.includes("partial") || normalized.includes("media")) return "warning";
+  if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
   if (normalized.includes("sustentada") || normalized.includes("supported") || normalized.includes("forte")) return "success";
   if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
   return "neutral";
@@ -30,6 +31,10 @@ function countOpenClaims(investigation) {
 
 function countOpenGaps(investigation) {
   return investigation.gaps.filter((gap) => !["resolvida", "resolved"].includes(gap.status.toLowerCase())).length;
+}
+
+function countReviewItems(investigation) {
+  return investigation.nextReviewItems?.length || 0;
 }
 
 function getRequestTiming(request) {
@@ -89,7 +94,7 @@ function renderDashboard() {
           <div class="metrics-grid compact">
             <div><strong>${item.requests.length}</strong><span>requests</span></div>
             <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
-            <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
+            <div><strong>${countReviewItems(item) || countOpenGaps(item)}</strong><span>${countReviewItems(item) ? "review items" : "open gaps"}</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
@@ -202,7 +207,9 @@ function renderOverview(item) {
       <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
+      <div><strong>${countReviewItems(item)}</strong><span>review items</span></div>
     </section>
+    ${renderFreshnessPanel(item)}
     <section class="two-column">
       <article class="panel">
         <h3>Project scope</h3>
@@ -220,6 +227,28 @@ function renderOverview(item) {
           follow-up, a methodological limit, or a rewritten claim.
         </p>
       </article>
+    </section>
+  `;
+}
+
+function renderFreshnessPanel(item) {
+  if (!item.freshness && !item.nextReviewItems?.length) return "";
+
+  const reviewItems = (item.nextReviewItems || [])
+    .map((reviewItem) => `<li>${reviewItem}</li>`)
+    .join("");
+
+  return `
+    <section class="panel freshness-panel">
+      <div class="card-footer top">
+        <div>
+          <p class="eyebrow">Freshness check</p>
+          <h3>${item.freshness?.status || "Review recommended"}</h3>
+        </div>
+        <span class="pill ${statusClass(item.freshness?.status)}">${item.freshness?.checkedAt || item.updatedAt}</span>
+      </div>
+      <p>${item.freshness?.summary || "Review the investigation log before relying on this case."}</p>
+      ${reviewItems ? `<ul class="review-list">${reviewItems}</ul>` : ""}
     </section>
   `;
 }
@@ -525,6 +554,7 @@ function methodologyMarkdown(item) {
   const comparisons = item.requestComparisons
     .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
     .join("\n");
+  const reviews = (item.nextReviewItems || []).map((reviewItem) => `- ${reviewItem}`).join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
@@ -543,6 +573,10 @@ ${requests}
 
 ## Request comparison
 ${comparisons}
+
+## Freshness and review
+${item.freshness?.summary || "No freshness warning recorded."}
+${reviews}
 
 ## Open gaps and limitations
 ${gaps}
