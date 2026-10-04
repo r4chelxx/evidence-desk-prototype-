@@ -440,6 +440,42 @@ dd {
   margin: 0;
 }
 
+.language-card dd {
+  line-height: 1.5;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.language-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  margin-top: 1.25rem;
+}
+
+.glossary-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.glossary-list div {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.75rem;
+}
+
+.glossary-list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.glossary-list p {
+  margin: 0.25rem 0 0;
+}
+
 .draft-grid {
   display: grid;
   gap: 1rem;
@@ -682,6 +718,7 @@ tr:last-child td {
   .tester-grid,
   .workspace,
   .two-column,
+  .language-grid,
   .comparison-lane,
   .source-map {
     grid-template-columns: 1fr;
