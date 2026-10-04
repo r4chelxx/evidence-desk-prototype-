@@ -32,6 +32,28 @@ function countOpenGaps(investigation) {
   return investigation.gaps.filter((gap) => !["resolvida", "resolved"].includes(gap.status.toLowerCase())).length;
 }
 
+function getRequestTiming(request) {
+  const dueDate = new Date(`${request.dueDate}T00:00:00`);
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const days = Math.ceil((dueDate - todayDate) / 86400000);
+  const status = request.status.toLowerCase();
+
+  if (status.includes("recebida") || status.includes("received")) {
+    return { label: "Response received", days, tone: "success" };
+  }
+
+  if (days >= 0) {
+    return { label: `${days} day${days === 1 ? "" : "s"} left`, days, tone: days <= 3 ? "warning" : "neutral" };
+  }
+
+  return { label: `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} overdue`, days, tone: "danger" };
+}
+
+function countLateRequests(investigation) {
+  return investigation.requests.filter((request) => getRequestTiming(request).tone === "danger").length;
+}
+
 function countRequestFollowUps(investigation) {
   return investigation.requestComparisons.filter((comparison) => {
     const decision = comparison.editorialDecision.toLowerCase();
@@ -114,6 +136,7 @@ function renderInvestigation() {
     ["evidence", "Evidence blocks"],
     ["sources", "Sources"],
     ["requests", "Requests"],
+    ["deadlines", "Deadlines"],
     ["comparison", "Request comparison"],
     ["gaps", "Gaps"],
     ["claims", "Claims"],
@@ -155,6 +178,7 @@ function renderTab(item) {
     evidence: renderEvidenceBlocks,
     sources: renderSources,
     requests: renderRequests,
+    deadlines: renderDeadlines,
     comparison: renderRequestComparison,
     gaps: renderGaps,
     claims: renderClaims,
@@ -174,6 +198,7 @@ function renderOverview(item) {
       <div><strong>${item.hypotheses.length}</strong><span>hypotheses</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>evidence blocks</span></div>
       <div><strong>${item.requests.length}</strong><span>requests</span></div>
+      <div><strong>${countLateRequests(item)}</strong><span>late requests</span></div>
       <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
@@ -308,6 +333,81 @@ function renderRequests(item) {
         .join("")}
     </div>
   `;
+}
+
+function renderDeadlines(item) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Deadlines and next steps</p>
+      <h2>Know when to wait, check, contest or escalate.</h2>
+    </section>
+    <section class="deadline-grid">
+      ${item.requests
+        .map((request) => {
+          const timing = getRequestTiming(request);
+          return `
+            <article class="panel deadline-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${request.agency}</p>
+                  <h3>${request.title}</h3>
+                </div>
+                <span class="pill ${timing.tone}">${timing.label}</span>
+              </div>
+              <dl class="detail-list grid">
+                <div><dt>Sent</dt><dd>${request.sentDate}</dd></div>
+                <div><dt>Due</dt><dd>${request.dueDate}</dd></div>
+                <div><dt>Status</dt><dd>${request.status}</dd></div>
+              </dl>
+              <p><strong>Suggested action:</strong> ${suggestDeadlineAction(request, timing)}</p>
+            </article>
+          `;
+        })
+        .join("")}
+    </section>
+    <section class="content-header process-header">
+      <p class="eyebrow">Process guide</p>
+      <h2>Jurisdiction-aware workflow, still controlled by the reporter.</h2>
+    </section>
+    <div class="process-steps">
+      ${item.processGuide
+        .map(
+          (step, index) => `
+            <article class="process-step">
+              <span>${index + 1}</span>
+              <div>
+                <h3>${step.stage}</h3>
+                <p>${step.action}</p>
+                <strong>${step.output}</strong>
+              </div>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function suggestDeadlineAction(request, timing) {
+  const status = request.status.toLowerCase();
+
+  if (status.includes("parcial") || status.includes("partial")) {
+    return "Compare requested fields with delivered records, then send a focused follow-up for missing items.";
+  }
+
+  if (status.includes("problema") || status.includes("broken")) {
+    return "Document the access problem with screenshots and request a valid link or file resend.";
+  }
+
+  if (timing.days < 0) {
+    return "Prepare an escalation note with protocol, dates, request text and proof of non-response.";
+  }
+
+  if (timing.days <= 3) {
+    return "Prepare the response checklist now so the received material can be reviewed quickly.";
+  }
+
+  return "Wait, keep the protocol organized and confirm the next review date in the reporting log.";
 }
 
 function renderRequestComparison(item) {
