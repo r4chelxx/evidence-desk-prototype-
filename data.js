@@ -71,6 +71,33 @@ export const investigations = [
       reporterWarning:
         "The national law is shared, but each agency can operate with different systems, attachments, logins and appeal routines.",
     },
+    languagePlan: {
+      workingLanguage: "Portuguese",
+      interfaceLanguages: ["English", "Portuguese", "Spanish"],
+      publicationLanguages: ["Portuguese"],
+      localizationNotes: [
+        "Keep legal terms such as LAI, OGE and autoridade de monitoramento in Portuguese with short explanations.",
+        "Translate the workflow labels, but preserve agency names, protocol codes and source titles.",
+        "If exported for international partners, add a short glossary for Brazilian transparency terms.",
+      ],
+      glossary: [
+        {
+          term: "LAI",
+          meaning: "Brazilian Access to Information Law.",
+          handling: "Do not translate as FOIA without explaining the Brazilian mechanism.",
+        },
+        {
+          term: "OGE",
+          meaning: "State ombudsman/control channel used for escalation in Bahia.",
+          handling: "Keep acronym and explain the institutional role.",
+        },
+        {
+          term: "Autoridade de monitoramento",
+          meaning: "Authority responsible for monitoring access-to-information compliance.",
+          handling: "Translate descriptively when writing in English or Spanish.",
+        },
+      ],
+    },
     sourceDiscovery: [
       {
         source: "Transparency diary",
@@ -430,6 +457,33 @@ export const investigations = [
         "Agency public records e-mail, online portal, clerk office, board office and public websites.",
       reporterWarning:
         "Do not suggest a deadline or appeal path until the state and agency type are identified.",
+    },
+    languagePlan: {
+      workingLanguage: "English",
+      interfaceLanguages: ["English", "Portuguese", "Spanish"],
+      publicationLanguages: ["English", "Spanish"],
+      localizationNotes: [
+        "Keep FOIA separate from state public records law because school districts usually follow state rules.",
+        "Translate product UI, but localize legal guidance only after a state is selected.",
+        "Spanish publication support should explain U.S. public-records concepts instead of using literal legal translations.",
+      ],
+      glossary: [
+        {
+          term: "FOIA",
+          meaning: "Federal Freedom of Information Act.",
+          handling: "Use only for federal agencies; avoid using it as a generic synonym for all public records.",
+        },
+        {
+          term: "Public records request",
+          meaning: "State or local access-to-records request.",
+          handling: "Translate as a concept, then name the state law once known.",
+        },
+        {
+          term: "School board minutes",
+          meaning: "Official meeting records from a school board.",
+          handling: "Preserve as a source type and explain whether attachments are included.",
+        },
+      ],
     },
     sourceDiscovery: [
       {
