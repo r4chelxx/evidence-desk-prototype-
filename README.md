@@ -4,9 +4,22 @@ Static MVP prototype for **Evidence Desk**, a workflow tool for investigative jo
 
 The prototype tests whether a journalist can move from:
 
-`investigative question -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> request comparison -> gaps -> claims -> methodology`
+`investigative question -> jurisdiction -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> request comparison -> follow-ups -> gaps -> claims -> QA -> methodology`
 
 without backend, login, external integrations or AI.
+
+## Current prototype scope
+
+- Investigation dashboard with Brazil and U.S. test cases.
+- Jurisdiction/access-law guidance for each case.
+- Evidence blocks, sources and request tracking.
+- Deadline and escalation guidance.
+- Request vs response comparison.
+- Human-reviewed follow-up draft examples.
+- Freshness/review warnings for stale or active investigations.
+- QA checklist with blockers and editorial risk.
+- Claim-to-evidence matrix.
+- Markdown methodological note preview/copy flow.
 
 ## Open locally
 
@@ -32,6 +45,10 @@ See `GITHUB_PAGES_DEPLOY.md`.
 
 - Violence obstetrics and public data transparency in Bahia, Brazil.
 - School technology contracts and public accountability in the United States.
+
+## Product rule
+
+Evidence Desk does not file FOIA/LAI requests, send e-mails or decide whether a claim is proven. It organizes the workflow and prepares reporter-reviewed drafts, while editorial judgment stays with the journalist.
 
 ## Files
 
