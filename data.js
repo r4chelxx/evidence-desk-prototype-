@@ -14,6 +14,28 @@ export const investigations = [
       "O poder publico tem produzido e fornecido dados suficientes para monitorar mortalidade materna e violencia obstetrica na Bahia entre 2020 e 2026?",
     description:
       "Investigacao sobre disponibilidade, qualidade e completude de dados publicos relacionados a violencia obstetrica, mortalidade materna e responsabilizacao institucional.",
+    processGuide: [
+      {
+        stage: "Pedido enviado",
+        action: "Registrar protocolo, orgao, canal, data de envio e prazo esperado.",
+        output: "Diario de transparencia atualizado",
+      },
+      {
+        stage: "Perto do prazo",
+        action: "Preparar checagem de anexos, links, login, formato dos dados e campos pedidos.",
+        output: "Checklist de recebimento",
+      },
+      {
+        stage: "Resposta parcial ou acesso quebrado",
+        action: "Contestar por escrito, pedir reenvio e guardar prints, e-mails e protocolos.",
+        output: "Registro de falha verificavel",
+      },
+      {
+        stage: "Atraso ou silencio",
+        action: "Acionar instancia recursal, ouvidoria ou autoridade de monitoramento conforme o caso.",
+        output: "Plano de escalonamento",
+      },
+    ],
     hypotheses: [
       {
         text: "Os dados enviados por orgaos publicos nao possuem granularidade suficiente para identificar unidades de saude e padroes territoriais.",
@@ -210,6 +232,28 @@ export const investigations = [
       "What records can show how a public school district selected, contracted and monitored education technology vendors?",
     description:
       "A simulated U.S. public records workflow to test whether Evidence Desk works outside the Brazilian LAI context.",
+    processGuide: [
+      {
+        stage: "Request sent",
+        action: "Log the agency, channel, sent date, expected deadline and exact wording.",
+        output: "Public records request log",
+      },
+      {
+        stage: "Before deadline",
+        action: "Prepare a receipt checklist for records, exemptions, missing years and file formats.",
+        output: "Response review checklist",
+      },
+      {
+        stage: "Partial response",
+        action: "Narrow the follow-up request and ask where older or missing records are held.",
+        output: "Focused follow-up request",
+      },
+      {
+        stage: "Delay or denial",
+        action: "Review state-specific appeal options, exemptions and mediation paths before escalating.",
+        output: "Appeal or mediation plan",
+      },
+    ],
     hypotheses: [
       {
         text: "Procurement records may show whether vendor selection followed a competitive process.",
