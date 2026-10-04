@@ -1,3 +1,42 @@
+export const testPlan = {
+  tasks: [
+    {
+      title: "Open the Brazil investigation",
+      goal: "Check whether a reporter understands partial LAI responses, missing attachments and escalation steps.",
+      success: "Tester can identify at least one evidence gap and one safe next action.",
+    },
+    {
+      title: "Open the U.S. investigation",
+      goal: "Check whether the same workflow works outside Brazil with public records, contracts and school board materials.",
+      success: "Tester understands that state law must be selected before deadlines or appeals are trusted.",
+    },
+    {
+      title: "Review one claim",
+      goal: "Check whether claim strength, risk and supporting evidence are easy to understand.",
+      success: "Tester can say which claims are ready, partial or unsafe.",
+    },
+    {
+      title: "Copy the methodology",
+      goal: "Check whether the exported note differentiates evidence, gaps, limits, QA and follow-ups.",
+      success: "Tester would reuse at least part of the note in a real transparency/methodology section.",
+    },
+  ],
+  questions: [
+    "Where did you feel most oriented or most lost?",
+    "Does 'evidence block' make sense, or should the term change?",
+    "Are sources, requests, gaps and claims clearly different?",
+    "Does the tool feel useful, or does it feel like extra bureaucracy?",
+    "What should be automated later, and what should remain under reporter control?",
+  ],
+  acceptanceCriteria: [
+    "Tester understands the state of an investigation in under two minutes.",
+    "Tester can identify at least one pending action without explanation.",
+    "Tester sees gaps as pending evidence problems, not automatic accusations.",
+    "Tester understands that follow-up drafts are not sent automatically.",
+    "Tester sees the Brazil and U.S. examples as the same method adapted locally.",
+  ],
+};
+
 export const investigations = [
   {
     id: "vo-bahia",
