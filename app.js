@@ -144,6 +144,7 @@ function renderInvestigation() {
   const item = getCurrentInvestigation();
   const tabs = [
     ["overview", "Overview"],
+    ["jurisdiction", "Jurisdiction"],
     ["hypotheses", "Hypotheses"],
     ["evidence", "Evidence blocks"],
     ["sources", "Sources"],
@@ -187,6 +188,7 @@ function renderInvestigation() {
 function renderTab(item) {
   const renderers = {
     overview: renderOverview,
+    jurisdiction: renderJurisdiction,
     hypotheses: renderHypotheses,
     evidence: renderEvidenceBlocks,
     sources: renderSources,
@@ -260,6 +262,54 @@ function renderFreshnessPanel(item) {
       <p>${item.freshness?.summary || "Review the investigation log before relying on this case."}</p>
       ${reviewItems ? `<ul class="review-list">${reviewItems}</ul>` : ""}
     </section>
+  `;
+}
+
+function renderJurisdiction(item) {
+  const law = item.accessLaw;
+  const sources = item.sourceDiscovery || [];
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Jurisdiction and access rules</p>
+      <h2>Make deadlines and source paths explicit before using AI assistance.</h2>
+      <p>The tool should guide the reporter through known rules, not invent them.</p>
+    </section>
+    <section class="two-column">
+      <article class="panel law-card">
+        <h3>${law.framework}</h3>
+        <dl class="detail-list">
+          <div><dt>Deadline</dt><dd>${law.deadline}</dd></div>
+          <div><dt>Request channels</dt><dd>${law.requestChannels}</dd></div>
+          <div><dt>Escalation</dt><dd>${law.escalation}</dd></div>
+          <div><dt>Reporter warning</dt><dd>${law.reporterWarning}</dd></div>
+        </dl>
+      </article>
+      <article class="panel accent">
+        <h3>Product rule</h3>
+        <p>
+          Evidence Desk can suggest next steps only after the reporter selects a jurisdiction,
+          confirms the request channel and reviews the relevant access-law rule.
+        </p>
+      </article>
+    </section>
+    <section class="content-header process-header">
+      <p class="eyebrow">Source discovery</p>
+      <h2>Start from controlled paths, then let the reporter verify.</h2>
+    </section>
+    <div class="source-map">
+      ${sources
+        .map(
+          (source) => `
+            <article class="panel source-path-card">
+              <h3>${source.source}</h3>
+              <p>${source.purpose}</p>
+              <p class="muted"><strong>Verify:</strong> ${source.verification}</p>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
   `;
 }
 
@@ -599,6 +649,12 @@ function methodologyMarkdown(item) {
     .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
     .join("\n");
   const reviews = (item.nextReviewItems || []).map((reviewItem) => `- ${reviewItem}`).join("\n");
+  const law = item.accessLaw
+    ? `- Framework: ${item.accessLaw.framework}\n- Deadline: ${item.accessLaw.deadline}\n- Escalation: ${item.accessLaw.escalation}\n- Warning: ${item.accessLaw.reporterWarning}`
+    : "No jurisdiction rule recorded.";
+  const sourceDiscovery = (item.sourceDiscovery || [])
+    .map((source) => `- ${source.source}: ${source.purpose}. Verify: ${source.verification}`)
+    .join("\n");
   const qaItems = (item.qaChecklist || [])
     .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
     .join("\n");
@@ -614,6 +670,12 @@ ${item.centralQuestion}
 - Country/jurisdiction: ${item.country} / ${item.jurisdiction}
 - Territory: ${item.territory}
 - Period: ${item.period}
+
+## Jurisdiction and access rules
+${law}
+
+## Source discovery
+${sourceDiscovery || "No source discovery map recorded."}
 
 ## Requests tracked
 ${requests}
