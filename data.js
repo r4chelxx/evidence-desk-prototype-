@@ -22,6 +22,36 @@ export const investigations = [
       "Confirm which attachments or links were received, broken or missing before using them as evidence.",
       "Review whether the count of delayed requests is still four after the latest authority-monitoring action.",
     ],
+    qaChecklist: [
+      {
+        area: "Request log",
+        question: "Every request has protocol, channel, sent date, due date and current status?",
+        status: "Needs update",
+        risk: "Medium",
+        action: "Reconcile the prototype with the transparency diary before external demo.",
+      },
+      {
+        area: "Evidence files",
+        question: "Can every received spreadsheet, link or attachment be opened and traced to its source?",
+        status: "Blocked",
+        risk: "High",
+        action: "Verify missing attachments and broken links before treating responses as data.",
+      },
+      {
+        area: "Jurisdiction flow",
+        question: "Are agencies with different appeal paths separated?",
+        status: "In progress",
+        risk: "Medium",
+        action: "Keep SESAB/CGAI and DPE-BA in separate escalation tracks.",
+      },
+      {
+        area: "Claim safety",
+        question: "Are all publishable claims linked to evidence instead of inference from silence?",
+        status: "Needs review",
+        risk: "High",
+        action: "Rewrite any claim based only on delay as a transparency/access finding.",
+      },
+    ],
     centralQuestion:
       "O poder publico tem produzido e fornecido dados suficientes para monitorar mortalidade materna e violencia obstetrica na Bahia entre 2020 e 2026?",
     description:
@@ -284,6 +314,40 @@ export const investigations = [
     period: "2021-2026",
     territory: "Local school district",
     updatedAt: "2026-09-30",
+    freshness: {
+      status: "Current simulated case",
+      checkedAt: "2026-09-30",
+      summary:
+        "This case is synthetic and exists to test U.S. public-records behavior, deadlines and partial response review.",
+    },
+    nextReviewItems: [
+      "Replace generic county references with one real jurisdiction before user testing.",
+      "Add state-specific deadline and appeal language.",
+      "Confirm whether procurement records, invoices and board attachments follow separate request paths.",
+    ],
+    qaChecklist: [
+      {
+        area: "Jurisdiction",
+        question: "Is the state law identified before suggesting deadlines or appeal options?",
+        status: "Blocked",
+        risk: "High",
+        action: "Select one U.S. state and encode its public-records rules.",
+      },
+      {
+        area: "Source map",
+        question: "Are public websites separated from records that require a formal request?",
+        status: "Ready",
+        risk: "Low",
+        action: "Use board minutes as open source and invoices/contracts as request track.",
+      },
+      {
+        area: "Response review",
+        question: "Does the tool distinguish partial production from denial?",
+        status: "Ready",
+        risk: "Low",
+        action: "Keep missing years and invoices as follow-up items, not as proof of wrongdoing.",
+      },
+    ],
     centralQuestion:
       "What records can show how a public school district selected, contracted and monitored education technology vendors?",
     description:
