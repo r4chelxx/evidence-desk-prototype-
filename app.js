@@ -151,6 +151,7 @@ function renderInvestigation() {
     ["requests", "Requests"],
     ["deadlines", "Deadlines"],
     ["comparison", "Request comparison"],
+    ["followups", "Follow-ups"],
     ["gaps", "Gaps"],
     ["claims", "Claims"],
     ["qa", "QA checklist"],
@@ -195,6 +196,7 @@ function renderTab(item) {
     requests: renderRequests,
     deadlines: renderDeadlines,
     comparison: renderRequestComparison,
+    followups: renderFollowUps,
     gaps: renderGaps,
     claims: renderClaims,
     qa: renderQaChecklist,
@@ -549,6 +551,40 @@ function renderRequestComparison(item) {
   `;
 }
 
+function renderFollowUps(item) {
+  const drafts = item.followUpDrafts || [];
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Follow-up drafts</p>
+      <h2>Prepare messages and appeals without sending anything automatically.</h2>
+      <p>Every draft is a starting point for human review, not legal advice or a finished filing.</p>
+    </section>
+    <div class="draft-grid">
+      ${drafts
+        .map(
+          (draft) => `
+            <article class="panel draft-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${draft.type}</p>
+                  <h3>${draft.title}</h3>
+                </div>
+                <span class="pill ${statusClass(draft.status)}">${draft.status}</span>
+              </div>
+              <dl class="detail-list">
+                <div><dt>Related request</dt><dd>${draft.request}</dd></div>
+                <div><dt>Reporter check</dt><dd>${draft.riskNote}</dd></div>
+              </dl>
+              <pre class="draft-text">${draft.draft}</pre>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 function renderGaps(item) {
   return `
     <section class="content-header">
@@ -655,6 +691,9 @@ function methodologyMarkdown(item) {
   const sourceDiscovery = (item.sourceDiscovery || [])
     .map((source) => `- ${source.source}: ${source.purpose}. Verify: ${source.verification}`)
     .join("\n");
+  const followUps = (item.followUpDrafts || [])
+    .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. Reporter check: ${draft.riskNote}`)
+    .join("\n");
   const qaItems = (item.qaChecklist || [])
     .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
     .join("\n");
@@ -682,6 +721,9 @@ ${requests}
 
 ## Request comparison
 ${comparisons}
+
+## Follow-up drafts
+${followUps || "No follow-up drafts recorded."}
 
 ## Freshness and review
 ${item.freshness?.summary || "No freshness warning recorded."}
