@@ -49,6 +49,35 @@ export const investigations = [
         verification: "Keep separate flows when an agency has a different appeal or manifestation path.",
       },
     ],
+    followUpDrafts: [
+      {
+        title: "Missing attachments follow-up",
+        request: "Mortes fetais, neonatais e maternas por maternidade",
+        type: "Attachment resend",
+        status: "Ready for reporter review",
+        riskNote: "Do not accuse omission; document the access problem and ask for resend or alternate channel.",
+        draft:
+          "Prezados(as), em relacao ao protocolo YL5LHVVX, a resposta informa envio de anexos, mas os arquivos nao constam no acesso disponivel. Solicito, por favor, o reenvio dos anexos ou a indicacao de canal alternativo para acesso aos documentos, mantendo o numero de protocolo e a data da resposta anterior.",
+      },
+      {
+        title: "Broken link/access problem",
+        request: "Manifestacoes sobre violencia obstetrica",
+        type: "Access correction",
+        status: "Needs screenshots attached",
+        riskNote: "Attach screenshots and preserve the distinction between partial access and missing data.",
+        draft:
+          "Prezados(as), os links enviados para acesso as manifestacoes sobre violencia obstetrica apresentam erro de login ou acesso invalido. Solicito orientacao de acesso, reenvio por e-mail ou disponibilizacao de link valido, com dicionario de campos quando houver base estruturada.",
+      },
+      {
+        title: "Authority-monitoring escalation note",
+        request: "SESAB/CGAI/CIPOF track",
+        type: "Escalation summary",
+        status: "Needs diary reconciliation",
+        riskNote: "Use only after confirming every date and protocol in the transparency diary.",
+        draft:
+          "Resumo para escalonamento: listar protocolos, datas de envio, prazos, respostas recebidas, inconsistencias de anexo/link e tentativas de contestacao. Solicitar avaliacao da autoridade competente sobre cumprimento do acesso a informacao e medidas para entrega integral dos documentos.",
+      },
+    ],
     qaChecklist: [
       {
         area: "Request log",
@@ -378,6 +407,26 @@ export const investigations = [
         source: "State public records guide",
         purpose: "Deadline, exemptions, appeal route and fee rules for the jurisdiction.",
         verification: "Select the state before generating any deadline or escalation advice.",
+      },
+    ],
+    followUpDrafts: [
+      {
+        title: "Narrowed invoice request",
+        request: "Vendor contracts and invoices",
+        type: "Focused follow-up",
+        status: "Ready for reporter review",
+        riskNote: "Ask narrowly for missing records; do not frame missing invoices as wrongdoing.",
+        draft:
+          "Dear records officer, thank you for the contract records produced for 2024-2026. This follow-up request is limited to invoices and purchase orders for the same vendors, including records from 2021-2023 or the office/archive where those older records are maintained.",
+      },
+      {
+        title: "Board attachments request",
+        request: "School board minutes and attachments",
+        type: "Specific record request",
+        status: "Needs meeting dates",
+        riskNote: "Reporter must insert exact meeting dates before sending.",
+        draft:
+          "Dear clerk, I am requesting the agenda attachments, presentations and supporting files for the school board meetings where education technology vendors were discussed. I can narrow this request to the following meeting dates: [insert dates].",
       },
     ],
     qaChecklist: [
