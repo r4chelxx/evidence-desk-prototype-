@@ -1,4 +1,4 @@
-import { investigations } from "./data.js";
+import { investigations, testPlan } from "./data.js";
 
 const state = {
   view: "dashboard",
@@ -111,6 +111,22 @@ function renderDashboard() {
       `,
     )
     .join("");
+  const tasks = testPlan.tasks
+    .map(
+      (task, index) => `
+        <article class="test-task">
+          <span>${index + 1}</span>
+          <div>
+            <h3>${task.title}</h3>
+            <p>${task.goal}</p>
+            <strong>${task.success}</strong>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+  const questions = testPlan.questions.map((question) => `<li>${question}</li>`).join("");
+  const criteria = testPlan.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("");
 
   renderShell(`
     <main class="page dashboard">
@@ -136,6 +152,29 @@ function renderDashboard() {
         <button class="button secondary" disabled>New investigation coming later</button>
       </section>
       <section class="cards-grid">${cards}</section>
+      <section class="tester-guide">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Testing guide</p>
+            <h2>What QA and journalists should try first</h2>
+          </div>
+          <span class="pill neutral">v0.1 test script</span>
+        </div>
+        <div class="tester-grid">
+          <div class="panel">
+            <h3>Core tasks</h3>
+            <div class="test-task-list">${tasks}</div>
+          </div>
+          <div class="panel">
+            <h3>Feedback questions</h3>
+            <ul class="review-list">${questions}</ul>
+          </div>
+          <div class="panel">
+            <h3>Acceptance criteria</h3>
+            <ul class="review-list">${criteria}</ul>
+          </div>
+        </div>
+      </section>
     </main>
   `);
 }
