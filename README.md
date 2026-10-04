@@ -20,6 +20,7 @@ without backend, login, external integrations or AI.
 - QA checklist with blockers and editorial risk.
 - Claim-to-evidence matrix.
 - Markdown methodological note preview/copy flow.
+- Dashboard testing guide with tasks, feedback questions and acceptance criteria.
 
 ## Open locally
 
