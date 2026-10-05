@@ -69,10 +69,10 @@ export const investigations = [
     status: "Em revisao",
     period: "2020-2026",
     territory: "Salvador, RMS e interior da Bahia",
-    updatedAt: "2026-10-04",
+    updatedAt: "2026-10-05",
     freshness: {
       status: "Needs reporter review",
-      checkedAt: "2026-10-04",
+      checkedAt: "2026-10-05",
       summary:
         "This case has active LAI follow-ups and legal/escalation steps in progress. Do not treat the request log as final before reviewing the transparency diary.",
     },
@@ -196,9 +196,9 @@ export const investigations = [
       },
     ],
     centralQuestion:
-      "O poder publico tem produzido e fornecido dados suficientes para monitorar mortalidade materna e violencia obstetrica na Bahia entre 2020 e 2026?",
+      "O que os dados publicos, respostas via LAI e registros de responsabilizacao revelam - e escondem - sobre violencia obstetrica e mortes maternas, fetais e neonatais na Bahia desde 2020?",
     description:
-      "Investigacao sobre disponibilidade, qualidade e completude de dados publicos relacionados a violencia obstetrica, mortalidade materna e responsabilizacao institucional.",
+      "Investigacao sobre como bases oficiais, pedidos de acesso a informacao, ouvidorias e orgaos de controle permitem ou dificultam reconstituir padroes de violencia obstetrica, mortalidade e responsabilizacao institucional na Bahia.",
     processGuide: [
       {
         stage: "Pedido enviado",
@@ -221,21 +221,32 @@ export const investigations = [
         output: "Plano de escalonamento com evidencias",
       },
     ],
+    secondaryQuestions: [
+      "Quais orgaos registram mortes maternas, fetais, neonatais e manifestacoes sobre violencia obstetrica, e em que formato esses registros chegam ao publico?",
+      "Que campos ausentes, incompletos ou ignorados impedem analises por unidade de saude, territorio, raca/cor, tipo de parto e causa basica?",
+      "Como SESAB, Ouvidoria SUS, MP-BA, DPE-BA e instancias de controle respondem quando solicitados a documentar dados, fluxos e responsabilizacao?",
+      "As falhas de acesso — atrasos, links quebrados, anexos ausentes e respostas genericas — se tornam um achado sobre transparencia publica?",
+    ],
     hypotheses: [
       {
-        text: "Os dados enviados por orgaos publicos nao possuem granularidade suficiente para identificar unidades de saude e padroes territoriais.",
+        text: "A fragmentacao entre bases de saude, ouvidoria e orgaos de controle dificulta reconstruir o caminho entre morte, denuncia, apuracao e responsabilizacao.",
         status: "Em apuracao",
-        evidence: "Pedidos VO-LAI-01 e VO-LAI-02",
+        evidence: "Pedidos a SESAB, Ouvidoria SUS, MP-BA, DPE-BA e CEPOIF",
       },
       {
-        text: "Parte das respostas oficiais registra o envio de anexos que nao chegaram ou nao estao acessiveis.",
+        text: "Mesmo quando existem dados, campos ausentes ou inconsistentes limitam a identificacao de padroes por unidade, territorio, raca/cor, tipo de parto e causa basica.",
+        status: "Em apuracao",
+        evidence: "Planilhas parciais de obitos maternos, fetais e neonatais",
+      },
+      {
+        text: "As respostas via LAI revelam problemas de transparencia que afetam a propria possibilidade de fiscalizar a politica publica.",
         status: "Sustentada parcialmente",
-        evidence: "Protocolos com resposta sem anexo e links quebrados",
+        evidence: "Protocolos com atraso, anexos ausentes, links quebrados e respostas genericas",
       },
       {
-        text: "Campos como tipo de parto, causa basica e raca/cor podem limitar conclusoes sobre desigualdade e responsabilizacao.",
+        text: "A ausencia de centralizacao informada por orgaos de controle nao prova ausencia de casos, mas indica um limite institucional para medir responsabilizacao.",
         status: "Em apuracao",
-        evidence: "Planilhas parciais recebidas",
+        evidence: "Resposta CESAU/MP-BA e fluxos separados de DPE-BA e SESAB",
       },
     ],
     evidenceBlocks: [
@@ -570,6 +581,12 @@ export const investigations = [
       "What records can show how a public school district selected, contracted and monitored education technology vendors?",
     description:
       "A simulated U.S. public records workflow to test whether Evidence Desk works outside the Brazilian LAI context.",
+    secondaryQuestions: [
+      "Which public records show the vendor selection process, board approval and procurement path?",
+      "Do contracts, invoices and purchase orders show spending patterns that are not visible in board summaries?",
+      "What records document privacy review, implementation monitoring and accountability after purchase?",
+      "Which missing records require a narrowed follow-up request under state public-records law?",
+    ],
     processGuide: [
       {
         stage: "Request sent",
