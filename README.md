@@ -10,7 +10,7 @@ without backend, login, external integrations or AI.
 
 ## Current prototype scope
 
-- Investigation dashboard with Brazil and U.S. test cases.
+- Investigation dashboard with Brazil and U.S. test cases, filters and empty-state handling.
 - Simulated "New investigation" flow with required-field validation and generated workspace preview.
 - Jurisdiction/access-law guidance for each case.
 - Language/localization guidance for English, Portuguese and Spanish use.
