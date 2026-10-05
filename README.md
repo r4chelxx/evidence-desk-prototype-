@@ -11,6 +11,7 @@ without backend, login, external integrations or AI.
 ## Current prototype scope
 
 - Investigation dashboard with Brazil and U.S. test cases.
+- Simulated "New investigation" flow with required-field validation and generated workspace preview.
 - Jurisdiction/access-law guidance for each case.
 - Language/localization guidance for English, Portuguese and Spanish use.
 - Evidence blocks, sources and request tracking.
@@ -51,6 +52,8 @@ See `GITHUB_PAGES_DEPLOY.md`.
 ## Product rule
 
 Evidence Desk does not file FOIA/LAI requests, send e-mails or decide whether a claim is proven. It organizes the workflow and prepares reporter-reviewed drafts, while editorial judgment stays with the journalist.
+
+The "New investigation" screen is intentionally non-persistent in this static prototype. It is meant to test onboarding language, required fields and whether journalists understand the structure before backend work begins.
 
 ## Files
 
