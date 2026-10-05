@@ -625,6 +625,25 @@ label small {
   margin-top: 1.25rem;
 }
 
+.quick-actions {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  margin: 1.25rem 0;
+}
+
+.quick-actions h3 {
+  margin: 0.25rem 0 0;
+}
+
+.quick-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
 .panel {
   box-shadow: none;
   padding: 1rem;
@@ -1058,9 +1077,14 @@ tr:last-child td {
   .two-column,
   .language-grid,
   .comparison-lane,
+  .quick-actions,
   .safeguard-grid,
   .source-map {
     grid-template-columns: 1fr;
+  }
+
+  .quick-action-row {
+    justify-content: flex-start;
   }
 
   .workspace {
