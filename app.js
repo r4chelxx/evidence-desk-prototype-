@@ -1,4 +1,4 @@
-import { investigations, testPlan } from "./data.js";
+import { investigations, roadmap, testPlan } from "./data.js";
 
 const state = {
   view: "dashboard",
@@ -47,7 +47,9 @@ function statusClass(value = "") {
   if (normalized.includes("parcial") || normalized.includes("partial") || normalized.includes("media")) return "warning";
   if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
   if (normalized.includes("update") || normalized.includes("progress")) return "warning";
+  if (normalized.includes("next")) return "warning";
   if (normalized.includes("ready") || normalized.includes("low")) return "success";
+  if (normalized.includes("current")) return "success";
   if (normalized.includes("sustentada") || normalized.includes("supported") || normalized.includes("forte")) return "success";
   if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
   return "neutral";
@@ -193,6 +195,22 @@ function renderDashboard() {
     .join("");
   const questions = testPlan.questions.map((question) => `<li>${question}</li>`).join("");
   const criteria = testPlan.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("");
+  const roadmapCards = roadmap
+    .map(
+      (item) => `
+        <article class="panel roadmap-card">
+          <div class="card-footer top">
+            <div>
+              <p class="eyebrow">${item.phase}</p>
+              <h3>${item.goal}</h3>
+            </div>
+            <span class="pill ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <p><strong>Validation question:</strong> ${item.ownerQuestion}</p>
+        </article>
+      `,
+    )
+    .join("");
 
   renderShell(`
     <main class="page dashboard">
@@ -226,6 +244,16 @@ function renderDashboard() {
         <button class="button secondary active-secondary" data-action="clear-filters">Reset</button>
       </section>
       ${cards ? `<section class="cards-grid">${cards}</section>` : emptyState}
+      <section class="roadmap-section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Build roadmap</p>
+            <h2>What this prototype tests before engineering gets expensive</h2>
+          </div>
+          <span class="pill neutral">fellowship scope</span>
+        </div>
+        <div class="roadmap-grid">${roadmapCards}</div>
+      </section>
       <section class="tester-guide">
         <div class="section-header">
           <div>
