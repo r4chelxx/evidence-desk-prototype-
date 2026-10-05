@@ -19,6 +19,7 @@ without backend, login, external integrations or AI.
 - Evidence blocks, sources and request tracking.
 - Deadline and escalation guidance.
 - Original deadline vs current checkpoint tracking for active LAI/FOIA follow-ups.
+- Action plan tab for reporter-reviewed next steps tied to protocols, sources and documented events.
 - Transparency log for procedural LAI/FOIA history, appeals, partial responses and missing attachments.
 - Request vs response comparison.
 - Human-reviewed follow-up draft examples.
