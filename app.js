@@ -50,9 +50,9 @@ const dictionary = {
     topic: "Tema",
     reset: "Limpar",
     openInvestigation: "Abrir investigacao",
-    requests: "pedidos",
-    followUps: "follow-ups",
-    qaBlockers: "bloqueios QA",
+    requests: "Pedidos",
+    followUps: "Acompanhamentos",
+    qaBlockers: "bloqueios de QA",
     emptyTitle: "Nenhuma investigacao corresponde aos filtros.",
     emptyCopy: "Tente outro pais, idioma, tema ou status. Isso testa o estado vazio previsto no MVP.",
     clearFilters: "Limpar filtros",
@@ -106,6 +106,10 @@ const dictionary = {
     copyMarkdown: "Copiar Markdown",
     copied: "Copiado",
     projectScope: "Escopo do projeto",
+    topicLabel: "Tema",
+    territory: "Territorio",
+    period: "Periodo",
+    updated: "Atualizado",
     editorialSafetyRule: "Regra de seguranca editorial",
     editorialSafetyCopy:
       "Lacunas nao sao conclusoes. Elas sao problemas de evidencia em aberto que exigem follow-up, limite metodologico ou reescrita da afirmacao.",
@@ -201,6 +205,10 @@ const dictionary = {
     copyMarkdown: "Copy Markdown",
     copied: "Copied",
     projectScope: "Project scope",
+    topicLabel: "Topic",
+    territory: "Territory",
+    period: "Period",
+    updated: "Updated",
     editorialSafetyRule: "Editorial safety rule",
     editorialSafetyCopy:
       "Gaps are not conclusions. They are unresolved evidence problems that need follow-up, a methodological limit, or a rewritten claim.",
@@ -398,6 +406,47 @@ function renderShell(content) {
 
 function renderDashboard() {
   const filteredInvestigations = investigations.filter(investigationMatchesFilters);
+  const localizedTestPlan =
+    state.locale === "pt"
+      ? {
+          tasks: [
+            {
+              title: "Abrir a investigacao do Brasil",
+              goal: "Verificar se uma jornalista entende respostas parciais de LAI, anexos ausentes e passos de escalonamento.",
+              success: "A pessoa consegue identificar pelo menos uma lacuna de evidencia e uma proxima acao segura.",
+            },
+            {
+              title: "Abrir a investigacao dos EUA",
+              goal: "Verificar se o mesmo fluxo funciona fora do Brasil com registros publicos, contratos e atas escolares.",
+              success: "A pessoa entende que o estado/jurisdicao deve ser definido antes de confiar em prazos ou recursos.",
+            },
+            {
+              title: "Revisar uma afirmacao",
+              goal: "Verificar se forca da afirmacao, risco e evidencias de apoio sao faceis de entender.",
+              success: "A pessoa consegue dizer quais afirmacoes estao prontas, parciais ou inseguras.",
+            },
+            {
+              title: "Copiar a metodologia",
+              goal: "Verificar se a nota exportada diferencia evidencias, lacunas, limites, QA e acompanhamentos.",
+              success: "A pessoa reaproveitaria pelo menos parte da nota em uma secao real de transparencia/metodologia.",
+            },
+          ],
+          questions: [
+            "Onde voce se sentiu mais orientada ou mais perdida?",
+            "O termo 'bloco de evidencia' faz sentido ou deveria mudar?",
+            "Fontes, pedidos, lacunas e afirmacoes estao claramente separados?",
+            "A ferramenta parece util ou parece burocracia extra?",
+            "O que deveria ser automatizado depois, e o que deve continuar sob controle da reporter?",
+          ],
+          acceptanceCriteria: [
+            "A pessoa entende o estado de uma investigacao em menos de dois minutos.",
+            "A pessoa identifica pelo menos uma acao pendente sem explicacao externa.",
+            "A pessoa entende lacunas como problemas de evidencia pendentes, nao acusacoes automaticas.",
+            "A pessoa entende que rascunhos de follow-up nao sao enviados automaticamente.",
+            "A pessoa percebe os exemplos Brasil e EUA como o mesmo metodo adaptado localmente.",
+          ],
+        }
+      : testPlan;
   const cards = filteredInvestigations
     .map(
       (item) => `
@@ -425,7 +474,7 @@ function renderDashboard() {
       <button class="button secondary active-secondary" data-action="clear-filters">${t("clearFilters")}</button>
     </section>
   `;
-  const tasks = testPlan.tasks
+  const tasks = localizedTestPlan.tasks
     .map(
       (task, index) => `
         <article class="test-task">
@@ -439,8 +488,8 @@ function renderDashboard() {
       `,
     )
     .join("");
-  const questions = testPlan.questions.map((question) => `<li>${question}</li>`).join("");
-  const criteria = testPlan.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("");
+  const questions = localizedTestPlan.questions.map((question) => `<li>${question}</li>`).join("");
+  const criteria = localizedTestPlan.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("");
   const roadmapCards = roadmap
     .map(
       (item) => `
@@ -744,10 +793,10 @@ function renderOverview(item) {
       <article class="panel">
         <h3>${t("projectScope")}</h3>
         <dl class="detail-list">
-          <div><dt>Topic</dt><dd>${item.topic}</dd></div>
-          <div><dt>Territory</dt><dd>${item.territory}</dd></div>
-          <div><dt>Period</dt><dd>${item.period}</dd></div>
-          <div><dt>Updated</dt><dd>${item.updatedAt}</dd></div>
+          <div><dt>${t("topicLabel")}</dt><dd>${item.topic}</dd></div>
+          <div><dt>${t("territory")}</dt><dd>${item.territory}</dd></div>
+          <div><dt>${t("period")}</dt><dd>${item.period}</dd></div>
+          <div><dt>${t("updated")}</dt><dd>${item.updatedAt}</dd></div>
         </dl>
       </article>
       <article class="panel accent">
