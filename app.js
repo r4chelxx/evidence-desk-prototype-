@@ -628,10 +628,24 @@ function renderLanguagePlan(item) {
 }
 
 function renderHypotheses(item) {
+  const secondaryQuestions = (item.secondaryQuestions || [])
+    .map((question) => `<li>${question}</li>`)
+    .join("");
+
   return `
     <section class="content-header">
       <p class="eyebrow">Questions and hypotheses</p>
       <h2>Break the central question into testable parts.</h2>
+    </section>
+    <section class="two-column question-map">
+      <article class="panel">
+        <p class="eyebrow">Central question</p>
+        <h3>${item.centralQuestion}</h3>
+      </article>
+      <article class="panel accent">
+        <p class="eyebrow">Secondary questions</p>
+        <ul class="review-list">${secondaryQuestions || "<li>No secondary questions recorded yet.</li>"}</ul>
+      </article>
     </section>
     <div class="stack">
       ${item.hypotheses
@@ -1012,6 +1026,8 @@ function methodologyMarkdown(item) {
   const qaItems = (item.qaChecklist || [])
     .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
     .join("\n");
+  const secondaryQuestions = (item.secondaryQuestions || []).map((question) => `- ${question}`).join("\n");
+  const hypotheses = item.hypotheses.map((hypothesis) => `- ${hypothesis.text} (${hypothesis.status})`).join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
@@ -1019,6 +1035,12 @@ function methodologyMarkdown(item) {
 
 ## Central question
 ${item.centralQuestion}
+
+## Secondary questions
+${secondaryQuestions || "No secondary questions recorded."}
+
+## Working hypotheses
+${hypotheses}
 
 ## Scope
 - Country/jurisdiction: ${item.country} / ${item.jurisdiction}
