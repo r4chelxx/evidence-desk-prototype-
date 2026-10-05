@@ -136,6 +136,32 @@ export const investigations = [
         verification: "Keep separate flows when an agency has a different appeal or manifestation path.",
       },
     ],
+    methodRules: [
+      {
+        rule: "Dado nao fornecido nao significa dado inexistente.",
+        productUse: "Show missing delivery as an access gap, not as a substantive finding.",
+      },
+      {
+        rule: "'Nao informado' ou 'ignorado' nao e a mesma coisa que variavel ausente.",
+        productUse: "Keep missing fields and unknown field values as separate data-quality issues.",
+      },
+      {
+        rule: "Falha de protocolo nao equivale a negativa de acesso.",
+        productUse: "Track system problems separately from formal denials and appeals.",
+      },
+      {
+        rule: "Encaminhamento nao equivale a resposta.",
+        productUse: "Do not close a request when an agency only forwards it internally.",
+      },
+      {
+        rule: "Levantamento parcial nao equivale a atendimento integral.",
+        productUse: "Require scope notes before using partial responses in claims.",
+      },
+      {
+        rule: "Silencio institucional nao prova inexistencia de informacao.",
+        productUse: "Treat silence as a transparency finding, not as evidence about the underlying fact.",
+      },
+    ],
     transparencyLog: [
       {
         date: "2026-09-24",
@@ -401,6 +427,13 @@ export const investigations = [
         sentDate: "2026-07-02",
         dueDate: "2026-07-22",
         status: "Em acompanhamento CGAI",
+        currentCheckpoint: {
+          label: "Manifestacao 3346148",
+          date: "2026-10-24",
+          source: "E-mail informou 24/10; portal mostrou 01/11.",
+          action:
+            "Se nao houver resposta ate o checkpoint, revisar o portal em 01/11 e preparar cobranca com historico, prints e protocolo.",
+        },
         requestedItems:
           "Mortes fetais, neonatais e maternas por maternidade publica estadual entre 2020 e 2026, em formato aberto.",
         responseSummary:
@@ -414,6 +447,13 @@ export const investigations = [
         sentDate: "2026-07-02",
         dueDate: "2026-07-22",
         status: "Em recurso",
+        currentCheckpoint: {
+          label: "Recurso 202620001408821",
+          date: "2026-11-01",
+          source: "Prazo exibido pelo sistema para o recurso apresentado em 02/10.",
+          action:
+            "Se o anexo nao for entregue, manter a resposta como nao cumprida e registrar nova medida de escalonamento.",
+        },
         requestedItems:
           "Manifestacoes anonimizadas de 2020 em diante com termos relacionados a violencia obstetrica, parto, gestante, maternidade e correlatos.",
         responseSummary:
@@ -440,6 +480,13 @@ export const investigations = [
         sentDate: "2026-07-02",
         dueDate: "2026-07-22",
         status: "Em acompanhamento CGAI",
+        currentCheckpoint: {
+          label: "Manifestacao 3346148",
+          date: "2026-10-24",
+          source: "E-mail informou 24/10; portal mostrou 01/11.",
+          action:
+            "Se nao houver resposta substantiva, registrar conflito de prazo e pedir confirmacao documental da analise pela autoridade competente.",
+        },
         requestedItems:
           "Serie historica de mortalidade materna de 2020 em diante com municipio, estabelecimento, faixa etaria, raca/cor, escolaridade, pre-natal, idade gestacional, tipo de parto e CID-10.",
         responseSummary:
@@ -453,6 +500,13 @@ export const investigations = [
         sentDate: "2026-07-02",
         dueDate: "2026-07-22",
         status: "Em acompanhamento CGAI",
+        currentCheckpoint: {
+          label: "Manifestacao 3346148",
+          date: "2026-10-24",
+          source: "E-mail informou 24/10; portal mostrou 01/11.",
+          action:
+            "Se nao houver entrega das atas, pareceres ou recomendacoes, manter como ausencia de documento e preparar pedido complementar ou escalonamento.",
+        },
         requestedItems:
           "Atas, relatorios anuais, pareceres tecnicos, recomendacoes e planos de acao do Comite entre 2020 e a data do pedido.",
         responseSummary:
