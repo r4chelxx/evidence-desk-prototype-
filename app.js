@@ -77,6 +77,10 @@ function countQaBlockers(investigation) {
   return (investigation.qaChecklist || []).filter((item) => statusClass(item.status) === "danger").length;
 }
 
+function countActionItems(investigation) {
+  return investigation.actionItems?.filter((item) => !item.status.toLowerCase().includes("done")).length || 0;
+}
+
 function getRequestTiming(request) {
   const activeDate = request.currentCheckpoint?.date || request.dueDate;
   const dueDate = new Date(`${activeDate}T00:00:00`);
@@ -87,8 +91,12 @@ function getRequestTiming(request) {
   const isCheckpoint = Boolean(request.currentCheckpoint);
   const suffix = isCheckpoint ? "to checkpoint" : "left";
 
+  if (status.includes("parcial") || status.includes("partial")) {
+    return { label: "Partial response received", days, tone: "warning" };
+  }
+
   if (status.includes("entregue") || status.includes("recebida") || status.includes("received")) {
-    return { label: status.includes("parcial") ? "Partial response received" : "Response received", days, tone: "success" };
+    return { label: "Response received", days, tone: "success" };
   }
 
   if (days >= 0) {
@@ -413,6 +421,7 @@ function renderInvestigation() {
     ["sources", "Sources"],
     ["requests", "Requests"],
     ["deadlines", "Deadlines"],
+    ["actions", "Action plan"],
     ["transparency", "Transparency log"],
     ["comparison", "Request comparison"],
     ["followups", "Follow-ups"],
@@ -460,6 +469,7 @@ function renderTab(item) {
     sources: renderSources,
     requests: renderRequests,
     deadlines: renderDeadlines,
+    actions: renderActionPlan,
     transparency: renderTransparencyLog,
     comparison: renderRequestComparison,
     followups: renderFollowUps,
@@ -487,6 +497,7 @@ function renderOverview(item) {
       <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
       <div><strong>${countReviewItems(item)}</strong><span>review items</span></div>
+      <div><strong>${countActionItems(item)}</strong><span>action items</span></div>
       <div><strong>${countQaBlockers(item)}</strong><span>QA blockers</span></div>
     </section>
     ${renderFreshnessPanel(item)}
@@ -889,6 +900,42 @@ function renderTransparencyLog(item) {
   `;
 }
 
+function renderActionPlan(item) {
+  const actions = item.actionItems || [];
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Action plan</p>
+      <h2>Turn the reporting log into a controlled next-step queue.</h2>
+      <p>Each action must stay tied to a source, protocol or documented procedural event.</p>
+    </section>
+    <div class="action-grid">
+      ${actions
+        .map(
+          (action) => `
+            <article class="panel action-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${action.priority} priority / ${action.source}</p>
+                  <h3>${action.action}</h3>
+                </div>
+                <span class="pill ${statusClass(action.status)}">${action.status}</span>
+              </div>
+              <dl class="detail-list grid">
+                <div><dt>Owner</dt><dd>${action.owner}</dd></div>
+                <div><dt>Due/checkpoint</dt><dd>${action.dueDate || "No date set"}</dd></div>
+                <div><dt>Type</dt><dd>${action.type}</dd></div>
+              </dl>
+              <p class="muted"><strong>Why it matters:</strong> ${action.rationale}</p>
+              <p><strong>Output:</strong> ${action.output}</p>
+            </article>
+          `,
+        )
+        .join("") || `<section class="empty-state"><h3>No action plan yet.</h3><p>Add reporter-reviewed tasks after each request, appeal or response review.</p></section>`}
+    </div>
+  `;
+}
+
 function suggestDeadlineAction(request, timing) {
   const status = request.status.toLowerCase();
 
@@ -1149,6 +1196,12 @@ function methodologyMarkdown(item) {
   const followUps = (item.followUpDrafts || [])
     .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. Reporter check: ${draft.riskNote}`)
     .join("\n");
+  const actionItems = (item.actionItems || [])
+    .map(
+      (action) =>
+        `- ${action.action} (${action.priority}; ${action.status}; due/checkpoint: ${action.dueDate || "no date"}). Output: ${action.output}`,
+    )
+    .join("\n");
   const qaItems = (item.qaChecklist || [])
     .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
     .join("\n");
@@ -1199,6 +1252,9 @@ ${comparisons}
 
 ## Follow-up drafts
 ${followUps || "No follow-up drafts recorded."}
+
+## Action plan
+${actionItems || "No action plan recorded."}
 
 ## Freshness and review
 ${item.freshness?.summary || "No freshness warning recorded."}
