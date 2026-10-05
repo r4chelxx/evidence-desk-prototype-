@@ -225,7 +225,7 @@ export const investigations = [
       "Quais orgaos registram mortes maternas, fetais, neonatais e manifestacoes sobre violencia obstetrica, e em que formato esses registros chegam ao publico?",
       "Que campos ausentes, incompletos ou ignorados impedem analises por unidade de saude, territorio, raca/cor, tipo de parto e causa basica?",
       "Como SESAB, Ouvidoria SUS, MP-BA, DPE-BA e instancias de controle respondem quando solicitados a documentar dados, fluxos e responsabilizacao?",
-      "As falhas de acesso — atrasos, links quebrados, anexos ausentes e respostas genericas — se tornam um achado sobre transparencia publica?",
+      "As falhas de acesso - atrasos, links quebrados, anexos ausentes e respostas genericas - se tornam um achado sobre transparencia publica?",
     ],
     hypotheses: [
       {
