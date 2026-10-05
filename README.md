@@ -11,7 +11,7 @@ without backend, login, external integrations or AI.
 ## Current prototype scope
 
 - Investigation dashboard with Brazil and U.S. test cases, filters and empty-state handling.
-- Portuguese-first interface with a PT/EN language toggle for the product UI.
+- Portuguese-first interface with a PT/EN language toggle for the product UI, including dashboard, navigation and core workflow tabs.
 - Simulated "New investigation" flow with required-field validation and generated workspace preview.
 - MVP roadmap separating current static validation, persistence and later AI assistance.
 - Jurisdiction/access-law guidance for each case.
