@@ -44,7 +44,10 @@ function statusClass(value = "") {
   const normalized = value.toLowerCase();
   if (normalized.includes("critica") || normalized.includes("high") || normalized.includes("alto")) return "danger";
   if (normalized.includes("blocked")) return "danger";
+  if (normalized.includes("sem resposta") || normalized.includes("without attachment")) return "danger";
   if (normalized.includes("parcial") || normalized.includes("partial") || normalized.includes("media")) return "warning";
+  if (normalized.includes("recurso") || normalized.includes("appeal")) return "warning";
+  if (normalized.includes("cagi") || normalized.includes("cgai") || normalized.includes("progress")) return "warning";
   if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
   if (normalized.includes("update") || normalized.includes("progress")) return "warning";
   if (normalized.includes("next")) return "warning";
@@ -403,6 +406,7 @@ function renderInvestigation() {
     ["sources", "Sources"],
     ["requests", "Requests"],
     ["deadlines", "Deadlines"],
+    ["transparency", "Transparency log"],
     ["comparison", "Request comparison"],
     ["followups", "Follow-ups"],
     ["gaps", "Gaps"],
@@ -449,6 +453,7 @@ function renderTab(item) {
     sources: renderSources,
     requests: renderRequests,
     deadlines: renderDeadlines,
+    transparency: renderTransparencyLog,
     comparison: renderRequestComparison,
     followups: renderFollowUps,
     gaps: renderGaps,
@@ -805,6 +810,36 @@ function renderDeadlines(item) {
   `;
 }
 
+function renderTransparencyLog(item) {
+  const events = item.transparencyLog || [];
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">Transparency log</p>
+      <h2>Track procedural history without treating movement as evidence delivery.</h2>
+      <p>Use this log to separate request, forwarding, partial response, appeal and actual document delivery.</p>
+    </section>
+    <div class="timeline-list">
+      ${events
+        .map(
+          (event) => `
+            <article class="panel timeline-card">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${event.date} / ${event.actor}</p>
+                  <h3>${event.event}</h3>
+                </div>
+                <span class="pill ${statusClass(event.status)}">${event.status}</span>
+              </div>
+              <p><strong>Next step:</strong> ${event.nextStep}</p>
+            </article>
+          `,
+        )
+        .join("") || `<section class="empty-state"><h3>No transparency log yet.</h3><p>Add procedural events as requests move through appeals or review.</p></section>`}
+    </div>
+  `;
+}
+
 function suggestDeadlineAction(request, timing) {
   const status = request.status.toLowerCase();
 
@@ -1020,6 +1055,9 @@ function methodologyMarkdown(item) {
   const sources = (item.sources || [])
     .map((source) => `- ${source.name} (${source.type}; ${source.status}): ${source.use} Limits: ${source.limits}`)
     .join("\n");
+  const transparencyLog = (item.transparencyLog || [])
+    .map((event) => `- ${event.date} / ${event.actor}: ${event.status}. ${event.event} Next: ${event.nextStep}`)
+    .join("\n");
   const languagePlan = item.languagePlan
     ? `- Working language: ${item.languagePlan.workingLanguage}\n- Interface languages: ${item.languagePlan.interfaceLanguages.join(", ")}\n- Publication languages: ${item.languagePlan.publicationLanguages.join(", ")}\n- Localization notes: ${item.languagePlan.localizationNotes.join(" ")}`
     : "No language plan recorded.";
@@ -1064,6 +1102,9 @@ ${languagePlan}
 
 ## Requests tracked
 ${requests}
+
+## Transparency log
+${transparencyLog || "No transparency log recorded."}
 
 ## Request comparison
 ${comparisons}
