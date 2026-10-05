@@ -74,13 +74,13 @@ export const investigations = [
       status: "Needs reporter review",
       checkedAt: "2026-10-05",
       summary:
-        "This case has active LAI follow-ups and legal/escalation steps in progress. Do not treat the request log as final before reviewing the transparency diary.",
+        "Latest transparency diary reviewed: 02/10/2026. MPBA/CESAU delivered a partial capital-scope certificate; SESAB/OuvidoriaSUS still has pending delivery, missing attachment and CGAI-routing questions.",
     },
     nextReviewItems: [
-      "Update the SESAB/CGAI/CIPOF escalation status from the transparency diary.",
-      "Keep the DPE-BA issue separate because it follows a different manifestation path.",
-      "Confirm which attachments or links were received, broken or missing before using them as evidence.",
-      "Review whether the count of delayed requests is still four after the latest authority-monitoring action.",
+      "Monitor manifestation 3346148: e-mail deadline 24/10/2026, portal deadline 01/11/2026, with no documented CGAI decision yet.",
+      "Monitor appeal 202620001408821 about the missing DGC/SESAB attachment; system deadline shown as 01/11/2026.",
+      "Structure the 23 MPBA/CESAU records from the capital-scope certificate before using them analytically.",
+      "Keep DPE-BA representation 2026.01.020197 separate from the SESAB/OGE/CGAI chain.",
     ],
     accessLaw: {
       framework: "Brazilian LAI",
@@ -134,6 +134,62 @@ export const investigations = [
         source: "Public accountability bodies",
         purpose: "OGE, authority-monitoring channels, MP, DPE and ombudsman offices.",
         verification: "Keep separate flows when an agency has a different appeal or manifestation path.",
+      },
+    ],
+    transparencyLog: [
+      {
+        date: "2026-09-24",
+        actor: "SESAB / OGE / CGAI",
+        event:
+          "Manifestation 3346148 filed to address omissions in YL5LHVVX, C5NTY0ER, UID2OB7T and VEZ8KTNX, with request for CGAI review.",
+        status: "In progress",
+        nextStep:
+          "Track whether the case is actually submitted to CGAI; do not treat forwarding to SESAB as a CGAI decision.",
+      },
+      {
+        date: "2026-09-24",
+        actor: "DPE-BA",
+        event:
+          "Administrative representation filed through Ouvidoria Cidada under ficha 2026.01.020197 after e-SIC and attachment failures.",
+        status: "Separate track",
+        nextStep:
+          "Send the six supporting documents by e-mail linked to the ficha and request forwarding to Defensoria Publica-Geral.",
+      },
+      {
+        date: "2026-10-01",
+        actor: "MPBA / CESAU",
+        event:
+          "Oficio 41/CESAU delivered a certificate with 23 health-maternal-child representations from Promotorias de Justica de Saude da Capital, 01/01/2020 to 20/09/2026.",
+        status: "Partial response received",
+        nextStep:
+          "Structure and audit the 23 IDEA records; keep the capital scope explicit and do not treat it as statewide coverage.",
+      },
+      {
+        date: "2026-10-02",
+        actor: "SESAB / OuvidorSUS",
+        event:
+          "Manifestation 3346148 was forwarded to SESAB; e-mail reported deadline 24/10/2026, while portal showed 01/11/2026.",
+        status: "Deadline conflict",
+        nextStep:
+          "Record both dates and wait for documentary confirmation of CGAI routing or decision.",
+      },
+      {
+        date: "2026-10-02",
+        actor: "Ouvidoria SUS / DGC",
+        event:
+          "Complaint 202620001381338 received 'resposta definitiva' saying an attachment followed, but no attachment or opinion was effectively available.",
+        status: "Response without attachment",
+        nextStep:
+          "Do not mark original LAI requests as fulfilled until the file is delivered and reviewed.",
+      },
+      {
+        date: "2026-10-02",
+        actor: "OuvidorSUS",
+        event:
+          "Appeal 202620001408821 filed through the system regarding the missing attachment and preservation of the CGAI request.",
+        status: "Appeal filed",
+        nextStep:
+          "Track response deadline shown by the system as 01/11/2026 without inferring legal basis or reviewing authority.",
       },
     ],
     followUpDrafts: [
@@ -329,65 +385,91 @@ export const investigations = [
         agency: "SESAB",
         channel: "Queremos Saber + e-mail",
         protocol: "PVCJ006S",
-        sentDate: "2026-08-01",
-        dueDate: "2026-08-21",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
         status: "Resposta parcial",
         requestedItems:
-          "Obitos maternos por ano, municipio, idade, raca/cor, tipo de parto e causa basica.",
+          "Obitos maternos com municipio, estabelecimento, idade, raca/cor, escolaridade, causa basica, evitabilidade, investigacao, encerramento e recomendacoes do Comite.",
         responseSummary:
-          "Dados recebidos parcialmente. Campos incompletos e tipo de parto ausente ou ignorado.",
+          "SESAB respondeu em 31/07; anexos nao apareciam na pagina, mas os dados chegaram depois via Fiquem Sabendo/Google Drive. Permanecem lacunas: evitabilidade, recomendacoes do Comite, data de encerramento e valores 'nao informado/ignorado'.",
       },
       {
         title: "Mortes fetais, neonatais e maternas por maternidade",
         agency: "SESAB",
         channel: "Queremos Saber",
         protocol: "YL5LHVVX",
-        sentDate: "2026-08-10",
-        dueDate: "2026-08-30",
-        status: "Em escalonamento",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Em acompanhamento CGAI",
         requestedItems:
-          "Dados por maternidade, ano, municipio, tipo de morte, causa basica e unidade.",
+          "Mortes fetais, neonatais e maternas por maternidade publica estadual entre 2020 e 2026, em formato aberto.",
         responseSummary:
-          "SESAB informou genericamente que enviou, mas anexos nao foram localizados. Caso segue em dossie SESAB/CGAI.",
+          "Sem resposta substantiva. Incluido na manifestacao 3346148 em 24/09; encaminhado a SESAB em 02/10, sem confirmacao documental de apreciacao pelo CGAI.",
       },
       {
         title: "Manifestacoes sobre violencia obstetrica",
         agency: "Ouvidoria SUS Bahia",
         channel: "Queremos Saber",
         protocol: "C5NTY0ER",
-        sentDate: "2026-08-10",
-        dueDate: "2026-08-30",
-        status: "Resposta com problema",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Em recurso",
         requestedItems:
-          "Manifestacoes sobre violencia obstetrica por ano, municipio, unidade e classificacao.",
+          "Manifestacoes anonimizadas de 2020 em diante com termos relacionados a violencia obstetrica, parto, gestante, maternidade e correlatos.",
         responseSummary:
-          "Links divergentes, login invalido e acesso parcial em apenas um e-mail. Precisa rechecagem antes de classificacao final.",
+          "Sem entrega dos dados. Respostas administrativas citaram demanda semelhante e DGC, mas sem comprovar entrega. Recurso 202620001408821 apresentado em 02/10 por ausencia do anexo mencionado.",
       },
       {
         title: "Procedimentos instaurados sobre saude materno-infantil",
         agency: "MP-BA / CESAU",
         channel: "SEI + e-mail",
-        protocol: "Certidao CESAU",
-        sentDate: "2026-09-01",
-        dueDate: "2026-09-21",
-        status: "Resposta recebida",
+        protocol: "YKXAX4NR / INF0000526 / SEI 19.09.02032.0023004/2026-55",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Resposta parcial entregue",
         requestedItems:
-          "Procedimentos, orientacoes e registros centralizados sobre saude materno-infantil e violencia obstetrica.",
+          "Procedimentos relacionados a violencia obstetrica, assistencia obstetrica, mortalidade materna/fetal e termos correlatos, com municipio, unidade, objeto, situacao e encaminhamentos.",
         responseSummary:
-          "MP informou que nao centraliza alguns dados e orientou acionar promotorias, DPE e SESAB.",
+          "Em 01/10, Oficio 41/CESAU entregou certidao com 23 representacoes das Promotorias de Justica de Saude da Capital entre 01/01/2020 e 20/09/2026. Resposta parcial no recorte informado, nao atendimento estadual integral.",
+      },
+      {
+        title: "Serie historica de mortalidade materna",
+        agency: "DIVEP / SESAB",
+        channel: "Queremos Saber",
+        protocol: "UID2OB7T",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Em acompanhamento CGAI",
+        requestedItems:
+          "Serie historica de mortalidade materna de 2020 em diante com municipio, estabelecimento, faixa etaria, raca/cor, escolaridade, pre-natal, idade gestacional, tipo de parto e CID-10.",
+        responseSummary:
+          "Sem resposta substantiva no diario. Incluido na manifestacao 3346148, com prazos divergentes informados em 24/10 e 01/11.",
       },
       {
         title: "Comite de mortalidade materna",
         agency: "CEPOIF / SESAB",
         channel: "Queremos Saber",
         protocol: "VEZ8KTNX",
-        sentDate: "2026-09-01",
-        dueDate: "2026-09-21",
-        status: "A verificar",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Em acompanhamento CGAI",
         requestedItems:
-          "Informacoes sobre comite, fluxos, reunioes, encaminhamentos e monitoramento de mortalidade materna.",
+          "Atas, relatorios anuais, pareceres tecnicos, recomendacoes e planos de acao do Comite entre 2020 e a data do pedido.",
         responseSummary:
-          "Status precisa ser atualizado a partir do diario da transparencia e do dossie juridico.",
+          "Sem resposta substantiva. Incluido na manifestacao 3346148; encaminhamento a SESAB nao equivale a entrega dos documentos.",
+      },
+      {
+        title: "Atendimentos, acoes e acordos sobre violencia obstetrica",
+        agency: "DPE-BA",
+        channel: "e-SIC, e-mail e Ouvidoria Cidada",
+        protocol: "1XCDXR72 / ficha 2026.01.020197",
+        sentDate: "2026-07-02",
+        dueDate: "2026-07-22",
+        status: "Fluxo separado",
+        requestedItems:
+          "Atendimentos, acoes judiciais, acordos e dados relacionados a violencia obstetrica e Rede Cegonha.",
+        responseSummary:
+          "Protocolizacao enfrentou falha persistente no e-SIC. Em 24/09, representacao por omissao foi registrada na Ouvidoria da DPE-BA sob ficha 2026.01.020197; anexos devem ser enviados por e-mail vinculados a ficha.",
       },
     ],
     requestComparisons: [
@@ -427,13 +509,13 @@ export const investigations = [
       {
         requestTitle: "Procedimentos instaurados sobre saude materno-infantil",
         expected:
-          "Procedimentos, orientacoes, eventuais registros centralizados e indicacao de unidades responsaveis.",
+          "Procedimentos, orientacoes, eventuais registros centralizados, TACs, ACPs e indicacao de unidades responsaveis no periodo de 2020 a 2026.",
         received:
-          "Certidao informa ausencia de centralizacao e orienta acionar promotorias, DPE e SESAB.",
-        missing: "Mapa de promotorias responsaveis, criterios de busca e eventuais procedimentos locais.",
-        deadlineStatus: "Resposta recebida",
-        editorialDecision: "Usar como evidencia sobre limite institucional, nao como ausencia definitiva de casos",
-        nextStep: "Transformar a resposta em nova frente de pedidos direcionados.",
+          "Oficio 41/CESAU e certidao com 23 representacoes das Promotorias de Justica de Saude da Capital entre 01/01/2020 e 20/09/2026.",
+        missing: "Levantamento estadual integral; escopo fora da capital; criterios e limites devem acompanhar qualquer uso quantitativo.",
+        deadlineStatus: "Resposta parcial entregue",
+        editorialDecision: "Usar como base parcial da capital, nao como retrato estadual do MPBA",
+        nextStep: "Estruturar os 23 registros por numero IDEA, tipo, ano, unidade e objeto resumido.",
       },
     ],
     gaps: [
