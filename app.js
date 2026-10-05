@@ -4,6 +4,7 @@ const state = {
   view: "dashboard",
   currentId: investigations[0].id,
   currentTab: "overview",
+  locale: "pt",
   filters: {
     status: "all",
     country: "all",
@@ -26,6 +27,203 @@ const state = {
 };
 
 const app = document.querySelector("#app");
+
+const dictionary = {
+  pt: {
+    all: "Todos",
+    languageToggle: "Idioma da interface",
+    topbarNote: "Fluxo de investigacao para jornalismo de interesse publico",
+    goDashboard: "Voltar ao painel",
+    heroEyebrow: "MVP v0.1",
+    heroTitle: "Transforme perguntas investigativas em evidencias, lacunas e afirmacoes publicaveis.",
+    heroCopy:
+      "Este prototipo estatico testa o fluxo central antes de backend, login ou IA: mapear evidencias, acompanhar pedidos, comparar respostas e ligar afirmacoes a provas.",
+    prototypeGoal: "Objetivo do prototipo",
+    prototypeGoalText: "Validar se o metodo ajuda jornalistas a trabalhar com menos caos.",
+    investigations: "Investigacoes",
+    testCases: "Casos de teste",
+    shown: "investigacoes exibidas",
+    newInvestigation: "Nova investigacao",
+    status: "Status",
+    country: "Pais",
+    language: "Idioma",
+    topic: "Tema",
+    reset: "Limpar",
+    openInvestigation: "Abrir investigacao",
+    requests: "pedidos",
+    followUps: "follow-ups",
+    qaBlockers: "bloqueios QA",
+    emptyTitle: "Nenhuma investigacao corresponde aos filtros.",
+    emptyCopy: "Tente outro pais, idioma, tema ou status. Isso testa o estado vazio previsto no MVP.",
+    clearFilters: "Limpar filtros",
+    buildRoadmap: "Roadmap do produto",
+    roadmapTitle: "O que este prototipo testa antes de a engenharia ficar cara",
+    fellowshipScope: "escopo fellowship",
+    validationQuestion: "Pergunta de validacao",
+    testingGuide: "Guia de teste",
+    testingTitle: "O que QA e jornalistas devem testar primeiro",
+    testScript: "roteiro v0.1",
+    coreTasks: "Tarefas centrais",
+    feedbackQuestions: "Perguntas de feedback",
+    acceptanceCriteria: "Criterios de aceitacao",
+    back: "Voltar para investigacoes",
+    overview: "Visao geral",
+    jurisdiction: "Jurisdicao",
+    languageTab: "Idioma",
+    hypotheses: "Hipoteses",
+    evidenceBlocks: "Blocos de evidencia",
+    sources: "Fontes",
+    deadlines: "Prazos",
+    actionPlan: "Plano de acao",
+    transparencyLog: "Diario de transparencia",
+    requestComparison: "Comparacao de pedidos",
+    gaps: "Lacunas",
+    claims: "Afirmacoes",
+    qaChecklist: "Checklist QA",
+    methodology: "Metodologia",
+    evidenceBlocksMetric: "blocos de evidencia",
+    lateRequests: "pedidos atrasados",
+    openGaps: "lacunas abertas",
+    claimsReview: "afirmacoes a revisar",
+    reviewItems: "itens de revisao",
+    actionItems: "acoes",
+    centralQuestion: "Pergunta central",
+    deadlinesNext: "Prazos e proximos passos",
+    deadlinesTitle: "Saiba quando esperar, checar, contestar ou escalar.",
+    sent: "Enviado",
+    originalDue: "Prazo original",
+    currentCheckpoint: "Checkpoint atual",
+    checkpointSource: "Fonte do checkpoint",
+    suggestedAction: "Acao sugerida",
+    noDate: "Sem data definida",
+    owner: "Responsavel",
+    dueCheckpoint: "Prazo/checkpoint",
+    type: "Tipo",
+    whyItMatters: "Por que importa",
+    output: "Saida esperada",
+    actionPlanTitle: "Transforme o log da apuracao em uma fila controlada de proximos passos.",
+    actionPlanCopy: "Cada acao deve estar ligada a uma fonte, protocolo ou evento procedimental documentado.",
+    copyMarkdown: "Copiar Markdown",
+    copied: "Copiado",
+    projectScope: "Escopo do projeto",
+    editorialSafetyRule: "Regra de seguranca editorial",
+    editorialSafetyCopy:
+      "Lacunas nao sao conclusoes. Elas sao problemas de evidencia em aberto que exigem follow-up, limite metodologico ou reescrita da afirmacao.",
+    freshnessCheck: "Checagem de atualidade",
+    reviewRecommended: "Revisao recomendada",
+    reviewLog: "Revise o log da investigacao antes de confiar neste caso.",
+    separateTrack: "Fluxo separado",
+    partialResponse: "Resposta parcial recebida",
+    responseReceived: "Resposta recebida",
+    daysToCheckpoint: "dias ate o checkpoint",
+    dayToCheckpoint: "dia ate o checkpoint",
+    daysLeft: "dias restantes",
+    dayLeft: "dia restante",
+    daysPastCheckpoint: "dias depois do checkpoint",
+    dayPastCheckpoint: "dia depois do checkpoint",
+    daysOverdue: "dias de atraso",
+    dayOverdue: "dia de atraso",
+  },
+  en: {
+    all: "All",
+    languageToggle: "Interface language",
+    topbarNote: "Investigation workflow for public-interest reporting",
+    goDashboard: "Go to dashboard",
+    heroEyebrow: "MVP v0.1",
+    heroTitle: "Turn investigative questions into evidence, gaps and publishable claims.",
+    heroCopy:
+      "This static prototype tests the core workflow before backend, login or AI: map evidence, track requests, compare responses and link claims to proof.",
+    prototypeGoal: "Prototype goal",
+    prototypeGoalText: "Validate whether the method helps journalists work with less chaos.",
+    investigations: "Investigations",
+    testCases: "Test cases",
+    shown: "investigations shown",
+    newInvestigation: "New investigation",
+    status: "Status",
+    country: "Country",
+    language: "Language",
+    topic: "Topic",
+    reset: "Reset",
+    openInvestigation: "Open investigation",
+    requests: "requests",
+    followUps: "follow-ups",
+    qaBlockers: "QA blockers",
+    emptyTitle: "No investigations match these filters.",
+    emptyCopy: "Try another country, language, topic or status. This tests the empty state described in the MVP wireframe.",
+    clearFilters: "Clear filters",
+    buildRoadmap: "Build roadmap",
+    roadmapTitle: "What this prototype tests before engineering gets expensive",
+    fellowshipScope: "fellowship scope",
+    validationQuestion: "Validation question",
+    testingGuide: "Testing guide",
+    testingTitle: "What QA and journalists should try first",
+    testScript: "v0.1 test script",
+    coreTasks: "Core tasks",
+    feedbackQuestions: "Feedback questions",
+    acceptanceCriteria: "Acceptance criteria",
+    back: "Back to all investigations",
+    overview: "Overview",
+    jurisdiction: "Jurisdiction",
+    languageTab: "Language",
+    hypotheses: "Hypotheses",
+    evidenceBlocks: "Evidence blocks",
+    sources: "Sources",
+    deadlines: "Deadlines",
+    actionPlan: "Action plan",
+    transparencyLog: "Transparency log",
+    requestComparison: "Request comparison",
+    gaps: "Gaps",
+    claims: "Claims",
+    qaChecklist: "QA checklist",
+    methodology: "Methodology",
+    evidenceBlocksMetric: "evidence blocks",
+    lateRequests: "late requests",
+    openGaps: "open gaps",
+    claimsReview: "claims to review",
+    reviewItems: "review items",
+    actionItems: "action items",
+    centralQuestion: "Central question",
+    deadlinesNext: "Deadlines and next steps",
+    deadlinesTitle: "Know when to wait, check, contest or escalate.",
+    sent: "Sent",
+    originalDue: "Original due",
+    currentCheckpoint: "Current checkpoint",
+    checkpointSource: "Checkpoint source",
+    suggestedAction: "Suggested action",
+    noDate: "No date set",
+    owner: "Owner",
+    dueCheckpoint: "Due/checkpoint",
+    type: "Type",
+    whyItMatters: "Why it matters",
+    output: "Output",
+    actionPlanTitle: "Turn the reporting log into a controlled next-step queue.",
+    actionPlanCopy: "Each action must stay tied to a source, protocol or documented procedural event.",
+    copyMarkdown: "Copy Markdown",
+    copied: "Copied",
+    projectScope: "Project scope",
+    editorialSafetyRule: "Editorial safety rule",
+    editorialSafetyCopy:
+      "Gaps are not conclusions. They are unresolved evidence problems that need follow-up, a methodological limit, or a rewritten claim.",
+    freshnessCheck: "Freshness check",
+    reviewRecommended: "Review recommended",
+    reviewLog: "Review the investigation log before relying on this case.",
+    separateTrack: "Separate track",
+    partialResponse: "Partial response received",
+    responseReceived: "Response received",
+    daysToCheckpoint: "days to checkpoint",
+    dayToCheckpoint: "day to checkpoint",
+    daysLeft: "days left",
+    dayLeft: "day left",
+    daysPastCheckpoint: "days past checkpoint",
+    dayPastCheckpoint: "day past checkpoint",
+    daysOverdue: "days overdue",
+    dayOverdue: "day overdue",
+  },
+};
+
+function t(key) {
+  return dictionary[state.locale]?.[key] || dictionary.en[key] || key;
+}
 
 function getCurrentInvestigation() {
   return investigations.find((item) => item.id === state.currentId) || investigations[0];
@@ -89,26 +287,39 @@ function getRequestTiming(request) {
   const days = Math.ceil((dueDate - todayDate) / 86400000);
   const status = request.status.toLowerCase();
   const isCheckpoint = Boolean(request.currentCheckpoint);
-  const suffix = isCheckpoint ? "to checkpoint" : "left";
 
   if (status.includes("fluxo separado") || status.includes("separate track")) {
-    return { label: "Separate track", days, tone: "neutral" };
+    return { label: t("separateTrack"), days, tone: "neutral" };
   }
 
   if (status.includes("parcial") || status.includes("partial")) {
-    return { label: "Partial response received", days, tone: "warning" };
+    return { label: t("partialResponse"), days, tone: "warning" };
   }
 
   if (status.includes("entregue") || status.includes("recebida") || status.includes("received")) {
-    return { label: "Response received", days, tone: "success" };
+    return { label: t("responseReceived"), days, tone: "success" };
   }
 
   if (days >= 0) {
-    return { label: `${days} day${days === 1 ? "" : "s"} ${suffix}`, days, tone: days <= 3 ? "warning" : "neutral" };
+    const key = isCheckpoint
+      ? days === 1
+        ? "dayToCheckpoint"
+        : "daysToCheckpoint"
+      : days === 1
+        ? "dayLeft"
+        : "daysLeft";
+    return { label: `${days} ${t(key)}`, days, tone: days <= 3 ? "warning" : "neutral" };
   }
 
+  const overdueKey = isCheckpoint
+    ? Math.abs(days) === 1
+      ? "dayPastCheckpoint"
+      : "daysPastCheckpoint"
+    : Math.abs(days) === 1
+      ? "dayOverdue"
+      : "daysOverdue";
   return {
-    label: `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ${isCheckpoint ? "past checkpoint" : "overdue"}`,
+    label: `${Math.abs(days)} ${t(overdueKey)}`,
     days,
     tone: "danger",
   };
@@ -144,7 +355,7 @@ function renderFilterSelect(field, label) {
     <label class="filter-control">
       <span>${label}</span>
       <select data-filter="${field}">
-        <option value="all">All</option>
+        <option value="all">${t("all")}</option>
         ${options}
       </select>
     </label>
@@ -156,16 +367,29 @@ function investigationMatchesFilters(item) {
 }
 
 function renderShell(content) {
+  const languageToggle = ["pt", "en"]
+    .map(
+      (locale) => `
+        <button class="locale-button ${state.locale === locale ? "active" : ""}" data-action="set-locale" data-locale="${locale}">
+          ${locale.toUpperCase()}
+        </button>
+      `,
+    )
+    .join("");
+
   app.innerHTML = `
     <header class="topbar">
-      <button class="brand" data-action="dashboard" aria-label="Go to dashboard">
+      <button class="brand" data-action="dashboard" aria-label="${t("goDashboard")}">
         <span class="brand-mark">E</span>
         <span>
           <strong>Evidence Desk</strong>
           <small>prototype</small>
         </span>
       </button>
-      <div class="topbar-note">Investigation workflow for public-interest reporting</div>
+      <div class="topbar-actions">
+        <div class="topbar-note">${t("topbarNote")}</div>
+        <div class="locale-toggle" aria-label="${t("languageToggle")}">${languageToggle}</div>
+      </div>
     </header>
     ${content}
   `;
@@ -182,13 +406,13 @@ function renderDashboard() {
           <h2>${item.title}</h2>
           <p>${item.centralQuestion}</p>
           <div class="metrics-grid compact">
-            <div><strong>${item.requests.length}</strong><span>requests</span></div>
-            <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
-            <div><strong>${countQaBlockers(item)}</strong><span>QA blockers</span></div>
+            <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
+            <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
+            <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
-            <button class="button" data-action="open" data-id="${item.id}">Open investigation</button>
+            <button class="button" data-action="open" data-id="${item.id}">${t("openInvestigation")}</button>
           </div>
         </article>
       `,
@@ -196,9 +420,9 @@ function renderDashboard() {
     .join("");
   const emptyState = `
     <section class="empty-state">
-      <h3>No investigations match these filters.</h3>
-      <p>Try another country, language, topic or status. This tests the empty state described in the MVP wireframe.</p>
-      <button class="button secondary active-secondary" data-action="clear-filters">Clear filters</button>
+      <h3>${t("emptyTitle")}</h3>
+      <p>${t("emptyCopy")}</p>
+      <button class="button secondary active-secondary" data-action="clear-filters">${t("clearFilters")}</button>
     </section>
   `;
   const tasks = testPlan.tasks
@@ -228,7 +452,7 @@ function renderDashboard() {
             </div>
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
           </div>
-          <p><strong>Validation question:</strong> ${item.ownerQuestion}</p>
+          <p><strong>${t("validationQuestion")}:</strong> ${item.ownerQuestion}</p>
         </article>
       `,
     )
@@ -238,63 +462,60 @@ function renderDashboard() {
     <main class="page dashboard">
       <section class="hero">
         <div>
-          <p class="eyebrow">MVP v0.1</p>
-          <h1>Turn investigative questions into evidence, gaps and publishable claims.</h1>
-          <p>
-            This static prototype tests the core workflow before backend, login or AI:
-            map evidence, track requests, compare responses and link claims to proof.
-          </p>
+          <p class="eyebrow">${t("heroEyebrow")}</p>
+          <h1>${t("heroTitle")}</h1>
+          <p>${t("heroCopy")}</p>
         </div>
         <div class="hero-panel">
-          <strong>Prototype goal</strong>
-          <span>Validate whether the method helps journalists work with less chaos.</span>
+          <strong>${t("prototypeGoal")}</strong>
+          <span>${t("prototypeGoalText")}</span>
         </div>
       </section>
       <section class="section-header">
         <div>
-          <p class="eyebrow">Investigations</p>
-          <h2>Test cases</h2>
-          <p class="muted">${filteredInvestigations.length} of ${investigations.length} investigations shown</p>
+          <p class="eyebrow">${t("investigations")}</p>
+          <h2>${t("testCases")}</h2>
+          <p class="muted">${filteredInvestigations.length} / ${investigations.length} ${t("shown")}</p>
         </div>
-        <button class="button secondary active-secondary" data-action="new-investigation">New investigation</button>
+        <button class="button secondary active-secondary" data-action="new-investigation">${t("newInvestigation")}</button>
       </section>
       <section class="filter-bar" aria-label="Investigation filters">
-        ${renderFilterSelect("status", "Status")}
-        ${renderFilterSelect("country", "Country")}
-        ${renderFilterSelect("language", "Language")}
-        ${renderFilterSelect("topic", "Topic")}
-        <button class="button secondary active-secondary" data-action="clear-filters">Reset</button>
+        ${renderFilterSelect("status", t("status"))}
+        ${renderFilterSelect("country", t("country"))}
+        ${renderFilterSelect("language", t("language"))}
+        ${renderFilterSelect("topic", t("topic"))}
+        <button class="button secondary active-secondary" data-action="clear-filters">${t("reset")}</button>
       </section>
       ${cards ? `<section class="cards-grid">${cards}</section>` : emptyState}
       <section class="roadmap-section">
         <div class="section-header">
           <div>
-            <p class="eyebrow">Build roadmap</p>
-            <h2>What this prototype tests before engineering gets expensive</h2>
+            <p class="eyebrow">${t("buildRoadmap")}</p>
+            <h2>${t("roadmapTitle")}</h2>
           </div>
-          <span class="pill neutral">fellowship scope</span>
+          <span class="pill neutral">${t("fellowshipScope")}</span>
         </div>
         <div class="roadmap-grid">${roadmapCards}</div>
       </section>
       <section class="tester-guide">
         <div class="section-header">
           <div>
-            <p class="eyebrow">Testing guide</p>
-            <h2>What QA and journalists should try first</h2>
+            <p class="eyebrow">${t("testingGuide")}</p>
+            <h2>${t("testingTitle")}</h2>
           </div>
-          <span class="pill neutral">v0.1 test script</span>
+          <span class="pill neutral">${t("testScript")}</span>
         </div>
         <div class="tester-grid">
           <div class="panel">
-            <h3>Core tasks</h3>
+            <h3>${t("coreTasks")}</h3>
             <div class="test-task-list">${tasks}</div>
           </div>
           <div class="panel">
-            <h3>Feedback questions</h3>
+            <h3>${t("feedbackQuestions")}</h3>
             <ul class="review-list">${questions}</ul>
           </div>
           <div class="panel">
-            <h3>Acceptance criteria</h3>
+            <h3>${t("acceptanceCriteria")}</h3>
             <ul class="review-list">${criteria}</ul>
           </div>
         </div>
@@ -304,31 +525,45 @@ function renderDashboard() {
 }
 
 function renderNewInvestigation() {
-  const fields = [
-    ["title", "Investigation title", "e.g. Obstetric violence and public data transparency"],
-    ["country", "Country", "e.g. Brazil, United States, Mexico"],
-    ["jurisdiction", "Jurisdiction/locality", "e.g. Bahia, Cook County, Mexico City"],
-    ["language", "Primary language", "e.g. Portuguese, English, Spanish"],
-    ["topic", "General topic", "e.g. Public health, education, environment"],
-    ["territory", "Investigated territory", "e.g. Salvador and Bahia interior"],
-    ["period", "Investigated period", "e.g. 2020-2026"],
-  ];
+  const fields =
+    state.locale === "pt"
+      ? [
+          ["title", "Titulo da investigacao", "ex.: Violencia obstetrica e transparencia de dados publicos"],
+          ["country", "Pais", "ex.: Brasil, Estados Unidos, Mexico"],
+          ["jurisdiction", "Jurisdicao/localidade", "ex.: Bahia, Cook County, Cidade do Mexico"],
+          ["language", "Idioma principal", "ex.: Portugues, Ingles, Espanhol"],
+          ["topic", "Tema geral", "ex.: Saude publica, educacao, meio ambiente"],
+          ["territory", "Territorio investigado", "ex.: Salvador e interior da Bahia"],
+          ["period", "Periodo investigado", "ex.: 2020-2026"],
+        ]
+      : [
+          ["title", "Investigation title", "e.g. Obstetric violence and public data transparency"],
+          ["country", "Country", "e.g. Brazil, United States, Mexico"],
+          ["jurisdiction", "Jurisdiction/locality", "e.g. Bahia, Cook County, Mexico City"],
+          ["language", "Primary language", "e.g. Portuguese, English, Spanish"],
+          ["topic", "General topic", "e.g. Public health, education, environment"],
+          ["territory", "Investigated territory", "e.g. Salvador and Bahia interior"],
+          ["period", "Investigated period", "e.g. 2020-2026"],
+        ];
   const errors = state.draftErrors.map((error) => `<li>${error}</li>`).join("");
 
   renderShell(`
     <main class="page">
       <section class="content-header create-header">
         <div>
-          <p class="eyebrow">New investigation</p>
-          <h1>Start with a question the evidence can actually answer.</h1>
+          <p class="eyebrow">${state.locale === "pt" ? "Nova investigacao" : "New investigation"}</p>
+          <h1>${state.locale === "pt" ? "Comece com uma pergunta que a evidencia consegue responder." : "Start with a question the evidence can actually answer."}</h1>
           <p>
-            This simulated form tests the MVP onboarding flow. It validates required fields,
-            shows the project structure and keeps saving disabled until a backend exists.
+            ${
+              state.locale === "pt"
+                ? "Este formulario simulado testa o fluxo inicial do MVP. Ele valida campos obrigatorios, mostra a estrutura do projeto e mantem o salvamento desativado ate existir backend."
+                : "This simulated form tests the MVP onboarding flow. It validates required fields, shows the project structure and keeps saving disabled until a backend exists."
+            }
           </p>
         </div>
-        <button class="button secondary active-secondary" data-action="dashboard">Cancel</button>
+        <button class="button secondary active-secondary" data-action="dashboard">${state.locale === "pt" ? "Cancelar" : "Cancel"}</button>
       </section>
-      ${errors ? `<section class="error-box"><strong>Review before continuing</strong><ul>${errors}</ul></section>` : ""}
+      ${errors ? `<section class="error-box"><strong>${state.locale === "pt" ? "Revise antes de continuar" : "Review before continuing"}</strong><ul>${errors}</ul></section>` : ""}
       ${state.draftNotice ? `<section class="success-box"><strong>${state.draftNotice}</strong></section>` : ""}
       <section class="create-grid">
         <form class="panel create-form" data-action="draft-form">
@@ -345,41 +580,41 @@ function renderNewInvestigation() {
               .join("")}
           </div>
           <label>
-            <span>Central investigative question</span>
-            <textarea data-field="centralQuestion" rows="4" placeholder="What question should this investigation answer with evidence?">${escapeHtml(state.draft.centralQuestion)}</textarea>
-            <small>Required. Prefer a question that can be answered with documents, data, interviews or official responses.</small>
+            <span>${state.locale === "pt" ? "Pergunta investigativa central" : "Central investigative question"}</span>
+            <textarea data-field="centralQuestion" rows="4" placeholder="${state.locale === "pt" ? "Que pergunta esta investigacao deve responder com evidencias?" : "What question should this investigation answer with evidence?"}">${escapeHtml(state.draft.centralQuestion)}</textarea>
+            <small>${state.locale === "pt" ? "Obrigatorio. Prefira uma pergunta que possa ser respondida com documentos, dados, entrevistas ou respostas oficiais." : "Required. Prefer a question that can be answered with documents, data, interviews or official responses."}</small>
           </label>
           <label>
-            <span>Short description</span>
-            <textarea data-field="description" rows="3" placeholder="What is the story trying to understand?">${escapeHtml(state.draft.description)}</textarea>
+            <span>${state.locale === "pt" ? "Descricao curta" : "Short description"}</span>
+            <textarea data-field="description" rows="3" placeholder="${state.locale === "pt" ? "O que a pauta tenta entender?" : "What is the story trying to understand?"}">${escapeHtml(state.draft.description)}</textarea>
           </label>
           <div class="form-actions">
-            <button class="button" data-action="validate-draft" type="button">Validate project structure</button>
-            <button class="button secondary" type="button" disabled>Save draft after backend</button>
+            <button class="button" data-action="validate-draft" type="button">${state.locale === "pt" ? "Validar estrutura" : "Validate project structure"}</button>
+            <button class="button secondary" type="button" disabled>${state.locale === "pt" ? "Salvar rascunho apos backend" : "Save draft after backend"}</button>
           </div>
         </form>
         <aside class="panel preview-panel">
-          <p class="eyebrow">Generated workspace preview</p>
-          <h2>${escapeHtml(state.draft.title) || "Untitled investigation"}</h2>
+          <p class="eyebrow">${state.locale === "pt" ? "Previa do espaco de trabalho" : "Generated workspace preview"}</p>
+          <h2>${escapeHtml(state.draft.title) || (state.locale === "pt" ? "Investigacao sem titulo" : "Untitled investigation")}</h2>
           <dl class="detail-list">
-            <div><dt>Country/jurisdiction</dt><dd>${previewValue(state.draft.country)} / ${previewValue(state.draft.jurisdiction)}</dd></div>
-            <div><dt>Language</dt><dd>${previewValue(state.draft.language)}</dd></div>
-            <div><dt>Topic</dt><dd>${previewValue(state.draft.topic)}</dd></div>
-            <div><dt>Territory</dt><dd>${previewValue(state.draft.territory)}</dd></div>
-            <div><dt>Period</dt><dd>${previewValue(state.draft.period)}</dd></div>
+            <div><dt>${state.locale === "pt" ? "Pais/jurisdicao" : "Country/jurisdiction"}</dt><dd>${previewValue(state.draft.country)} / ${previewValue(state.draft.jurisdiction)}</dd></div>
+            <div><dt>${t("language")}</dt><dd>${previewValue(state.draft.language)}</dd></div>
+            <div><dt>${t("topic")}</dt><dd>${previewValue(state.draft.topic)}</dd></div>
+            <div><dt>${state.locale === "pt" ? "Territorio" : "Territory"}</dt><dd>${previewValue(state.draft.territory)}</dd></div>
+            <div><dt>${state.locale === "pt" ? "Periodo" : "Period"}</dt><dd>${previewValue(state.draft.period)}</dd></div>
           </dl>
           <div class="preview-question">
-            <strong>Central question</strong>
-            <p>${escapeHtml(state.draft.centralQuestion) || "Write a question to generate the first evidence map."}</p>
+            <strong>${state.locale === "pt" ? "Pergunta central" : "Central question"}</strong>
+            <p>${escapeHtml(state.draft.centralQuestion) || (state.locale === "pt" ? "Escreva uma pergunta para gerar o primeiro mapa de evidencias." : "Write a question to generate the first evidence map.")}</p>
           </div>
           <div class="starter-stack">
-            <h3>Starter structure</h3>
-            <span class="pill neutral">Hypotheses</span>
-            <span class="pill neutral">Evidence blocks</span>
-            <span class="pill neutral">Sources/databases</span>
-            <span class="pill neutral">Requests</span>
-            <span class="pill neutral">Gaps</span>
-            <span class="pill neutral">Claims</span>
+            <h3>${state.locale === "pt" ? "Estrutura inicial" : "Starter structure"}</h3>
+            <span class="pill neutral">${t("hypotheses")}</span>
+            <span class="pill neutral">${t("evidenceBlocks")}</span>
+            <span class="pill neutral">${state.locale === "pt" ? "Fontes/bases" : "Sources/databases"}</span>
+            <span class="pill neutral">${t("requests")}</span>
+            <span class="pill neutral">${t("gaps")}</span>
+            <span class="pill neutral">${t("claims")}</span>
           </div>
         </aside>
       </section>
@@ -417,22 +652,22 @@ function validateDraft() {
 function renderInvestigation() {
   const item = getCurrentInvestigation();
   const tabs = [
-    ["overview", "Overview"],
-    ["jurisdiction", "Jurisdiction"],
-    ["language", "Language"],
-    ["hypotheses", "Hypotheses"],
-    ["evidence", "Evidence blocks"],
-    ["sources", "Sources"],
-    ["requests", "Requests"],
-    ["deadlines", "Deadlines"],
-    ["actions", "Action plan"],
-    ["transparency", "Transparency log"],
-    ["comparison", "Request comparison"],
-    ["followups", "Follow-ups"],
-    ["gaps", "Gaps"],
-    ["claims", "Claims"],
-    ["qa", "QA checklist"],
-    ["methodology", "Methodology"],
+    ["overview", t("overview")],
+    ["jurisdiction", t("jurisdiction")],
+    ["language", t("languageTab")],
+    ["hypotheses", t("hypotheses")],
+    ["evidence", t("evidenceBlocks")],
+    ["sources", t("sources")],
+    ["requests", t("requests")],
+    ["deadlines", t("deadlines")],
+    ["actions", t("actionPlan")],
+    ["transparency", t("transparencyLog")],
+    ["comparison", t("requestComparison")],
+    ["followups", t("followUps")],
+    ["gaps", t("gaps")],
+    ["claims", t("claims")],
+    ["qa", t("qaChecklist")],
+    ["methodology", t("methodology")],
   ];
 
   const nav = tabs
@@ -448,7 +683,7 @@ function renderInvestigation() {
   renderShell(`
     <main class="workspace">
       <aside class="sidebar">
-        <button class="back-link" data-action="dashboard">Back to all investigations</button>
+        <button class="back-link" data-action="dashboard">${t("back")}</button>
         <div class="project-card">
           <p class="eyebrow">${item.country} / ${item.language}</p>
           <h1>${item.title}</h1>
@@ -488,26 +723,26 @@ function renderTab(item) {
 function renderOverview(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Overview</p>
+      <p class="eyebrow">${t("overview")}</p>
       <h2>${item.centralQuestion}</h2>
       <p>${item.description}</p>
     </section>
     <section class="metrics-grid">
-      <div><strong>${item.hypotheses.length}</strong><span>hypotheses</span></div>
-      <div><strong>${item.evidenceBlocks.length}</strong><span>evidence blocks</span></div>
-      <div><strong>${item.requests.length}</strong><span>requests</span></div>
-      <div><strong>${countLateRequests(item)}</strong><span>late requests</span></div>
-      <div><strong>${countRequestFollowUps(item)}</strong><span>follow-ups</span></div>
-      <div><strong>${countOpenGaps(item)}</strong><span>open gaps</span></div>
-      <div><strong>${countOpenClaims(item)}</strong><span>claims to review</span></div>
-      <div><strong>${countReviewItems(item)}</strong><span>review items</span></div>
-      <div><strong>${countActionItems(item)}</strong><span>action items</span></div>
-      <div><strong>${countQaBlockers(item)}</strong><span>QA blockers</span></div>
+      <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
+      <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
+      <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
+      <div><strong>${countLateRequests(item)}</strong><span>${t("lateRequests")}</span></div>
+      <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
+      <div><strong>${countOpenGaps(item)}</strong><span>${t("openGaps")}</span></div>
+      <div><strong>${countOpenClaims(item)}</strong><span>${t("claimsReview")}</span></div>
+      <div><strong>${countReviewItems(item)}</strong><span>${t("reviewItems")}</span></div>
+      <div><strong>${countActionItems(item)}</strong><span>${t("actionItems")}</span></div>
+      <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
     </section>
     ${renderFreshnessPanel(item)}
     <section class="two-column">
       <article class="panel">
-        <h3>Project scope</h3>
+        <h3>${t("projectScope")}</h3>
         <dl class="detail-list">
           <div><dt>Topic</dt><dd>${item.topic}</dd></div>
           <div><dt>Territory</dt><dd>${item.territory}</dd></div>
@@ -516,11 +751,8 @@ function renderOverview(item) {
         </dl>
       </article>
       <article class="panel accent">
-        <h3>Editorial safety rule</h3>
-        <p>
-          Gaps are not conclusions. They are unresolved evidence problems that need
-          follow-up, a methodological limit, or a rewritten claim.
-        </p>
+        <h3>${t("editorialSafetyRule")}</h3>
+        <p>${t("editorialSafetyCopy")}</p>
       </article>
     </section>
   `;
@@ -537,12 +769,12 @@ function renderFreshnessPanel(item) {
     <section class="panel freshness-panel">
       <div class="card-footer top">
         <div>
-          <p class="eyebrow">Freshness check</p>
-          <h3>${item.freshness?.status || "Review recommended"}</h3>
+          <p class="eyebrow">${t("freshnessCheck")}</p>
+          <h3>${item.freshness?.status || t("reviewRecommended")}</h3>
         </div>
         <span class="pill ${statusClass(item.freshness?.status)}">${item.freshness?.checkedAt || item.updatedAt}</span>
       </div>
-      <p>${item.freshness?.summary || "Review the investigation log before relying on this case."}</p>
+      <p>${item.freshness?.summary || t("reviewLog")}</p>
       ${reviewItems ? `<ul class="review-list">${reviewItems}</ul>` : ""}
     </section>
   `;
@@ -666,7 +898,7 @@ function renderHypotheses(item) {
     </section>
     <section class="two-column question-map">
       <article class="panel">
-        <p class="eyebrow">Central question</p>
+        <p class="eyebrow">${t("centralQuestion")}</p>
         <h3>${item.centralQuestion}</h3>
       </article>
       <article class="panel accent">
@@ -794,8 +1026,8 @@ function renderDeadlines(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Deadlines and next steps</p>
-      <h2>Know when to wait, check, contest or escalate.</h2>
+      <p class="eyebrow">${t("deadlinesNext")}</p>
+      <h2>${t("deadlinesTitle")}</h2>
     </section>
     <section class="deadline-grid">
       ${item.requests
@@ -811,21 +1043,21 @@ function renderDeadlines(item) {
                 <span class="pill ${timing.tone}">${timing.label}</span>
               </div>
               <dl class="detail-list grid">
-                <div><dt>Sent</dt><dd>${request.sentDate}</dd></div>
-                <div><dt>Original due</dt><dd>${request.dueDate}</dd></div>
+                <div><dt>${t("sent")}</dt><dd>${request.sentDate}</dd></div>
+                <div><dt>${t("originalDue")}</dt><dd>${request.dueDate}</dd></div>
                 ${
                   request.currentCheckpoint
-                    ? `<div><dt>Current checkpoint</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
+                    ? `<div><dt>${t("currentCheckpoint")}</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
                     : ""
                 }
-                <div><dt>Status</dt><dd>${request.status}</dd></div>
+                <div><dt>${t("status")}</dt><dd>${request.status}</dd></div>
               </dl>
               ${
                 request.currentCheckpoint
-                  ? `<p class="muted"><strong>Checkpoint source:</strong> ${request.currentCheckpoint.source}</p>`
+                  ? `<p class="muted"><strong>${t("checkpointSource")}:</strong> ${request.currentCheckpoint.source}</p>`
                   : ""
               }
-              <p><strong>Suggested action:</strong> ${suggestDeadlineAction(request, timing)}</p>
+              <p><strong>${t("suggestedAction")}:</strong> ${suggestDeadlineAction(request, timing)}</p>
             </article>
           `;
         })
@@ -909,9 +1141,9 @@ function renderActionPlan(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Action plan</p>
-      <h2>Turn the reporting log into a controlled next-step queue.</h2>
-      <p>Each action must stay tied to a source, protocol or documented procedural event.</p>
+      <p class="eyebrow">${t("actionPlan")}</p>
+      <h2>${t("actionPlanTitle")}</h2>
+      <p>${t("actionPlanCopy")}</p>
     </section>
     <div class="action-grid">
       ${actions
@@ -926,12 +1158,12 @@ function renderActionPlan(item) {
                 <span class="pill ${statusClass(action.status)}">${action.status}</span>
               </div>
               <dl class="detail-list grid">
-                <div><dt>Owner</dt><dd>${action.owner}</dd></div>
-                <div><dt>Due/checkpoint</dt><dd>${action.dueDate || "No date set"}</dd></div>
-                <div><dt>Type</dt><dd>${action.type}</dd></div>
+                <div><dt>${t("owner")}</dt><dd>${action.owner}</dd></div>
+                <div><dt>${t("dueCheckpoint")}</dt><dd>${action.dueDate || t("noDate")}</dd></div>
+                <div><dt>${t("type")}</dt><dd>${action.type}</dd></div>
               </dl>
-              <p class="muted"><strong>Why it matters:</strong> ${action.rationale}</p>
-              <p><strong>Output:</strong> ${action.output}</p>
+              <p class="muted"><strong>${t("whyItMatters")}:</strong> ${action.rationale}</p>
+              <p><strong>${t("output")}:</strong> ${action.output}</p>
             </article>
           `,
         )
@@ -1288,7 +1520,7 @@ function renderMethodology(item) {
     <section class="content-header">
       <p class="eyebrow">Methodological note</p>
       <h2>Export a transparent summary of evidence, requests and limits.</h2>
-      <button class="button" data-action="copy-methodology">Copy Markdown</button>
+      <button class="button" data-action="copy-methodology">${t("copyMarkdown")}</button>
     </section>
     <pre class="methodology" id="methodology-text">${markdown}</pre>
   `;
@@ -1310,6 +1542,21 @@ function bindActions() {
       state.draftErrors = [];
       state.draftNotice = "";
       renderNewInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='set-locale']").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.locale = button.dataset.locale;
+      if (state.view === "investigation") {
+        renderInvestigation();
+        return;
+      }
+      if (state.view === "new-investigation") {
+        renderNewInvestigation();
+        return;
+      }
+      renderDashboard();
     });
   });
 
@@ -1374,9 +1621,9 @@ function bindActions() {
     button.addEventListener("click", async () => {
       const text = document.querySelector("#methodology-text")?.innerText || "";
       await navigator.clipboard.writeText(text);
-      button.textContent = "Copied";
+      button.textContent = t("copied");
       setTimeout(() => {
-        button.textContent = "Copy Markdown";
+        button.textContent = t("copyMarkdown");
       }, 1500);
     });
   });
