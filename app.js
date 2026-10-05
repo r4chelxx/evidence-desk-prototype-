@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n5";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n6";
 
 const state = {
   view: "dashboard",
@@ -457,12 +457,13 @@ function escapeHtml(value = "") {
 function statusClass(value = "") {
   const normalized = value.toLowerCase();
   if (normalized.includes("critica") || normalized.includes("high") || normalized.includes("alto")) return "danger";
-  if (normalized.includes("blocked")) return "danger";
+  if (normalized.includes("blocked") || normalized.includes("bloqueado")) return "danger";
   if (normalized.includes("sem resposta") || normalized.includes("without attachment")) return "danger";
   if (normalized.includes("parcial") || normalized.includes("partial") || normalized.includes("media")) return "warning";
   if (normalized.includes("recurso") || normalized.includes("appeal")) return "warning";
   if (normalized.includes("cagi") || normalized.includes("cgai") || normalized.includes("progress")) return "warning";
   if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
+  if (normalized.includes("precisa")) return "warning";
   if (normalized.includes("update") || normalized.includes("progress")) return "warning";
   if (normalized.includes("next")) return "warning";
   if (normalized.includes("implementado") || normalized.includes("implemented")) return "success";
