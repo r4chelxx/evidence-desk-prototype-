@@ -1,4 +1,4 @@
-import { investigations, roadmap, testPlan } from "./data.js";
+import { investigations, roadmap, testPlan } from "./data.js?v=20261005-locale";
 
 const state = {
   view: "dashboard",
