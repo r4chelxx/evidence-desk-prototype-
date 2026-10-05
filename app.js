@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n3";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n4";
 
 const state = {
   view: "dashboard",
