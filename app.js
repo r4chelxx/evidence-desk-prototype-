@@ -1,4 +1,4 @@
-import { investigations, roadmap, testPlan } from "./data.js?v=20261005-i18n3";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n3";
 
 const state = {
   view: "dashboard",
@@ -60,6 +60,11 @@ const dictionary = {
     roadmapTitle: "O que este prototipo testa antes de a engenharia ficar cara",
     fellowshipScope: "escopo fellowship",
     validationQuestion: "Pergunta de validacao",
+    mvpCoverage: "Cobertura do MVP",
+    mvpCoverageTitle: "Checklist contra o documento original",
+    mvpCoverageBadge: "revisao PRD",
+    expectedInDoc: "Previsto no documento",
+    implementedInPrototype: "No prototipo",
     testingGuide: "Guia de teste",
     testingTitle: "O que QA e jornalistas devem testar primeiro",
     testScript: "roteiro v0.1",
@@ -250,6 +255,11 @@ const dictionary = {
     roadmapTitle: "What this prototype tests before engineering gets expensive",
     fellowshipScope: "fellowship scope",
     validationQuestion: "Validation question",
+    mvpCoverage: "MVP coverage",
+    mvpCoverageTitle: "Checklist against the original document",
+    mvpCoverageBadge: "PRD review",
+    expectedInDoc: "Expected in the document",
+    implementedInPrototype: "In the prototype",
     testingGuide: "Testing guide",
     testingTitle: "What QA and journalists should try first",
     testScript: "v0.1 test script",
@@ -439,6 +449,7 @@ function statusClass(value = "") {
   if (normalized.includes("review") || normalized.includes("revisao") || normalized.includes("verificar")) return "warning";
   if (normalized.includes("update") || normalized.includes("progress")) return "warning";
   if (normalized.includes("next")) return "warning";
+  if (normalized.includes("implementado") || normalized.includes("implemented")) return "success";
   if (normalized.includes("ready") || normalized.includes("low")) return "success";
   if (normalized.includes("current")) return "success";
   if (normalized.includes("sustentada") || normalized.includes("supported") || normalized.includes("forte")) return "success";
@@ -713,6 +724,33 @@ function renderDashboard() {
       `,
     )
     .join("");
+  const coverageCards = mvpCoverage
+    .map((item) => {
+      const area = item.area[state.locale] || item.area.en;
+      const expected = item.expected[state.locale] || item.expected.en;
+      const implementation = item.implementation[state.locale] || item.implementation.en;
+      const status = item.status[state.locale] || item.status.en;
+
+      return `
+        <article class="panel coverage-card">
+          <div class="card-footer top">
+            <h3>${area}</h3>
+            <span class="pill ${statusClass(status)}">${status}</span>
+          </div>
+          <dl class="detail-list">
+            <div>
+              <dt>${t("expectedInDoc")}</dt>
+              <dd>${expected}</dd>
+            </div>
+            <div>
+              <dt>${t("implementedInPrototype")}</dt>
+              <dd>${implementation}</dd>
+            </div>
+          </dl>
+        </article>
+      `;
+    })
+    .join("");
 
   renderShell(`
     <main class="page dashboard">
@@ -743,6 +781,16 @@ function renderDashboard() {
         <button class="button secondary active-secondary" data-action="clear-filters">${t("reset")}</button>
       </section>
       ${cards ? `<section class="cards-grid">${cards}</section>` : emptyState}
+      <section class="coverage-section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">${t("mvpCoverage")}</p>
+            <h2>${t("mvpCoverageTitle")}</h2>
+          </div>
+          <span class="pill neutral">${t("mvpCoverageBadge")}</span>
+        </div>
+        <div class="coverage-grid">${coverageCards}</div>
+      </section>
       <section class="roadmap-section">
         <div class="section-header">
           <div>
