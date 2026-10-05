@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n4";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n5";
 
 const state = {
   view: "dashboard",
@@ -150,6 +150,14 @@ const dictionary = {
     risk: "Risco",
     methodologyNote: "Nota metodologica",
     methodologyHeading: "Exporte um resumo transparente de evidencias, pedidos e limites.",
+    qaChecklistHeading: "Revise riscos antes de tratar evidencias como publicaveis.",
+    qaNoBlockers: "Nenhum bloqueio de QA registrado.",
+    qaBlockerSingular: "bloqueio precisa de atencao antes de demo ou publicacao.",
+    qaBlockerPlural: "bloqueios precisam de atencao antes de demo ou publicacao.",
+    riskSuffix: "risco",
+    action: "Acao",
+    editorialSafeguards: "Salvaguardas editoriais",
+    editorialSafeguardsHeading: "Nao transforme problemas de acesso em afirmacoes sem evidencia.",
     noActionTitle: "Ainda nao ha plano de acao.",
     noActionCopy: "Adicione tarefas revisadas pela reporter depois de cada pedido, recurso ou revisao de resposta.",
     separateTrackAction: "Mantenha este fluxo em um log separado e atualize somente quando o proprio canal retornar resposta.",
@@ -345,6 +353,14 @@ const dictionary = {
     risk: "Risk",
     methodologyNote: "Methodological note",
     methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
+    qaChecklistHeading: "Review risk before treating evidence as publishable.",
+    qaNoBlockers: "No blocking QA issues recorded.",
+    qaBlockerSingular: "blocker needs attention before demo or publication.",
+    qaBlockerPlural: "blockers need attention before demo or publication.",
+    riskSuffix: "risk",
+    action: "Action",
+    editorialSafeguards: "Editorial safeguards",
+    editorialSafeguardsHeading: "Do not let access problems become unsupported claims.",
     noActionTitle: "No action plan yet.",
     noActionCopy: "Add reporter-reviewed tasks after each request, appeal or response review.",
     separateTrackAction: "Keep this flow in a separate log and update it only when its own channel returns a response.",
@@ -1652,12 +1668,15 @@ function renderQaChecklist(item) {
   const checklist = item.qaChecklist || [];
   const blockers = countQaBlockers(item);
   const rules = item.methodRules || [];
+  const blockerCopy = blockers
+    ? `${blockers} ${t(blockers === 1 ? "qaBlockerSingular" : "qaBlockerPlural")}`
+    : t("qaNoBlockers");
 
   return `
     <section class="content-header">
-      <p class="eyebrow">QA checklist</p>
-      <h2>Review risk before treating evidence as publishable.</h2>
-      <p>${blockers ? `${blockers} blocker${blockers === 1 ? "" : "s"} need attention before demo or publication.` : "No blocking QA issues recorded."}</p>
+      <p class="eyebrow">${t("qaChecklist")}</p>
+      <h2>${t("qaChecklistHeading")}</h2>
+      <p>${blockerCopy}</p>
     </section>
     <div class="qa-grid">
       ${checklist
@@ -1671,10 +1690,10 @@ function renderQaChecklist(item) {
                 </div>
                 <div class="pill-column">
                   <span class="pill ${statusClass(item.status)}">${item.status}</span>
-                  <span class="pill ${statusClass(item.risk)}">${item.risk} risk</span>
+                  <span class="pill ${statusClass(item.risk)}">${item.risk} ${t("riskSuffix")}</span>
                 </div>
               </div>
-              <p><strong>Action:</strong> ${item.action}</p>
+              <p><strong>${t("action")}:</strong> ${item.action}</p>
             </article>
           `,
         )
@@ -1683,8 +1702,8 @@ function renderQaChecklist(item) {
     ${
       rules.length
         ? `<section class="content-header process-header">
-            <p class="eyebrow">Editorial safeguards</p>
-            <h2>Do not let access problems become unsupported claims.</h2>
+            <p class="eyebrow">${t("editorialSafeguards")}</p>
+            <h2>${t("editorialSafeguardsHeading")}</h2>
           </section>
           <div class="safeguard-grid">
             ${rules
@@ -1704,110 +1723,218 @@ function renderQaChecklist(item) {
 }
 
 function methodologyMarkdown(item) {
+  const labels =
+    state.locale === "pt"
+      ? {
+          title: "Nota metodologica",
+          centralQuestion: "Pergunta central",
+          secondaryQuestions: "Perguntas secundarias",
+          noSecondaryQuestions: "Nenhuma pergunta secundaria registrada.",
+          workingHypotheses: "Hipoteses de trabalho",
+          scope: "Escopo",
+          countryJurisdiction: "Pais/jurisdicao",
+          territory: "Territorio",
+          period: "Periodo",
+          jurisdictionRules: "Jurisdicao e regras de acesso",
+          framework: "Base legal",
+          deadline: "Prazo",
+          escalation: "Escalonamento",
+          warning: "Alerta",
+          noJurisdictionRule: "Nenhuma regra de jurisdicao registrada.",
+          sourceDiscovery: "Descoberta de fontes",
+          verify: "Verificar",
+          noSourceDiscovery: "Nenhum mapa de descoberta de fontes registrado.",
+          sources: "Fontes, bases e documentos",
+          limits: "Limites",
+          noSources: "Nenhuma fonte registrada.",
+          languageLocalization: "Idioma e localizacao",
+          workingLanguage: "Idioma de trabalho",
+          interfaceLanguages: "Idiomas da interface",
+          publicationLanguages: "Idiomas de publicacao",
+          localizationNotes: "Notas de localizacao",
+          noLanguagePlan: "Nenhum plano de idioma registrado.",
+          requestsTracked: "Pedidos acompanhados",
+          currentCheckpoint: "Checkpoint atual",
+          transparencyLog: "Diario de transparencia",
+          next: "Proximo passo",
+          noTransparencyLog: "Nenhum diario de transparencia registrado.",
+          requestComparison: "Comparacao pedido-resposta",
+          followUpDrafts: "Rascunhos de follow-up",
+          reporterCheck: "Checagem da reporter",
+          noFollowUps: "Nenhum rascunho de follow-up registrado.",
+          actionPlan: "Plano de acao",
+          dueCheckpoint: "prazo/checkpoint",
+          noDate: "sem data",
+          output: "Saida",
+          noActionPlan: "Nenhum plano de acao registrado.",
+          freshnessReview: "Atualidade e revisao",
+          noFreshness: "Nenhum alerta de atualidade registrado.",
+          qaChecklist: "Checklist QA",
+          risk: "risco",
+          noQa: "Nenhum checklist QA registrado.",
+          methodSafeguards: "Salvaguardas metodologicas",
+          productUse: "Uso no produto",
+          noSafeguards: "Nenhuma salvaguarda metodologica registrada.",
+          gaps: "Lacunas e limites abertos",
+          mainClaims: "Afirmacoes principais",
+        }
+      : {
+          title: "Methodological note",
+          centralQuestion: "Central question",
+          secondaryQuestions: "Secondary questions",
+          noSecondaryQuestions: "No secondary questions recorded.",
+          workingHypotheses: "Working hypotheses",
+          scope: "Scope",
+          countryJurisdiction: "Country/jurisdiction",
+          territory: "Territory",
+          period: "Period",
+          jurisdictionRules: "Jurisdiction and access rules",
+          framework: "Framework",
+          deadline: "Deadline",
+          escalation: "Escalation",
+          warning: "Warning",
+          noJurisdictionRule: "No jurisdiction rule recorded.",
+          sourceDiscovery: "Source discovery",
+          verify: "Verify",
+          noSourceDiscovery: "No source discovery map recorded.",
+          sources: "Sources, databases and documents",
+          limits: "Limits",
+          noSources: "No sources recorded.",
+          languageLocalization: "Language and localization",
+          workingLanguage: "Working language",
+          interfaceLanguages: "Interface languages",
+          publicationLanguages: "Publication languages",
+          localizationNotes: "Localization notes",
+          noLanguagePlan: "No language plan recorded.",
+          requestsTracked: "Requests tracked",
+          currentCheckpoint: "Current checkpoint",
+          transparencyLog: "Transparency log",
+          next: "Next",
+          noTransparencyLog: "No transparency log recorded.",
+          requestComparison: "Request comparison",
+          followUpDrafts: "Follow-up drafts",
+          reporterCheck: "Reporter check",
+          noFollowUps: "No follow-up drafts recorded.",
+          actionPlan: "Action plan",
+          dueCheckpoint: "due/checkpoint",
+          noDate: "no date",
+          output: "Output",
+          noActionPlan: "No action plan recorded.",
+          freshnessReview: "Freshness and review",
+          noFreshness: "No freshness warning recorded.",
+          qaChecklist: "QA checklist",
+          risk: "risk",
+          noQa: "No QA checklist recorded.",
+          methodSafeguards: "Method safeguards",
+          productUse: "Product use",
+          noSafeguards: "No method safeguards recorded.",
+          gaps: "Open gaps and limitations",
+          mainClaims: "Main claims",
+        };
   const requests = item.requests
     .map((request) => {
       const checkpoint = request.currentCheckpoint
-        ? ` Current checkpoint: ${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}.`
+        ? ` ${labels.currentCheckpoint}: ${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}.`
         : "";
       return `- ${request.title}: ${request.status}.${checkpoint}`;
     })
     .join("\n");
   const comparisons = item.requestComparisons
-    .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
+    .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; ${labels.next}: ${comparison.nextStep}`)
     .join("\n");
   const reviews = (item.nextReviewItems || []).map((reviewItem) => `- ${reviewItem}`).join("\n");
   const law = item.accessLaw
-    ? `- Framework: ${item.accessLaw.framework}\n- Deadline: ${item.accessLaw.deadline}\n- Escalation: ${item.accessLaw.escalation}\n- Warning: ${item.accessLaw.reporterWarning}`
-    : "No jurisdiction rule recorded.";
+    ? `- ${labels.framework}: ${item.accessLaw.framework}\n- ${labels.deadline}: ${item.accessLaw.deadline}\n- ${labels.escalation}: ${item.accessLaw.escalation}\n- ${labels.warning}: ${item.accessLaw.reporterWarning}`
+    : labels.noJurisdictionRule;
   const sourceDiscovery = (item.sourceDiscovery || [])
-    .map((source) => `- ${source.source}: ${source.purpose}. Verify: ${source.verification}`)
+    .map((source) => `- ${source.source}: ${source.purpose}. ${labels.verify}: ${source.verification}`)
     .join("\n");
   const sources = (item.sources || [])
-    .map((source) => `- ${source.name} (${source.type}; ${source.status}): ${source.use} Limits: ${source.limits}`)
+    .map((source) => `- ${source.name} (${source.type}; ${source.status}): ${source.use} ${labels.limits}: ${source.limits}`)
     .join("\n");
   const transparencyLog = (item.transparencyLog || [])
-    .map((event) => `- ${event.date} / ${event.actor}: ${event.status}. ${event.event} Next: ${event.nextStep}`)
+    .map((event) => `- ${event.date} / ${event.actor}: ${event.status}. ${event.event} ${labels.next}: ${event.nextStep}`)
     .join("\n");
   const languagePlan = item.languagePlan
-    ? `- Working language: ${item.languagePlan.workingLanguage}\n- Interface languages: ${item.languagePlan.interfaceLanguages.join(", ")}\n- Publication languages: ${item.languagePlan.publicationLanguages.join(", ")}\n- Localization notes: ${item.languagePlan.localizationNotes.join(" ")}`
-    : "No language plan recorded.";
+    ? `- ${labels.workingLanguage}: ${item.languagePlan.workingLanguage}\n- ${labels.interfaceLanguages}: ${item.languagePlan.interfaceLanguages.join(", ")}\n- ${labels.publicationLanguages}: ${item.languagePlan.publicationLanguages.join(", ")}\n- ${labels.localizationNotes}: ${item.languagePlan.localizationNotes.join(" ")}`
+    : labels.noLanguagePlan;
   const followUps = (item.followUpDrafts || [])
-    .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. Reporter check: ${draft.riskNote}`)
+    .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. ${labels.reporterCheck}: ${draft.riskNote}`)
     .join("\n");
   const actionItems = (item.actionItems || [])
     .map(
       (action) =>
-        `- ${action.action} (${action.priority}; ${action.status}; due/checkpoint: ${action.dueDate || "no date"}). Output: ${action.output}`,
+        `- ${action.action} (${action.priority}; ${action.status}; ${labels.dueCheckpoint}: ${action.dueDate || labels.noDate}). ${labels.output}: ${action.output}`,
     )
     .join("\n");
   const qaItems = (item.qaChecklist || [])
-    .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} risk). Action: ${qaItem.action}`)
+    .map((qaItem) => `- ${qaItem.area}: ${qaItem.status} (${qaItem.risk} ${labels.risk}). ${t("action")}: ${qaItem.action}`)
     .join("\n");
   const secondaryQuestions = (item.secondaryQuestions || []).map((question) => `- ${question}`).join("\n");
   const hypotheses = item.hypotheses.map((hypothesis) => `- ${hypothesis.text} (${hypothesis.status})`).join("\n");
   const methodRules = (item.methodRules || [])
-    .map((rule) => `- ${rule.rule} Product use: ${rule.productUse}`)
+    .map((rule) => `- ${rule.rule} ${labels.productUse}: ${rule.productUse}`)
     .join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
-  return `# Methodological note: ${item.title}
+  return `# ${labels.title}: ${item.title}
 
-## Central question
+## ${labels.centralQuestion}
 ${item.centralQuestion}
 
-## Secondary questions
-${secondaryQuestions || "No secondary questions recorded."}
+## ${labels.secondaryQuestions}
+${secondaryQuestions || labels.noSecondaryQuestions}
 
-## Working hypotheses
+## ${labels.workingHypotheses}
 ${hypotheses}
 
-## Scope
-- Country/jurisdiction: ${item.country} / ${item.jurisdiction}
-- Territory: ${item.territory}
-- Period: ${item.period}
+## ${labels.scope}
+- ${labels.countryJurisdiction}: ${item.country} / ${item.jurisdiction}
+- ${labels.territory}: ${item.territory}
+- ${labels.period}: ${item.period}
 
-## Jurisdiction and access rules
+## ${labels.jurisdictionRules}
 ${law}
 
-## Source discovery
-${sourceDiscovery || "No source discovery map recorded."}
+## ${labels.sourceDiscovery}
+${sourceDiscovery || labels.noSourceDiscovery}
 
-## Sources, databases and documents
-${sources || "No sources recorded."}
+## ${labels.sources}
+${sources || labels.noSources}
 
-## Language and localization
+## ${labels.languageLocalization}
 ${languagePlan}
 
-## Requests tracked
+## ${labels.requestsTracked}
 ${requests}
 
-## Transparency log
-${transparencyLog || "No transparency log recorded."}
+## ${labels.transparencyLog}
+${transparencyLog || labels.noTransparencyLog}
 
-## Request comparison
+## ${labels.requestComparison}
 ${comparisons}
 
-## Follow-up drafts
-${followUps || "No follow-up drafts recorded."}
+## ${labels.followUpDrafts}
+${followUps || labels.noFollowUps}
 
-## Action plan
-${actionItems || "No action plan recorded."}
+## ${labels.actionPlan}
+${actionItems || labels.noActionPlan}
 
-## Freshness and review
-${item.freshness?.summary || "No freshness warning recorded."}
+## ${labels.freshnessReview}
+${item.freshness?.summary || labels.noFreshness}
 ${reviews}
 
-## QA checklist
-${qaItems || "No QA checklist recorded."}
+## ${labels.qaChecklist}
+${qaItems || labels.noQa}
 
-## Method safeguards
-${methodRules || "No method safeguards recorded."}
+## ${labels.methodSafeguards}
+${methodRules || labels.noSafeguards}
 
-## Open gaps and limitations
+## ${labels.gaps}
 ${gaps}
 
-## Main claims
+## ${labels.mainClaims}
 ${claims}
 `;
 }
