@@ -4,7 +4,7 @@ Static MVP prototype for **Evidence Desk**, a workflow tool for investigative jo
 
 The prototype tests whether a journalist can move from:
 
-`investigative question -> jurisdiction -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> request comparison -> follow-ups -> gaps -> claims -> QA -> methodology`
+`investigative question -> jurisdiction -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> transparency log -> request comparison -> follow-ups -> gaps -> claims -> QA -> methodology`
 
 without backend, login, external integrations or AI.
 
@@ -18,6 +18,7 @@ without backend, login, external integrations or AI.
 - Central question, secondary questions and working hypotheses for each investigation.
 - Evidence blocks, sources and request tracking.
 - Deadline and escalation guidance.
+- Transparency log for procedural LAI/FOIA history, appeals, partial responses and missing attachments.
 - Request vs response comparison.
 - Human-reviewed follow-up draft examples.
 - Freshness/review warnings for stale or active investigations.
