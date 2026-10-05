@@ -383,6 +383,34 @@ label small {
   line-height: 1.55;
 }
 
+.roadmap-section {
+  border-top: 1px solid var(--line);
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+}
+
+.roadmap-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.roadmap-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.roadmap-card h3 {
+  font-size: 1rem;
+  line-height: 1.28;
+  margin: 0.25rem 0 0;
+}
+
+.roadmap-card p {
+  margin: 0;
+}
+
 .form-actions {
   align-items: center;
   display: flex;
@@ -911,6 +939,7 @@ tr:last-child td {
   .hero,
   .cards-grid,
   .tester-grid,
+  .roadmap-grid,
   .filter-bar,
   .create-grid,
   .form-grid,
