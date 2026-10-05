@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n6";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n7";
 
 const state = {
   view: "dashboard",
@@ -93,6 +93,13 @@ const dictionary = {
     reviewItems: "itens de revisao",
     actionItems: "acoes",
     centralQuestion: "Pergunta central",
+    quickActions: "Acoes rapidas",
+    quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
+    addHypothesis: "Adicionar hipotese",
+    mapEvidence: "Mapear evidencia",
+    registerRequest: "Registrar pedido",
+    addClaim: "Adicionar afirmacao",
+    exportMethodology: "Exportar metodologia",
     deadlinesNext: "Prazos e proximos passos",
     deadlinesTitle: "Saiba quando esperar, checar, contestar ou escalar.",
     sent: "Enviado",
@@ -296,6 +303,13 @@ const dictionary = {
     reviewItems: "review items",
     actionItems: "action items",
     centralQuestion: "Central question",
+    quickActions: "Quick actions",
+    quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
+    addHypothesis: "Add hypothesis",
+    mapEvidence: "Map evidence",
+    registerRequest: "Register request",
+    addClaim: "Add claim",
+    exportMethodology: "Export methodology",
     deadlinesNext: "Deadlines and next steps",
     deadlinesTitle: "Know when to wait, check, contest or escalate.",
     sent: "Sent",
@@ -1059,6 +1073,19 @@ function renderOverview(item) {
       <div><strong>${countReviewItems(item)}</strong><span>${t("reviewItems")}</span></div>
       <div><strong>${countActionItems(item)}</strong><span>${t("actionItems")}</span></div>
       <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
+    </section>
+    <section class="panel quick-actions">
+      <div>
+        <p class="eyebrow">${t("quickActions")}</p>
+        <h3>${t("quickActionsCopy")}</h3>
+      </div>
+      <div class="quick-action-row">
+        <button class="button secondary active-secondary" data-action="tab" data-tab="hypotheses">${t("addHypothesis")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="evidence">${t("mapEvidence")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("registerRequest")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
+        <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
+      </div>
     </section>
     ${renderFreshnessPanel(item)}
     <section class="two-column">
