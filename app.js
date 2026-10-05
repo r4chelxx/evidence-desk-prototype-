@@ -78,21 +78,28 @@ function countQaBlockers(investigation) {
 }
 
 function getRequestTiming(request) {
-  const dueDate = new Date(`${request.dueDate}T00:00:00`);
+  const activeDate = request.currentCheckpoint?.date || request.dueDate;
+  const dueDate = new Date(`${activeDate}T00:00:00`);
   const today = new Date();
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const days = Math.ceil((dueDate - todayDate) / 86400000);
   const status = request.status.toLowerCase();
+  const isCheckpoint = Boolean(request.currentCheckpoint);
+  const suffix = isCheckpoint ? "to checkpoint" : "left";
 
-  if (status.includes("recebida") || status.includes("received")) {
-    return { label: "Response received", days, tone: "success" };
+  if (status.includes("entregue") || status.includes("recebida") || status.includes("received")) {
+    return { label: status.includes("parcial") ? "Partial response received" : "Response received", days, tone: "success" };
   }
 
   if (days >= 0) {
-    return { label: `${days} day${days === 1 ? "" : "s"} left`, days, tone: days <= 3 ? "warning" : "neutral" };
+    return { label: `${days} day${days === 1 ? "" : "s"} ${suffix}`, days, tone: days <= 3 ? "warning" : "neutral" };
   }
 
-  return { label: `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} overdue`, days, tone: "danger" };
+  return {
+    label: `${Math.abs(days)} day${Math.abs(days) === 1 ? "" : "s"} ${isCheckpoint ? "past checkpoint" : "overdue"}`,
+    days,
+    tone: "danger",
+  };
 }
 
 function countLateRequests(investigation) {
@@ -746,9 +753,19 @@ function renderRequests(item) {
                 <div><dt>Protocol</dt><dd>${request.protocol}</dd></div>
                 <div><dt>Sent</dt><dd>${request.sentDate}</dd></div>
                 <div><dt>Due</dt><dd>${request.dueDate}</dd></div>
+                ${
+                  request.currentCheckpoint
+                    ? `<div><dt>Current checkpoint</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
+                    : ""
+                }
               </dl>
               <p><strong>Requested:</strong> ${request.requestedItems}</p>
               <p class="muted"><strong>Response:</strong> ${request.responseSummary}</p>
+              ${
+                request.currentCheckpoint
+                  ? `<p class="muted"><strong>If nothing arrives:</strong> ${request.currentCheckpoint.action}</p>`
+                  : ""
+              }
             </article>
           `,
         )
@@ -758,6 +775,8 @@ function renderRequests(item) {
 }
 
 function renderDeadlines(item) {
+  const rules = item.methodRules || [];
+
   return `
     <section class="content-header">
       <p class="eyebrow">Deadlines and next steps</p>
@@ -778,15 +797,45 @@ function renderDeadlines(item) {
               </div>
               <dl class="detail-list grid">
                 <div><dt>Sent</dt><dd>${request.sentDate}</dd></div>
-                <div><dt>Due</dt><dd>${request.dueDate}</dd></div>
+                <div><dt>Original due</dt><dd>${request.dueDate}</dd></div>
+                ${
+                  request.currentCheckpoint
+                    ? `<div><dt>Current checkpoint</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
+                    : ""
+                }
                 <div><dt>Status</dt><dd>${request.status}</dd></div>
               </dl>
+              ${
+                request.currentCheckpoint
+                  ? `<p class="muted"><strong>Checkpoint source:</strong> ${request.currentCheckpoint.source}</p>`
+                  : ""
+              }
               <p><strong>Suggested action:</strong> ${suggestDeadlineAction(request, timing)}</p>
             </article>
           `;
         })
         .join("")}
     </section>
+    ${
+      rules.length
+        ? `<section class="content-header process-header">
+            <p class="eyebrow">Method safeguards</p>
+            <h2>Rules that keep the tool from overstating evidence.</h2>
+          </section>
+          <div class="safeguard-grid">
+            ${rules
+              .map(
+                (rule) => `
+                  <article class="panel safeguard-card">
+                    <h3>${rule.rule}</h3>
+                    <p>${rule.productUse}</p>
+                  </article>
+                `,
+              )
+              .join("")}
+          </div>`
+        : ""
+    }
     <section class="content-header process-header">
       <p class="eyebrow">Process guide</p>
       <h2>Jurisdiction-aware workflow, still controlled by the reporter.</h2>
@@ -842,6 +891,14 @@ function renderTransparencyLog(item) {
 
 function suggestDeadlineAction(request, timing) {
   const status = request.status.toLowerCase();
+
+  if (request.currentCheckpoint && timing.days >= 0) {
+    return request.currentCheckpoint.action;
+  }
+
+  if (request.currentCheckpoint && timing.days < 0) {
+    return `Checkpoint passed. ${request.currentCheckpoint.action}`;
+  }
 
   if (status.includes("parcial") || status.includes("partial")) {
     return "Compare requested fields with delivered records, then send a focused follow-up for missing items.";
@@ -1009,6 +1066,7 @@ function renderClaims(item) {
 function renderQaChecklist(item) {
   const checklist = item.qaChecklist || [];
   const blockers = countQaBlockers(item);
+  const rules = item.methodRules || [];
 
   return `
     <section class="content-header">
@@ -1037,11 +1095,38 @@ function renderQaChecklist(item) {
         )
         .join("")}
     </div>
+    ${
+      rules.length
+        ? `<section class="content-header process-header">
+            <p class="eyebrow">Editorial safeguards</p>
+            <h2>Do not let access problems become unsupported claims.</h2>
+          </section>
+          <div class="safeguard-grid">
+            ${rules
+              .map(
+                (rule) => `
+                  <article class="panel safeguard-card">
+                    <h3>${rule.rule}</h3>
+                    <p>${rule.productUse}</p>
+                  </article>
+                `,
+              )
+              .join("")}
+          </div>`
+        : ""
+    }
   `;
 }
 
 function methodologyMarkdown(item) {
-  const requests = item.requests.map((request) => `- ${request.title}: ${request.status}`).join("\n");
+  const requests = item.requests
+    .map((request) => {
+      const checkpoint = request.currentCheckpoint
+        ? ` Current checkpoint: ${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}.`
+        : "";
+      return `- ${request.title}: ${request.status}.${checkpoint}`;
+    })
+    .join("\n");
   const comparisons = item.requestComparisons
     .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; next step: ${comparison.nextStep}`)
     .join("\n");
@@ -1069,6 +1154,9 @@ function methodologyMarkdown(item) {
     .join("\n");
   const secondaryQuestions = (item.secondaryQuestions || []).map((question) => `- ${question}`).join("\n");
   const hypotheses = item.hypotheses.map((hypothesis) => `- ${hypothesis.text} (${hypothesis.status})`).join("\n");
+  const methodRules = (item.methodRules || [])
+    .map((rule) => `- ${rule.rule} Product use: ${rule.productUse}`)
+    .join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
   const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
 
@@ -1118,6 +1206,9 @@ ${reviews}
 
 ## QA checklist
 ${qaItems || "No QA checklist recorded."}
+
+## Method safeguards
+${methodRules || "No method safeguards recorded."}
 
 ## Open gaps and limitations
 ${gaps}
