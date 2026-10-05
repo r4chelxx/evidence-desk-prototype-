@@ -4,12 +4,34 @@ const state = {
   view: "dashboard",
   currentId: investigations[0].id,
   currentTab: "overview",
+  draft: {
+    title: "",
+    country: "",
+    jurisdiction: "",
+    language: "",
+    topic: "",
+    territory: "",
+    period: "",
+    centralQuestion: "",
+    description: "",
+  },
+  draftErrors: [],
+  draftNotice: "",
 };
 
 const app = document.querySelector("#app");
 
 function getCurrentInvestigation() {
   return investigations.find((item) => item.id === state.currentId) || investigations[0];
+}
+
+function escapeHtml(value = "") {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function statusClass(value = "") {
@@ -149,7 +171,7 @@ function renderDashboard() {
           <p class="eyebrow">Investigations</p>
           <h2>Test cases</h2>
         </div>
-        <button class="button secondary" disabled>New investigation coming later</button>
+        <button class="button secondary active-secondary" data-action="new-investigation">New investigation</button>
       </section>
       <section class="cards-grid">${cards}</section>
       <section class="tester-guide">
@@ -177,6 +199,117 @@ function renderDashboard() {
       </section>
     </main>
   `);
+}
+
+function renderNewInvestigation() {
+  const fields = [
+    ["title", "Investigation title", "e.g. Obstetric violence and public data transparency"],
+    ["country", "Country", "e.g. Brazil, United States, Mexico"],
+    ["jurisdiction", "Jurisdiction/locality", "e.g. Bahia, Cook County, Mexico City"],
+    ["language", "Primary language", "e.g. Portuguese, English, Spanish"],
+    ["topic", "General topic", "e.g. Public health, education, environment"],
+    ["territory", "Investigated territory", "e.g. Salvador and Bahia interior"],
+    ["period", "Investigated period", "e.g. 2020-2026"],
+  ];
+  const errors = state.draftErrors.map((error) => `<li>${error}</li>`).join("");
+
+  renderShell(`
+    <main class="page">
+      <section class="content-header create-header">
+        <div>
+          <p class="eyebrow">New investigation</p>
+          <h1>Start with a question the evidence can actually answer.</h1>
+          <p>
+            This simulated form tests the MVP onboarding flow. It validates required fields,
+            shows the project structure and keeps saving disabled until a backend exists.
+          </p>
+        </div>
+        <button class="button secondary active-secondary" data-action="dashboard">Cancel</button>
+      </section>
+      ${errors ? `<section class="error-box"><strong>Review before continuing</strong><ul>${errors}</ul></section>` : ""}
+      ${state.draftNotice ? `<section class="success-box"><strong>${state.draftNotice}</strong></section>` : ""}
+      <section class="create-grid">
+        <form class="panel create-form" data-action="draft-form">
+          <div class="form-grid">
+            ${fields
+              .map(
+                ([id, label, placeholder]) => `
+                  <label>
+                    <span>${label}</span>
+                    <input data-field="${id}" value="${escapeHtml(state.draft[id])}" placeholder="${placeholder}">
+                  </label>
+                `,
+              )
+              .join("")}
+          </div>
+          <label>
+            <span>Central investigative question</span>
+            <textarea data-field="centralQuestion" rows="4" placeholder="What question should this investigation answer with evidence?">${escapeHtml(state.draft.centralQuestion)}</textarea>
+            <small>Required. Prefer a question that can be answered with documents, data, interviews or official responses.</small>
+          </label>
+          <label>
+            <span>Short description</span>
+            <textarea data-field="description" rows="3" placeholder="What is the story trying to understand?">${escapeHtml(state.draft.description)}</textarea>
+          </label>
+          <div class="form-actions">
+            <button class="button" data-action="validate-draft" type="button">Validate project structure</button>
+            <button class="button secondary" type="button" disabled>Save draft after backend</button>
+          </div>
+        </form>
+        <aside class="panel preview-panel">
+          <p class="eyebrow">Generated workspace preview</p>
+          <h2>${escapeHtml(state.draft.title) || "Untitled investigation"}</h2>
+          <dl class="detail-list">
+            <div><dt>Country/jurisdiction</dt><dd>${previewValue(state.draft.country)} / ${previewValue(state.draft.jurisdiction)}</dd></div>
+            <div><dt>Language</dt><dd>${previewValue(state.draft.language)}</dd></div>
+            <div><dt>Topic</dt><dd>${previewValue(state.draft.topic)}</dd></div>
+            <div><dt>Territory</dt><dd>${previewValue(state.draft.territory)}</dd></div>
+            <div><dt>Period</dt><dd>${previewValue(state.draft.period)}</dd></div>
+          </dl>
+          <div class="preview-question">
+            <strong>Central question</strong>
+            <p>${escapeHtml(state.draft.centralQuestion) || "Write a question to generate the first evidence map."}</p>
+          </div>
+          <div class="starter-stack">
+            <h3>Starter structure</h3>
+            <span class="pill neutral">Hypotheses</span>
+            <span class="pill neutral">Evidence blocks</span>
+            <span class="pill neutral">Sources/databases</span>
+            <span class="pill neutral">Requests</span>
+            <span class="pill neutral">Gaps</span>
+            <span class="pill neutral">Claims</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+  `);
+}
+
+function previewValue(value) {
+  return escapeHtml(value) || "Not set";
+}
+
+function validateDraft() {
+  const required = [
+    ["title", "Add an investigation title."],
+    ["country", "Add a country."],
+    ["language", "Add the primary language."],
+    ["centralQuestion", "Add a central investigative question."],
+  ];
+  const errors = required
+    .filter(([field]) => !state.draft[field].trim())
+    .map(([, message]) => message);
+
+  if (state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
+    errors.push("Make the title more specific so QA can understand the case.");
+  }
+
+  if (state.draft.centralQuestion.trim() && !state.draft.centralQuestion.includes("?")) {
+    errors.push("Phrase the central question as a question.");
+  }
+
+  state.draftErrors = errors;
+  state.draftNotice = errors.length ? "" : "Structure looks ready for the next MVP step: mapping hypotheses and evidence blocks.";
 }
 
 function renderInvestigation() {
@@ -861,7 +994,40 @@ function bindActions() {
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
+      state.draftErrors = [];
+      state.draftNotice = "";
       renderDashboard();
+    });
+  });
+
+  document.querySelectorAll("[data-action='new-investigation']").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.view = "new-investigation";
+      state.draftErrors = [];
+      state.draftNotice = "";
+      renderNewInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.draft[field.dataset.field] = field.value;
+      state.draftErrors = [];
+      state.draftNotice = "";
+      renderNewInvestigation();
+      const nextField = document.querySelector(`[data-field='${field.dataset.field}']`);
+      nextField?.focus();
+      if (nextField && "selectionStart" in nextField) {
+        nextField.selectionStart = field.selectionStart;
+        nextField.selectionEnd = field.selectionEnd;
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-action='validate-draft']").forEach((button) => {
+    button.addEventListener("click", () => {
+      validateDraft();
+      renderNewInvestigation();
     });
   });
 
