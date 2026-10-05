@@ -4,6 +4,12 @@ const state = {
   view: "dashboard",
   currentId: investigations[0].id,
   currentTab: "overview",
+  filters: {
+    status: "all",
+    country: "all",
+    language: "all",
+    topic: "all",
+  },
   draft: {
     title: "",
     country: "",
@@ -95,6 +101,36 @@ function countRequestFollowUps(investigation) {
   }).length;
 }
 
+function uniqueOptions(field) {
+  return [...new Set(investigations.map((item) => item[field]).filter(Boolean))].sort();
+}
+
+function renderFilterSelect(field, label) {
+  const options = uniqueOptions(field)
+    .map(
+      (option) => `
+        <option value="${escapeHtml(option)}" ${state.filters[field] === option ? "selected" : ""}>
+          ${escapeHtml(option)}
+        </option>
+      `,
+    )
+    .join("");
+
+  return `
+    <label class="filter-control">
+      <span>${label}</span>
+      <select data-filter="${field}">
+        <option value="all">All</option>
+        ${options}
+      </select>
+    </label>
+  `;
+}
+
+function investigationMatchesFilters(item) {
+  return Object.entries(state.filters).every(([field, value]) => value === "all" || item[field] === value);
+}
+
 function renderShell(content) {
   app.innerHTML = `
     <header class="topbar">
@@ -113,7 +149,8 @@ function renderShell(content) {
 }
 
 function renderDashboard() {
-  const cards = investigations
+  const filteredInvestigations = investigations.filter(investigationMatchesFilters);
+  const cards = filteredInvestigations
     .map(
       (item) => `
         <article class="investigation-card">
@@ -133,6 +170,13 @@ function renderDashboard() {
       `,
     )
     .join("");
+  const emptyState = `
+    <section class="empty-state">
+      <h3>No investigations match these filters.</h3>
+      <p>Try another country, language, topic or status. This tests the empty state described in the MVP wireframe.</p>
+      <button class="button secondary active-secondary" data-action="clear-filters">Clear filters</button>
+    </section>
+  `;
   const tasks = testPlan.tasks
     .map(
       (task, index) => `
@@ -170,10 +214,18 @@ function renderDashboard() {
         <div>
           <p class="eyebrow">Investigations</p>
           <h2>Test cases</h2>
+          <p class="muted">${filteredInvestigations.length} of ${investigations.length} investigations shown</p>
         </div>
         <button class="button secondary active-secondary" data-action="new-investigation">New investigation</button>
       </section>
-      <section class="cards-grid">${cards}</section>
+      <section class="filter-bar" aria-label="Investigation filters">
+        ${renderFilterSelect("status", "Status")}
+        ${renderFilterSelect("country", "Country")}
+        ${renderFilterSelect("language", "Language")}
+        ${renderFilterSelect("topic", "Topic")}
+        <button class="button secondary active-secondary" data-action="clear-filters">Reset</button>
+      </section>
+      ${cards ? `<section class="cards-grid">${cards}</section>` : emptyState}
       <section class="tester-guide">
         <div class="section-header">
           <div>
@@ -1006,6 +1058,25 @@ function bindActions() {
       state.draftErrors = [];
       state.draftNotice = "";
       renderNewInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-filter]").forEach((select) => {
+    select.addEventListener("change", () => {
+      state.filters[select.dataset.filter] = select.value;
+      renderDashboard();
+    });
+  });
+
+  document.querySelectorAll("[data-action='clear-filters']").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.filters = {
+        status: "all",
+        country: "all",
+        language: "all",
+        topic: "all",
+      };
+      renderDashboard();
     });
   });
 
