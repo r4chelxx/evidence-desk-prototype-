@@ -572,6 +572,10 @@ label small {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
 }
 
+.question-map {
+  margin-top: 1.25rem;
+}
+
 .panel {
   box-shadow: none;
   padding: 1rem;
