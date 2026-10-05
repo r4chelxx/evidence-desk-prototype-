@@ -91,6 +91,10 @@ function getRequestTiming(request) {
   const isCheckpoint = Boolean(request.currentCheckpoint);
   const suffix = isCheckpoint ? "to checkpoint" : "left";
 
+  if (status.includes("fluxo separado") || status.includes("separate track")) {
+    return { label: "Separate track", days, tone: "neutral" };
+  }
+
   if (status.includes("parcial") || status.includes("partial")) {
     return { label: "Partial response received", days, tone: "warning" };
   }
@@ -938,6 +942,10 @@ function renderActionPlan(item) {
 
 function suggestDeadlineAction(request, timing) {
   const status = request.status.toLowerCase();
+
+  if (status.includes("fluxo separado") || status.includes("separate track")) {
+    return "Keep this flow in a separate log and update it only when its own channel returns a response.";
+  }
 
   if (request.currentCheckpoint && timing.days >= 0) {
     return request.currentCheckpoint.action;
