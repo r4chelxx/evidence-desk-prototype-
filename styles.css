@@ -79,6 +79,36 @@ button {
   font-size: 0.92rem;
 }
 
+.topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.locale-toggle {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  display: inline-flex;
+  padding: 0.18rem;
+}
+
+.locale-button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 0.35rem 0.6rem;
+}
+
+.locale-button.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .page {
   margin: 0 auto;
   max-width: 1180px;
@@ -988,6 +1018,13 @@ tr:last-child td {
     align-items: flex-start;
     flex-direction: column;
     padding: 1rem;
+  }
+
+  .topbar-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
+    width: 100%;
   }
 
   .hero,
