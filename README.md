@@ -23,7 +23,7 @@ without backend, login, external integrations or AI.
 - Freshness/review warnings for stale or active investigations.
 - QA checklist with blockers and editorial risk.
 - Claim-to-evidence matrix.
-- Markdown methodological note preview/copy flow.
+- Markdown methodological note preview/copy flow, including sources, source types and limits.
 - Dashboard testing guide with tasks, feedback questions and acceptance criteria.
 
 ## Open locally
