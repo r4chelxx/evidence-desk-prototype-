@@ -1,4 +1,4 @@
-import { investigations, roadmap, testPlan } from "./data.js?v=20261005-i18n2";
+import { investigations, roadmap, testPlan } from "./data.js?v=20261005-i18n3";
 
 const state = {
   view: "dashboard",
@@ -96,6 +96,7 @@ const dictionary = {
     checkpointSource: "Fonte do checkpoint",
     suggestedAction: "Acao sugerida",
     noDate: "Sem data definida",
+    priorityPrefix: "Prioridade",
     owner: "Responsavel",
     dueCheckpoint: "Prazo/checkpoint",
     type: "Tipo",
@@ -285,6 +286,7 @@ const dictionary = {
     checkpointSource: "Checkpoint source",
     suggestedAction: "Suggested action",
     noDate: "No date set",
+    priorityPrefix: "Priority",
     owner: "Owner",
     dueCheckpoint: "Due/checkpoint",
     type: "Type",
@@ -627,6 +629,31 @@ function renderDashboard() {
           ],
         }
       : testPlan;
+  const localizedRoadmap =
+    state.locale === "pt"
+      ? [
+          {
+            phase: "v0.1 prototipo estatico",
+            status: "Atual",
+            goal:
+              "Validar o fluxo de apuracao, idioma, filtros, acompanhamento de pedidos, lacunas, afirmacoes e exportacao metodologica sem backend ou IA.",
+            ownerQuestion: "Jornalistas entendem a estrutura rapido o suficiente para usar em uma investigacao real?",
+          },
+          {
+            phase: "v0.2 persistencia",
+            status: "Proximo",
+            goal: "Adicionar investigacoes salvas, fontes editaveis, logs manuais de pedidos, respostas, lacunas e afirmacoes.",
+            ownerQuestion: "Uma reporter consegue manter um caso real atualizado sem voltar para planilhas e notas espalhadas?",
+          },
+          {
+            phase: "v0.3 revisao assistida",
+            status: "Depois",
+            goal:
+              "Adicionar IA limitada para comparacao pedido-resposta, identificacao de lacunas, resumo de respostas e rascunhos revisados pela reporter.",
+            ownerQuestion: "Quais etapas sao seguras para automatizar, e quais devem permanecer sob controle editorial?",
+          },
+        ]
+      : roadmap;
   const cards = filteredInvestigations
     .map(
       (item) => `
@@ -670,7 +697,7 @@ function renderDashboard() {
     .join("");
   const questions = localizedTestPlan.questions.map((question) => `<li>${question}</li>`).join("");
   const criteria = localizedTestPlan.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("");
-  const roadmapCards = roadmap
+  const roadmapCards = localizedRoadmap
     .map(
       (item) => `
         <article class="panel roadmap-card">
@@ -1375,7 +1402,7 @@ function renderActionPlan(item) {
             <article class="panel action-card">
               <div class="card-footer top">
                 <div>
-                  <p class="eyebrow">${action.priority} ${t("priority")} / ${action.source}</p>
+                  <p class="eyebrow">${t("priorityPrefix")}: ${action.priority} / ${action.source}</p>
                   <h3>${action.action}</h3>
                 </div>
                 <span class="pill ${statusClass(action.status)}">${action.status}</span>
