@@ -196,9 +196,9 @@ export const investigations = [
       },
     ],
     centralQuestion:
-      "O que os dados publicos, respostas via LAI e registros de responsabilizacao revelam - e escondem - sobre violencia obstetrica e mortes maternas, fetais e neonatais na Bahia desde 2020?",
+      "O que os dados revelam sobre violencia obstetrica e mortalidade materna na Bahia?",
     description:
-      "Investigacao sobre como bases oficiais, pedidos de acesso a informacao, ouvidorias e orgaos de controle permitem ou dificultam reconstituir padroes de violencia obstetrica, mortalidade e responsabilizacao institucional na Bahia.",
+      "Investigacao documental e baseada em dados sobre padroes territoriais, hospitais, mortalidade materna, denuncias, desigualdades e responsabilizacao institucional, sem entrevistas com vitimas nesta fase.",
     processGuide: [
       {
         stage: "Pedido enviado",
@@ -222,31 +222,32 @@ export const investigations = [
       },
     ],
     secondaryQuestions: [
-      "Quais orgaos registram mortes maternas, fetais, neonatais e manifestacoes sobre violencia obstetrica, e em que formato esses registros chegam ao publico?",
-      "Que campos ausentes, incompletos ou ignorados impedem analises por unidade de saude, territorio, raca/cor, tipo de parto e causa basica?",
-      "Como SESAB, Ouvidoria SUS, MP-BA, DPE-BA e instancias de controle respondem quando solicitados a documentar dados, fluxos e responsabilizacao?",
-      "As falhas de acesso - atrasos, links quebrados, anexos ausentes e respostas genericas - se tornam um achado sobre transparencia publica?",
+      "Como os registros se distribuem por territorio e por hospital ou maternidade no recorte inicial de 29 hospitais baianos?",
+      "Ha concentracao de denuncias ou manifestacoes em determinados hospitais, municipios ou regioes?",
+      "O cruzamento entre manifestacoes, mortalidade materna/fetal/neonatal e estrutura hospitalar permite investigar mortes evitaveis?",
+      "Mulheres negras, indigenas, PCDs e outros grupos vulneraveis aparecem de forma desproporcional nos dados disponiveis?",
+      "Quais lacunas de acesso, campo ou formato impedem transformar os registros em conclusoes publicaveis?",
     ],
     hypotheses: [
       {
-        text: "A fragmentacao entre bases de saude, ouvidoria e orgaos de controle dificulta reconstruir o caminho entre morte, denuncia, apuracao e responsabilizacao.",
+        text: "Podem existir padroes territoriais na assistencia obstetrica baiana quando mortalidade, nascimentos, estrutura hospitalar e manifestacoes forem analisados em conjunto.",
         status: "Em apuracao",
-        evidence: "Pedidos a SESAB, Ouvidoria SUS, MP-BA, DPE-BA e CEPOIF",
+        evidence: "SESAB, SINASC, SIM/Ministerio da Saude, CNES e Ouvidoria SUS",
       },
       {
-        text: "Mesmo quando existem dados, campos ausentes ou inconsistentes limitam a identificacao de padroes por unidade, territorio, raca/cor, tipo de parto e causa basica.",
-        status: "Em apuracao",
-        evidence: "Planilhas parciais de obitos maternos, fetais e neonatais",
+        text: "Manifestacoes sobre violencia obstetrica podem estar concentradas em determinados hospitais ou maternidades, mas isso depende de base acessivel por unidade e periodo.",
+        status: "Aguardando dados",
+        evidence: "Ouvidoria SUS Bahia e pedidos C5NTY0ER/links de acesso",
       },
       {
-        text: "As respostas via LAI revelam problemas de transparencia que afetam a propria possibilidade de fiscalizar a politica publica.",
-        status: "Sustentada parcialmente",
-        evidence: "Protocolos com atraso, anexos ausentes, links quebrados e respostas genericas",
+        text: "A relacao entre denuncias, mortes maternas evitaveis e estrutura de atendimento pode revelar falhas sistemicas, mas ainda nao deve ser tratada como achado ate a analise das bases e respostas pendentes.",
+        status: "Hipotese de trabalho",
+        evidence: "Dados de mortalidade, CEPOIF, estrutura hospitalar e manifestacoes",
       },
       {
-        text: "A ausencia de centralizacao informada por orgaos de controle nao prova ausencia de casos, mas indica um limite institucional para medir responsabilizacao.",
+        text: "Mulheres negras, indigenas, PCDs e outros grupos vulneraveis podem estar sobrerrepresentados nos registros de mortalidade e violencia obstetrica, a depender da completude dos campos de raca/cor e perfil.",
         status: "Em apuracao",
-        evidence: "Resposta CESAU/MP-BA e fluxos separados de DPE-BA e SESAB",
+        evidence: "Campos de raca/cor, idade, territorio e perfil nas bases recebidas ou solicitadas",
       },
     ],
     evidenceBlocks: [
@@ -258,6 +259,34 @@ export const investigations = [
       { type: "Responsabilidade", priority: "Importante", status: "Fonte mapeada" },
     ],
     sources: [
+      {
+        name: "Fiocruz / Nascer no Brasil 2",
+        type: "Fonte curada / pesquisa",
+        status: "Fonte contextual",
+        use: "Contexto nacional e parametros de comparacao sobre assistencia obstetrica.",
+        limits: "Nao substitui bases administrativas estaduais nem prova achados especificos da Bahia sem cruzamento.",
+      },
+      {
+        name: "SINASC / Ministerio da Saude",
+        type: "Sistema administrativo",
+        status: "Fonte a integrar",
+        use: "Nascimentos, denominadores e perfil dos registros por territorio.",
+        limits: "Exige chaves e denominadores corretos; nao mede violencia obstetrica diretamente.",
+      },
+      {
+        name: "SIM / Ministerio da Saude",
+        type: "Sistema administrativo",
+        status: "Fonte a integrar",
+        use: "Mortalidade materna, fetal e neonatal como eixo de analise documental.",
+        limits: "Campos incompletos ou classificacoes diferentes podem limitar comparacoes.",
+      },
+      {
+        name: "CNES",
+        type: "Cadastro administrativo",
+        status: "Fonte a integrar",
+        use: "Estrutura cadastrada de maternidades, leitos e vinculos.",
+        limits: "Nao mede plantao, qualidade assistencial, presenca real de profissionais ou disponibilidade operacional.",
+      },
       {
         name: "SESAB",
         type: "Orgao publico",
@@ -285,6 +314,13 @@ export const investigations = [
         status: "Em manifestacao propria",
         use: "Atendimentos, acoes e acordos relacionados a gestantes e maternidades.",
         limits: "Nao deve ser misturado ao dossie SESAB/CGAI enquanto seguir por manifestacao diferente.",
+      },
+      {
+        name: "CEPOIF / Comite de mortalidade materna",
+        type: "Orgao publico / comite",
+        status: "Pedido pendente",
+        use: "Fluxos, reunioes, encaminhamentos, evitabilidade e monitoramento de mortalidade materna.",
+        limits: "Ainda depende de resposta ao pedido VEZ8KTNX e nao deve ser presumido.",
       },
     ],
     requests: [
@@ -448,12 +484,12 @@ export const investigations = [
         status: "Precisa de rechecagem temporal",
       },
       {
-        text: "Ha subnotificacao de violencia obstetrica nos registros oficiais.",
-        type: "Interpretativa",
-        evidence: "Dados parciais + contexto de especialistas ainda pendente",
-        strength: "Fraca",
-        risk: "Alto",
-        status: "Precisa de fonte adicional",
+        text: "Nao ha uma base oficial unica que meca violencia obstetrica diretamente na Bahia.",
+        type: "Metodologica",
+        evidence: "Arquitetura da pauta e pedidos a SESAB, Ouvidoria SUS, MP-BA, DPE-BA e CEPOIF",
+        strength: "Media",
+        risk: "Medio",
+        status: "Precisa de formulacao cautelosa",
       },
     ],
   },
