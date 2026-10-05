@@ -1017,6 +1017,9 @@ function methodologyMarkdown(item) {
   const sourceDiscovery = (item.sourceDiscovery || [])
     .map((source) => `- ${source.source}: ${source.purpose}. Verify: ${source.verification}`)
     .join("\n");
+  const sources = (item.sources || [])
+    .map((source) => `- ${source.name} (${source.type}; ${source.status}): ${source.use} Limits: ${source.limits}`)
+    .join("\n");
   const languagePlan = item.languagePlan
     ? `- Working language: ${item.languagePlan.workingLanguage}\n- Interface languages: ${item.languagePlan.interfaceLanguages.join(", ")}\n- Publication languages: ${item.languagePlan.publicationLanguages.join(", ")}\n- Localization notes: ${item.languagePlan.localizationNotes.join(" ")}`
     : "No language plan recorded.";
@@ -1052,6 +1055,9 @@ ${law}
 
 ## Source discovery
 ${sourceDiscovery || "No source discovery map recorded."}
+
+## Sources, databases and documents
+${sources || "No sources recorded."}
 
 ## Language and localization
 ${languagePlan}
