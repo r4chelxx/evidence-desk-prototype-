@@ -15,6 +15,7 @@ without backend, login, external integrations or AI.
 - MVP roadmap separating current static validation, persistence and later AI assistance.
 - Jurisdiction/access-law guidance for each case.
 - Language/localization guidance for English, Portuguese and Spanish use.
+- Central question, secondary questions and working hypotheses for each investigation.
 - Evidence blocks, sources and request tracking.
 - Deadline and escalation guidance.
 - Request vs response comparison.
