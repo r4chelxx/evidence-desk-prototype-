@@ -413,10 +413,29 @@ label small {
   line-height: 1.55;
 }
 
+.coverage-section,
 .roadmap-section {
   border-top: 1px solid var(--line);
   margin-top: 2.5rem;
   padding-top: 1.5rem;
+}
+
+.coverage-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.coverage-card {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.coverage-card h3 {
+  font-size: 1rem;
+  line-height: 1.28;
+  margin: 0;
 }
 
 .roadmap-grid {
@@ -1031,6 +1050,7 @@ tr:last-child td {
   .cards-grid,
   .tester-grid,
   .roadmap-grid,
+  .coverage-grid,
   .filter-bar,
   .create-grid,
   .form-grid,
