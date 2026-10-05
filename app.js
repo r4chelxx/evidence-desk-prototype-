@@ -1,4 +1,4 @@
-import { investigations, roadmap, testPlan } from "./data.js?v=20261005-locale";
+import { investigations, roadmap, testPlan } from "./data.js?v=20261005-i18n2";
 
 const state = {
   view: "dashboard",
@@ -103,6 +103,96 @@ const dictionary = {
     output: "Saida esperada",
     actionPlanTitle: "Transforme o log da apuracao em uma fila controlada de proximos passos.",
     actionPlanCopy: "Cada acao deve estar ligada a uma fonte, protocolo ou evento procedimental documentado.",
+    priority: "prioridade",
+    requestLabel: "Pedido",
+    protocol: "Protocolo",
+    due: "Prazo",
+    requested: "Solicitado",
+    response: "Resposta",
+    ifNothingArrives: "Se nada chegar",
+    requestsEyebrow: "Pedidos",
+    requestsTitle: "Acompanhe pedidos feitos fora da plataforma.",
+    methodSafeguards: "Salvaguardas metodologicas",
+    methodSafeguardsTitle: "Regras que impedem a ferramenta de exagerar evidencias.",
+    processGuide: "Guia de processo",
+    processGuideTitle: "Fluxo atento a jurisdicao, ainda controlado pela reporter.",
+    transparencyLogTitle: "Diario de transparencia",
+    transparencyLogHeading: "Acompanhe o historico processual sem tratar movimentacao como entrega de evidencia.",
+    transparencyLogCopy: "Use este log para separar pedido, encaminhamento, resposta parcial, recurso e entrega real de documentos.",
+    noTransparencyTitle: "Ainda nao ha diario de transparencia.",
+    noTransparencyCopy: "Adicione eventos processuais conforme pedidos avancem por recursos ou revisao.",
+    nextStep: "Proximo passo",
+    requestComparisonTitle: "Comparacao de pedidos",
+    requestComparisonHeading: "Compare o que foi pedido, o que chegou e o que ainda exige acao.",
+    expected: "Esperado",
+    received: "Recebido",
+    missingUnclear: "Ausente ou pouco claro",
+    editorialDecision: "Decisao editorial",
+    followUpDraftsTitle: "Rascunhos de follow-up",
+    followUpDraftsHeading: "Prepare mensagens e recursos sem enviar nada automaticamente.",
+    followUpDraftsCopy: "Cada rascunho e ponto de partida para revisao humana, nao orientacao juridica nem peticao pronta.",
+    relatedRequest: "Pedido relacionado",
+    reporterCheck: "Checagem da reporter",
+    gapsTitle: "Lacunas e proximos passos",
+    gapsHeading: "Transforme evidencias ausentes em acoes de follow-up.",
+    origin: "Origem",
+    claimMatrixTitle: "Matriz afirmacao-evidencia",
+    claimMatrixHeading: "Verifique se afirmacoes publicaveis estao sustentadas.",
+    claim: "Afirmacao",
+    evidence: "Evidencia",
+    strength: "Forca",
+    risk: "Risco",
+    methodologyNote: "Nota metodologica",
+    methodologyHeading: "Exporte um resumo transparente de evidencias, pedidos e limites.",
+    noActionTitle: "Ainda nao ha plano de acao.",
+    noActionCopy: "Adicione tarefas revisadas pela reporter depois de cada pedido, recurso ou revisao de resposta.",
+    separateTrackAction: "Mantenha este fluxo em um log separado e atualize somente quando o proprio canal retornar resposta.",
+    checkpointPassed: "Checkpoint ultrapassado.",
+    partialAction: "Compare os campos solicitados com os registros entregues e envie follow-up focado nos itens ausentes.",
+    brokenAction: "Documente o problema de acesso com prints e solicite link valido ou reenvio do arquivo.",
+    overdueAction: "Prepare uma nota de escalonamento com protocolo, datas, texto do pedido e prova da ausencia de resposta.",
+    nearDeadlineAction: "Prepare agora a checklist de recebimento para revisar rapidamente o material quando chegar.",
+    waitAction: "Aguarde, mantenha o protocolo organizado e confirme a proxima data de revisao no log da apuracao.",
+    jurisdictionAccess: "Jurisdicao e regras de acesso",
+    jurisdictionHeading: "Defina prazos e caminhos de fonte antes de usar assistencia por IA.",
+    jurisdictionCopy: "A ferramenta deve guiar a reporter por regras conhecidas, nao inventa-las.",
+    deadline: "Prazo",
+    requestChannels: "Canais de pedido",
+    escalation: "Escalonamento",
+    reporterWarning: "Alerta para reporter",
+    productRule: "Regra do produto",
+    productRuleCopy:
+      "Evidence Desk so pode sugerir proximos passos depois que a reporter seleciona jurisdicao, confirma o canal do pedido e revisa a regra de acesso relevante.",
+    sourceDiscovery: "Descoberta de fontes",
+    sourceDiscoveryHeading: "Comece por caminhos controlados, depois deixe a reporter verificar.",
+    verify: "Verificar",
+    languageLocalization: "Idioma e localizacao",
+    languageHeading: "Separe traducao de localizacao juridica e editorial.",
+    languageCopy: "Uma ferramenta global precisa de acesso multilingue, mas orientacao sobre lei de acesso ainda depende da jurisdicao.",
+    languagePlan: "Plano de idioma",
+    workingLanguage: "Idioma de trabalho",
+    interfaceOptions: "Opcoes de interface",
+    publicationLanguages: "Idiomas de publicacao",
+    localizationRule: "Regra de localizacao",
+    localizationRuleCopy:
+      "Traduza livremente os rotulos da interface, mas localize leis, prazos, orgaos e tipos de fonte somente quando a jurisdicao for conhecida e revisada pela reporter.",
+    translationNotes: "Notas de traducao",
+    translationNotesHeading: "Termos que exigem revisao humana.",
+    notes: "Notas",
+    glossary: "Glossario",
+    questionsHypotheses: "Perguntas e hipoteses",
+    hypothesesHeading: "Divida a pergunta central em partes testaveis.",
+    secondaryQuestions: "Perguntas secundarias",
+    noSecondary: "Ainda nao ha perguntas secundarias registradas.",
+    relatedEvidence: "Evidencia relacionada",
+    evidenceBlocksTitle: "Blocos de evidencia",
+    evidenceBlocksHeading: "Que tipos de prova sao necessarios?",
+    evidenceBlocksCopy: "Blocos ajudam a separar o que precisa ser provado de onde a informacao pode ser encontrada.",
+    block: "Bloco",
+    priorityLabel: "Prioridade",
+    sourcesTitle: "Fontes e bases de dados",
+    sourcesHeading: "Separe fontes verificadas de caminhos provaveis.",
+    limits: "Limites",
     copyMarkdown: "Copiar Markdown",
     copied: "Copiado",
     projectScope: "Escopo do projeto",
@@ -202,6 +292,96 @@ const dictionary = {
     output: "Output",
     actionPlanTitle: "Turn the reporting log into a controlled next-step queue.",
     actionPlanCopy: "Each action must stay tied to a source, protocol or documented procedural event.",
+    priority: "priority",
+    requestLabel: "Request",
+    protocol: "Protocol",
+    due: "Due",
+    requested: "Requested",
+    response: "Response",
+    ifNothingArrives: "If nothing arrives",
+    requestsEyebrow: "Requests",
+    requestsTitle: "Track requests made outside the platform.",
+    methodSafeguards: "Method safeguards",
+    methodSafeguardsTitle: "Rules that keep the tool from overstating evidence.",
+    processGuide: "Process guide",
+    processGuideTitle: "Jurisdiction-aware workflow, still controlled by the reporter.",
+    transparencyLogTitle: "Transparency log",
+    transparencyLogHeading: "Track procedural history without treating movement as evidence delivery.",
+    transparencyLogCopy: "Use this log to separate request, forwarding, partial response, appeal and actual document delivery.",
+    noTransparencyTitle: "No transparency log yet.",
+    noTransparencyCopy: "Add procedural events as requests move through appeals or review.",
+    nextStep: "Next step",
+    requestComparisonTitle: "Request comparison",
+    requestComparisonHeading: "Compare what was asked, what arrived and what still needs action.",
+    expected: "Expected",
+    received: "Received",
+    missingUnclear: "Missing or unclear",
+    editorialDecision: "Editorial decision",
+    followUpDraftsTitle: "Follow-up drafts",
+    followUpDraftsHeading: "Prepare messages and appeals without sending anything automatically.",
+    followUpDraftsCopy: "Every draft is a starting point for human review, not legal advice or a finished filing.",
+    relatedRequest: "Related request",
+    reporterCheck: "Reporter check",
+    gapsTitle: "Gaps and next steps",
+    gapsHeading: "Turn missing evidence into follow-up actions.",
+    origin: "Origin",
+    claimMatrixTitle: "Claim-to-evidence matrix",
+    claimMatrixHeading: "Check whether publishable claims are supported.",
+    claim: "Claim",
+    evidence: "Evidence",
+    strength: "Strength",
+    risk: "Risk",
+    methodologyNote: "Methodological note",
+    methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
+    noActionTitle: "No action plan yet.",
+    noActionCopy: "Add reporter-reviewed tasks after each request, appeal or response review.",
+    separateTrackAction: "Keep this flow in a separate log and update it only when its own channel returns a response.",
+    checkpointPassed: "Checkpoint passed.",
+    partialAction: "Compare requested fields with delivered records, then send a focused follow-up for missing items.",
+    brokenAction: "Document the access problem with screenshots and request a valid link or file resend.",
+    overdueAction: "Prepare an escalation note with protocol, dates, request text and proof of non-response.",
+    nearDeadlineAction: "Prepare the response checklist now so the received material can be reviewed quickly.",
+    waitAction: "Wait, keep the protocol organized and confirm the next review date in the reporting log.",
+    jurisdictionAccess: "Jurisdiction and access rules",
+    jurisdictionHeading: "Make deadlines and source paths explicit before using AI assistance.",
+    jurisdictionCopy: "The tool should guide the reporter through known rules, not invent them.",
+    deadline: "Deadline",
+    requestChannels: "Request channels",
+    escalation: "Escalation",
+    reporterWarning: "Reporter warning",
+    productRule: "Product rule",
+    productRuleCopy:
+      "Evidence Desk can suggest next steps only after the reporter selects a jurisdiction, confirms the request channel and reviews the relevant access-law rule.",
+    sourceDiscovery: "Source discovery",
+    sourceDiscoveryHeading: "Start from controlled paths, then let the reporter verify.",
+    verify: "Verify",
+    languageLocalization: "Language and localization",
+    languageHeading: "Separate translation from legal and editorial localization.",
+    languageCopy: "A global tool needs multilingual access, but access-law guidance still depends on jurisdiction.",
+    languagePlan: "Language plan",
+    workingLanguage: "Working language",
+    interfaceOptions: "Interface options",
+    publicationLanguages: "Publication languages",
+    localizationRule: "Localization rule",
+    localizationRuleCopy:
+      "Translate interface labels freely, but localize laws, deadlines, agencies and source types only when the jurisdiction is known and reviewed by the reporter.",
+    translationNotes: "Translation notes",
+    translationNotesHeading: "Terms that need human review.",
+    notes: "Notes",
+    glossary: "Glossary",
+    questionsHypotheses: "Questions and hypotheses",
+    hypothesesHeading: "Break the central question into testable parts.",
+    secondaryQuestions: "Secondary questions",
+    noSecondary: "No secondary questions recorded yet.",
+    relatedEvidence: "Related evidence",
+    evidenceBlocksTitle: "Evidence blocks",
+    evidenceBlocksHeading: "What types of proof are needed?",
+    evidenceBlocksCopy: "Blocks help separate what must be proven from where the information might be found.",
+    block: "Block",
+    priorityLabel: "Priority",
+    sourcesTitle: "Sources and databases",
+    sourcesHeading: "Separate verified sources from likely paths.",
+    limits: "Limits",
     copyMarkdown: "Copy Markdown",
     copied: "Copied",
     projectScope: "Project scope",
@@ -835,31 +1015,28 @@ function renderJurisdiction(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Jurisdiction and access rules</p>
-      <h2>Make deadlines and source paths explicit before using AI assistance.</h2>
-      <p>The tool should guide the reporter through known rules, not invent them.</p>
+      <p class="eyebrow">${t("jurisdictionAccess")}</p>
+      <h2>${t("jurisdictionHeading")}</h2>
+      <p>${t("jurisdictionCopy")}</p>
     </section>
     <section class="two-column">
       <article class="panel law-card">
         <h3>${law.framework}</h3>
         <dl class="detail-list">
-          <div><dt>Deadline</dt><dd>${law.deadline}</dd></div>
-          <div><dt>Request channels</dt><dd>${law.requestChannels}</dd></div>
-          <div><dt>Escalation</dt><dd>${law.escalation}</dd></div>
-          <div><dt>Reporter warning</dt><dd>${law.reporterWarning}</dd></div>
+          <div><dt>${t("deadline")}</dt><dd>${law.deadline}</dd></div>
+          <div><dt>${t("requestChannels")}</dt><dd>${law.requestChannels}</dd></div>
+          <div><dt>${t("escalation")}</dt><dd>${law.escalation}</dd></div>
+          <div><dt>${t("reporterWarning")}</dt><dd>${law.reporterWarning}</dd></div>
         </dl>
       </article>
       <article class="panel accent">
-        <h3>Product rule</h3>
-        <p>
-          Evidence Desk can suggest next steps only after the reporter selects a jurisdiction,
-          confirms the request channel and reviews the relevant access-law rule.
-        </p>
+        <h3>${t("productRule")}</h3>
+        <p>${t("productRuleCopy")}</p>
       </article>
     </section>
     <section class="content-header process-header">
-      <p class="eyebrow">Source discovery</p>
-      <h2>Start from controlled paths, then let the reporter verify.</h2>
+      <p class="eyebrow">${t("sourceDiscovery")}</p>
+      <h2>${t("sourceDiscoveryHeading")}</h2>
     </section>
     <div class="source-map">
       ${sources
@@ -868,7 +1045,7 @@ function renderJurisdiction(item) {
             <article class="panel source-path-card">
               <h3>${source.source}</h3>
               <p>${source.purpose}</p>
-              <p class="muted"><strong>Verify:</strong> ${source.verification}</p>
+              <p class="muted"><strong>${t("verify")}:</strong> ${source.verification}</p>
             </article>
           `,
         )
@@ -885,38 +1062,35 @@ function renderLanguagePlan(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Language and localization</p>
-      <h2>Separate translation from legal and editorial localization.</h2>
-      <p>A global tool needs multilingual access, but access-law guidance still depends on jurisdiction.</p>
+      <p class="eyebrow">${t("languageLocalization")}</p>
+      <h2>${t("languageHeading")}</h2>
+      <p>${t("languageCopy")}</p>
     </section>
     <section class="two-column">
       <article class="panel language-card">
-        <h3>Language plan</h3>
+        <h3>${t("languagePlan")}</h3>
         <dl class="detail-list">
-          <div><dt>Working language</dt><dd>${plan.workingLanguage}</dd></div>
-          <div><dt>Interface options</dt><dd class="pill-row">${interfaceLanguages}</dd></div>
-          <div><dt>Publication languages</dt><dd class="pill-row">${publicationLanguages}</dd></div>
+          <div><dt>${t("workingLanguage")}</dt><dd>${plan.workingLanguage}</dd></div>
+          <div><dt>${t("interfaceOptions")}</dt><dd class="pill-row">${interfaceLanguages}</dd></div>
+          <div><dt>${t("publicationLanguages")}</dt><dd class="pill-row">${publicationLanguages}</dd></div>
         </dl>
       </article>
       <article class="panel accent">
-        <h3>Localization rule</h3>
-        <p>
-          Translate interface labels freely, but localize laws, deadlines, agencies and source types only
-          when the jurisdiction is known and reviewed by the reporter.
-        </p>
+        <h3>${t("localizationRule")}</h3>
+        <p>${t("localizationRuleCopy")}</p>
       </article>
     </section>
     <section class="content-header process-header">
-      <p class="eyebrow">Translation notes</p>
-      <h2>Terms that need human review.</h2>
+      <p class="eyebrow">${t("translationNotes")}</p>
+      <h2>${t("translationNotesHeading")}</h2>
     </section>
     <div class="language-grid">
       <article class="panel">
-        <h3>Notes</h3>
+        <h3>${t("notes")}</h3>
         <ul class="review-list">${notes}</ul>
       </article>
       <article class="panel">
-        <h3>Glossary</h3>
+        <h3>${t("glossary")}</h3>
         <div class="glossary-list">
           ${plan.glossary
             .map(
@@ -942,8 +1116,8 @@ function renderHypotheses(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Questions and hypotheses</p>
-      <h2>Break the central question into testable parts.</h2>
+      <p class="eyebrow">${t("questionsHypotheses")}</p>
+      <h2>${t("hypothesesHeading")}</h2>
     </section>
     <section class="two-column question-map">
       <article class="panel">
@@ -951,8 +1125,8 @@ function renderHypotheses(item) {
         <h3>${item.centralQuestion}</h3>
       </article>
       <article class="panel accent">
-        <p class="eyebrow">Secondary questions</p>
-        <ul class="review-list">${secondaryQuestions || "<li>No secondary questions recorded yet.</li>"}</ul>
+        <p class="eyebrow">${t("secondaryQuestions")}</p>
+        <ul class="review-list">${secondaryQuestions || `<li>${t("noSecondary")}</li>`}</ul>
       </article>
     </section>
     <div class="stack">
@@ -962,7 +1136,7 @@ function renderHypotheses(item) {
             <article class="row-card">
               <div>
                 <h3>${hypothesis.text}</h3>
-                <p>Related evidence: ${hypothesis.evidence}</p>
+                <p>${t("relatedEvidence")}: ${hypothesis.evidence}</p>
               </div>
               <span class="pill ${statusClass(hypothesis.status)}">${hypothesis.status}</span>
             </article>
@@ -976,13 +1150,13 @@ function renderHypotheses(item) {
 function renderEvidenceBlocks(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Evidence blocks</p>
-      <h2>What types of proof are needed?</h2>
-      <p>Blocks help separate what must be proven from where the information might be found.</p>
+      <p class="eyebrow">${t("evidenceBlocksTitle")}</p>
+      <h2>${t("evidenceBlocksHeading")}</h2>
+      <p>${t("evidenceBlocksCopy")}</p>
     </section>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Block</th><th>Priority</th><th>Status</th></tr></thead>
+        <thead><tr><th>${t("block")}</th><th>${t("priorityLabel")}</th><th>${t("status")}</th></tr></thead>
         <tbody>
           ${item.evidenceBlocks
             .map(
@@ -1004,8 +1178,8 @@ function renderEvidenceBlocks(item) {
 function renderSources(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Sources and databases</p>
-      <h2>Separate verified sources from likely paths.</h2>
+      <p class="eyebrow">${t("sourcesTitle")}</p>
+      <h2>${t("sourcesHeading")}</h2>
     </section>
     <div class="stack">
       ${item.sources
@@ -1018,7 +1192,7 @@ function renderSources(item) {
               </div>
               <p><strong>${source.type}</strong></p>
               <p>${source.use}</p>
-              <p class="muted">Limits: ${source.limits}</p>
+              <p class="muted">${t("limits")}: ${source.limits}</p>
             </article>
           `,
         )
@@ -1030,8 +1204,8 @@ function renderSources(item) {
 function renderRequests(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Requests</p>
-      <h2>Track requests made outside the platform.</h2>
+      <p class="eyebrow">${t("requestsEyebrow")}</p>
+      <h2>${t("requestsTitle")}</h2>
     </section>
     <div class="stack">
       ${item.requests
@@ -1046,20 +1220,20 @@ function renderRequests(item) {
                 <span class="pill ${statusClass(request.status)}">${request.status}</span>
               </div>
               <dl class="detail-list grid">
-                <div><dt>Protocol</dt><dd>${request.protocol}</dd></div>
-                <div><dt>Sent</dt><dd>${request.sentDate}</dd></div>
-                <div><dt>Due</dt><dd>${request.dueDate}</dd></div>
+                <div><dt>${t("protocol")}</dt><dd>${request.protocol}</dd></div>
+                <div><dt>${t("sent")}</dt><dd>${request.sentDate}</dd></div>
+                <div><dt>${t("due")}</dt><dd>${request.dueDate}</dd></div>
                 ${
                   request.currentCheckpoint
-                    ? `<div><dt>Current checkpoint</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
+                    ? `<div><dt>${t("currentCheckpoint")}</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
                     : ""
                 }
               </dl>
-              <p><strong>Requested:</strong> ${request.requestedItems}</p>
-              <p class="muted"><strong>Response:</strong> ${request.responseSummary}</p>
+              <p><strong>${t("requested")}:</strong> ${request.requestedItems}</p>
+              <p class="muted"><strong>${t("response")}:</strong> ${request.responseSummary}</p>
               ${
                 request.currentCheckpoint
-                  ? `<p class="muted"><strong>If nothing arrives:</strong> ${request.currentCheckpoint.action}</p>`
+                  ? `<p class="muted"><strong>${t("ifNothingArrives")}:</strong> ${request.currentCheckpoint.action}</p>`
                   : ""
               }
             </article>
@@ -1115,8 +1289,8 @@ function renderDeadlines(item) {
     ${
       rules.length
         ? `<section class="content-header process-header">
-            <p class="eyebrow">Method safeguards</p>
-            <h2>Rules that keep the tool from overstating evidence.</h2>
+            <p class="eyebrow">${t("methodSafeguards")}</p>
+            <h2>${t("methodSafeguardsTitle")}</h2>
           </section>
           <div class="safeguard-grid">
             ${rules
@@ -1133,8 +1307,8 @@ function renderDeadlines(item) {
         : ""
     }
     <section class="content-header process-header">
-      <p class="eyebrow">Process guide</p>
-      <h2>Jurisdiction-aware workflow, still controlled by the reporter.</h2>
+      <p class="eyebrow">${t("processGuide")}</p>
+      <h2>${t("processGuideTitle")}</h2>
     </section>
     <div class="process-steps">
       ${item.processGuide
@@ -1160,9 +1334,9 @@ function renderTransparencyLog(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Transparency log</p>
-      <h2>Track procedural history without treating movement as evidence delivery.</h2>
-      <p>Use this log to separate request, forwarding, partial response, appeal and actual document delivery.</p>
+      <p class="eyebrow">${t("transparencyLogTitle")}</p>
+      <h2>${t("transparencyLogHeading")}</h2>
+      <p>${t("transparencyLogCopy")}</p>
     </section>
     <div class="timeline-list">
       ${events
@@ -1176,11 +1350,11 @@ function renderTransparencyLog(item) {
                 </div>
                 <span class="pill ${statusClass(event.status)}">${event.status}</span>
               </div>
-              <p><strong>Next step:</strong> ${event.nextStep}</p>
+              <p><strong>${t("nextStep")}:</strong> ${event.nextStep}</p>
             </article>
           `,
         )
-        .join("") || `<section class="empty-state"><h3>No transparency log yet.</h3><p>Add procedural events as requests move through appeals or review.</p></section>`}
+        .join("") || `<section class="empty-state"><h3>${t("noTransparencyTitle")}</h3><p>${t("noTransparencyCopy")}</p></section>`}
     </div>
   `;
 }
@@ -1201,7 +1375,7 @@ function renderActionPlan(item) {
             <article class="panel action-card">
               <div class="card-footer top">
                 <div>
-                  <p class="eyebrow">${action.priority} priority / ${action.source}</p>
+                  <p class="eyebrow">${action.priority} ${t("priority")} / ${action.source}</p>
                   <h3>${action.action}</h3>
                 </div>
                 <span class="pill ${statusClass(action.status)}">${action.status}</span>
@@ -1216,7 +1390,7 @@ function renderActionPlan(item) {
             </article>
           `,
         )
-        .join("") || `<section class="empty-state"><h3>No action plan yet.</h3><p>Add reporter-reviewed tasks after each request, appeal or response review.</p></section>`}
+        .join("") || `<section class="empty-state"><h3>${t("noActionTitle")}</h3><p>${t("noActionCopy")}</p></section>`}
     </div>
   `;
 }
@@ -1225,7 +1399,7 @@ function suggestDeadlineAction(request, timing) {
   const status = request.status.toLowerCase();
 
   if (status.includes("fluxo separado") || status.includes("separate track")) {
-    return "Keep this flow in a separate log and update it only when its own channel returns a response.";
+    return t("separateTrackAction");
   }
 
   if (request.currentCheckpoint && timing.days >= 0) {
@@ -1233,33 +1407,33 @@ function suggestDeadlineAction(request, timing) {
   }
 
   if (request.currentCheckpoint && timing.days < 0) {
-    return `Checkpoint passed. ${request.currentCheckpoint.action}`;
+    return `${t("checkpointPassed")} ${request.currentCheckpoint.action}`;
   }
 
   if (status.includes("parcial") || status.includes("partial")) {
-    return "Compare requested fields with delivered records, then send a focused follow-up for missing items.";
+    return t("partialAction");
   }
 
   if (status.includes("problema") || status.includes("broken")) {
-    return "Document the access problem with screenshots and request a valid link or file resend.";
+    return t("brokenAction");
   }
 
   if (timing.days < 0) {
-    return "Prepare an escalation note with protocol, dates, request text and proof of non-response.";
+    return t("overdueAction");
   }
 
   if (timing.days <= 3) {
-    return "Prepare the response checklist now so the received material can be reviewed quickly.";
+    return t("nearDeadlineAction");
   }
 
-  return "Wait, keep the protocol organized and confirm the next review date in the reporting log.";
+  return t("waitAction");
 }
 
 function renderRequestComparison(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Request comparison</p>
-      <h2>Compare what was asked, what arrived and what still needs action.</h2>
+      <p class="eyebrow">${t("requestComparisonTitle")}</p>
+      <h2>${t("requestComparisonHeading")}</h2>
     </section>
     <div class="comparison-grid">
       ${item.requestComparisons
@@ -1268,32 +1442,32 @@ function renderRequestComparison(item) {
             <article class="panel comparison-card">
               <div class="card-footer top">
                 <div>
-                  <p class="eyebrow">Request</p>
+                  <p class="eyebrow">${t("requestLabel")}</p>
                   <h3>${comparison.requestTitle}</h3>
                 </div>
                 <span class="pill ${statusClass(comparison.deadlineStatus)}">${comparison.deadlineStatus}</span>
               </div>
               <div class="comparison-lane">
                 <div>
-                  <strong>Expected</strong>
+                  <strong>${t("expected")}</strong>
                   <p>${comparison.expected}</p>
                 </div>
                 <div>
-                  <strong>Received</strong>
+                  <strong>${t("received")}</strong>
                   <p>${comparison.received}</p>
                 </div>
                 <div>
-                  <strong>Missing or unclear</strong>
+                  <strong>${t("missingUnclear")}</strong>
                   <p>${comparison.missing}</p>
                 </div>
               </div>
               <dl class="detail-list">
                 <div>
-                  <dt>Editorial decision</dt>
+                  <dt>${t("editorialDecision")}</dt>
                   <dd>${comparison.editorialDecision}</dd>
                 </div>
                 <div>
-                  <dt>Next step</dt>
+                  <dt>${t("nextStep")}</dt>
                   <dd>${comparison.nextStep}</dd>
                 </div>
               </dl>
@@ -1310,9 +1484,9 @@ function renderFollowUps(item) {
 
   return `
     <section class="content-header">
-      <p class="eyebrow">Follow-up drafts</p>
-      <h2>Prepare messages and appeals without sending anything automatically.</h2>
-      <p>Every draft is a starting point for human review, not legal advice or a finished filing.</p>
+      <p class="eyebrow">${t("followUpDraftsTitle")}</p>
+      <h2>${t("followUpDraftsHeading")}</h2>
+      <p>${t("followUpDraftsCopy")}</p>
     </section>
     <div class="draft-grid">
       ${drafts
@@ -1327,8 +1501,8 @@ function renderFollowUps(item) {
                 <span class="pill ${statusClass(draft.status)}">${draft.status}</span>
               </div>
               <dl class="detail-list">
-                <div><dt>Related request</dt><dd>${draft.request}</dd></div>
-                <div><dt>Reporter check</dt><dd>${draft.riskNote}</dd></div>
+                <div><dt>${t("relatedRequest")}</dt><dd>${draft.request}</dd></div>
+                <div><dt>${t("reporterCheck")}</dt><dd>${draft.riskNote}</dd></div>
               </dl>
               <pre class="draft-text">${draft.draft}</pre>
             </article>
@@ -1342,8 +1516,8 @@ function renderFollowUps(item) {
 function renderGaps(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Gaps and next steps</p>
-      <h2>Turn missing evidence into follow-up actions.</h2>
+      <p class="eyebrow">${t("gapsTitle")}</p>
+      <h2>${t("gapsHeading")}</h2>
     </section>
     <div class="stack">
       ${item.gaps
@@ -1352,8 +1526,8 @@ function renderGaps(item) {
             <article class="row-card">
               <div>
                 <h3>${gap.description}</h3>
-                <p>Origin: ${gap.origin}</p>
-                <p class="muted">Next step: ${gap.nextStep}</p>
+                <p>${t("origin")}: ${gap.origin}</p>
+                <p class="muted">${t("nextStep")}: ${gap.nextStep}</p>
               </div>
               <div class="pill-column">
                 <span class="pill ${statusClass(gap.severity)}">${gap.severity}</span>
@@ -1370,13 +1544,13 @@ function renderGaps(item) {
 function renderClaims(item) {
   return `
     <section class="content-header">
-      <p class="eyebrow">Claim-to-evidence matrix</p>
-      <h2>Check whether publishable claims are supported.</h2>
+      <p class="eyebrow">${t("claimMatrixTitle")}</p>
+      <h2>${t("claimMatrixHeading")}</h2>
     </section>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Claim</th><th>Type</th><th>Evidence</th><th>Strength</th><th>Risk</th><th>Status</th></tr>
+          <tr><th>${t("claim")}</th><th>${t("type")}</th><th>${t("evidence")}</th><th>${t("strength")}</th><th>${t("risk")}</th><th>${t("status")}</th></tr>
         </thead>
         <tbody>
           ${item.claims
@@ -1567,8 +1741,8 @@ function renderMethodology(item) {
   const markdown = methodologyMarkdown(item);
   return `
     <section class="content-header">
-      <p class="eyebrow">Methodological note</p>
-      <h2>Export a transparent summary of evidence, requests and limits.</h2>
+      <p class="eyebrow">${t("methodologyNote")}</p>
+      <h2>${t("methodologyHeading")}</h2>
       <button class="button" data-action="copy-methodology">${t("copyMarkdown")}</button>
     </section>
     <pre class="methodology" id="methodology-text">${markdown}</pre>
