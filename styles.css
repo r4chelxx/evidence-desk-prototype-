@@ -714,6 +714,22 @@ dd {
   gap: 0.85rem;
 }
 
+.action-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.action-card {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.action-card h3 {
+  line-height: 1.28;
+  margin: 0.25rem 0 0;
+}
+
 .draft-text {
   background: #fbf8ef;
   border: 1px solid var(--line);
