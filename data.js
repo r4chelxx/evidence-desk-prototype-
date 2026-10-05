@@ -82,6 +82,68 @@ export const investigations = [
       "Structure the 23 MPBA/CESAU records from the capital-scope certificate before using them analytically.",
       "Keep DPE-BA representation 2026.01.020197 separate from the SESAB/OGE/CGAI chain.",
     ],
+    actionItems: [
+      {
+        action: "Check whether manifestation 3346148 received a substantive SESAB/CGAI response.",
+        type: "Deadline review",
+        priority: "High",
+        status: "Pending checkpoint",
+        owner: "Reporter",
+        dueDate: "2026-10-24",
+        source: "Transparency diary",
+        rationale:
+          "The diary records an e-mail deadline of 24/10 and a portal deadline of 01/11, but no documentary CGAI decision.",
+        output: "Updated log entry saying whether the response delivered data, only forwarded the case, or remained silent.",
+      },
+      {
+        action: "Recheck the portal deadline for manifestation 3346148.",
+        type: "Deadline conflict",
+        priority: "High",
+        status: "Scheduled",
+        owner: "Reporter",
+        dueDate: "2026-11-01",
+        source: "Transparency diary",
+        rationale:
+          "The same procedural track has two dates; the product must preserve both instead of choosing one automatically.",
+        output: "Deadline conflict note resolved, preserved or escalated with screenshots.",
+      },
+      {
+        action: "Monitor appeal 202620001408821 about the missing DGC/SESAB attachment.",
+        type: "Appeal follow-up",
+        priority: "High",
+        status: "Pending checkpoint",
+        owner: "Reporter",
+        dueDate: "2026-11-01",
+        source: "OuvidorSUS appeal",
+        rationale:
+          "The diary states that a definitive response mentioned an attachment, but the attachment was not effectively available.",
+        output: "Decision on whether the original Ouvidoria SUS request remains unfulfilled or can move to evidence review.",
+      },
+      {
+        action: "Structure the 23 MPBA/CESAU capital-scope records before analysis.",
+        type: "Data structuring",
+        priority: "Medium",
+        status: "Ready",
+        owner: "Reporter",
+        dueDate: "",
+        source: "Oficio 41/CESAU",
+        rationale:
+          "The certificate is useful but partial; it cannot be treated as statewide MPBA coverage without a scope note.",
+        output: "Table with IDEA number, year, unit, object, status and scope warning.",
+      },
+      {
+        action: "Keep DPE-BA ficha 2026.01.020197 out of the SESAB/CGAI dossier until it has its own response.",
+        type: "Scope control",
+        priority: "Medium",
+        status: "Open",
+        owner: "Reporter",
+        dueDate: "",
+        source: "DPE-BA manifestation",
+        rationale:
+          "The diary documents a separate administrative representation, so mixing it with SESAB/CGAI would distort the procedural history.",
+        output: "Separate DPE-BA log entry and no DPE claims inside the SESAB/CGAI track.",
+      },
+    ],
     accessLaw: {
       framework: "Brazilian LAI",
       deadline: "20 days, with possible 10-day extension when justified.",
@@ -650,6 +712,44 @@ export const investigations = [
       "Replace generic county references with one real jurisdiction before user testing.",
       "Add state-specific deadline and appeal language.",
       "Confirm whether procurement records, invoices and board attachments follow separate request paths.",
+    ],
+    actionItems: [
+      {
+        action: "Select one real state before showing public-records deadlines.",
+        type: "Jurisdiction setup",
+        priority: "High",
+        status: "Blocked",
+        owner: "Reporter",
+        dueDate: "",
+        source: "State public records guide",
+        rationale:
+          "A U.S. school district usually follows state public-records law, not federal FOIA.",
+        output: "State-specific deadline, exemption and appeal fields ready for QA.",
+      },
+      {
+        action: "Send a narrowed invoice and purchase-order follow-up.",
+        type: "Records follow-up",
+        priority: "Medium",
+        status: "Ready",
+        owner: "Reporter",
+        dueDate: "",
+        source: "Partial production",
+        rationale:
+          "Contracts alone cannot show spending patterns; invoices and purchase orders are still missing.",
+        output: "Focused request limited to invoices, purchase orders and older records location.",
+      },
+      {
+        action: "Identify exact board meeting dates before requesting attachments.",
+        type: "Source narrowing",
+        priority: "Medium",
+        status: "Needs reporter input",
+        owner: "Reporter",
+        dueDate: "",
+        source: "School board website",
+        rationale:
+          "The attachment request should be narrow enough to avoid unnecessary delay or fees.",
+        output: "List of meeting dates and agenda items connected to vendor decisions.",
+      },
     ],
     accessLaw: {
       framework: "U.S. public records law",
