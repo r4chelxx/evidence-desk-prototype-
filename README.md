@@ -18,11 +18,13 @@ without backend, login, external integrations or AI.
 - Central question, secondary questions and working hypotheses for each investigation.
 - Evidence blocks, sources and request tracking.
 - Deadline and escalation guidance.
+- Original deadline vs current checkpoint tracking for active LAI/FOIA follow-ups.
 - Transparency log for procedural LAI/FOIA history, appeals, partial responses and missing attachments.
 - Request vs response comparison.
 - Human-reviewed follow-up draft examples.
 - Freshness/review warnings for stale or active investigations.
 - QA checklist with blockers and editorial risk.
+- Method safeguards that prevent missing data, silence or forwarding from becoming unsupported claims.
 - Claim-to-evidence matrix.
 - Markdown methodological note preview/copy flow, including sources, source types and limits.
 - Dashboard testing guide with tasks, feedback questions and acceptance criteria.
