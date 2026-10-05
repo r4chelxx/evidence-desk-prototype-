@@ -37,6 +37,27 @@ export const testPlan = {
   ],
 };
 
+export const roadmap = [
+  {
+    phase: "v0.1 static prototype",
+    status: "Current",
+    goal: "Validate the reporting workflow, language, filters, request tracking, gaps, claims and methodology export without backend or AI.",
+    ownerQuestion: "Do journalists understand the structure quickly enough to use it in a real investigation?",
+  },
+  {
+    phase: "v0.2 persistence",
+    status: "Next",
+    goal: "Add saved investigations, editable sources, manual request logs, responses, gaps and claim records.",
+    ownerQuestion: "Can a reporter keep a real case updated without returning to spreadsheets or scattered notes?",
+  },
+  {
+    phase: "v0.3 assisted review",
+    status: "Later",
+    goal: "Add limited AI for request-response comparison, gap spotting, response summaries and reporter-reviewed follow-up drafts.",
+    ownerQuestion: "Which steps are safe to automate, and which must stay under editorial control?",
+  },
+];
+
 export const investigations = [
   {
     id: "vo-bahia",
