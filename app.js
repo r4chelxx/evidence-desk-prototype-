@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n7";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n8";
 
 const state = {
   view: "dashboard",
@@ -51,6 +51,7 @@ const dictionary = {
     reset: "Limpar",
     openInvestigation: "Abrir investigacao",
     requests: "Pedidos",
+    responses: "Respostas",
     followUps: "Acompanhamentos",
     qaBlockers: "bloqueios de QA",
     emptyTitle: "Nenhuma investigacao corresponde aos filtros.",
@@ -98,6 +99,7 @@ const dictionary = {
     addHypothesis: "Adicionar hipotese",
     mapEvidence: "Mapear evidencia",
     registerRequest: "Registrar pedido",
+    reviewResponse: "Revisar resposta",
     addClaim: "Adicionar afirmacao",
     exportMethodology: "Exportar metodologia",
     deadlinesNext: "Prazos e proximos passos",
@@ -122,6 +124,16 @@ const dictionary = {
     due: "Prazo",
     requested: "Solicitado",
     response: "Resposta",
+    responsesTitle: "Respostas recebidas",
+    responsesHeading: "Revise o que chegou antes de transformar resposta em evidencia.",
+    responseStatus: "Status da resposta",
+    receivedMaterials: "Material recebido",
+    identifiedGaps: "Lacunas identificadas",
+    reviewDecision: "Decisao de revisao",
+    noReceivedMaterial: "Nenhum material recebido ou verificavel ainda.",
+    noComparisonYet: "Comparacao detalhada ainda nao registrada.",
+    responseReviewRule: "Regra de revisao",
+    responseReviewRuleCopy: "Uma resposta so vira evidencia depois de abrir arquivos, conferir anexos, checar campos e registrar limites.",
     ifNothingArrives: "Se nada chegar",
     requestsEyebrow: "Pedidos",
     requestsTitle: "Acompanhe pedidos feitos fora da plataforma.",
@@ -261,6 +273,7 @@ const dictionary = {
     reset: "Reset",
     openInvestigation: "Open investigation",
     requests: "requests",
+    responses: "Responses",
     followUps: "follow-ups",
     qaBlockers: "QA blockers",
     emptyTitle: "No investigations match these filters.",
@@ -308,6 +321,7 @@ const dictionary = {
     addHypothesis: "Add hypothesis",
     mapEvidence: "Map evidence",
     registerRequest: "Register request",
+    reviewResponse: "Review response",
     addClaim: "Add claim",
     exportMethodology: "Export methodology",
     deadlinesNext: "Deadlines and next steps",
@@ -332,6 +346,16 @@ const dictionary = {
     due: "Due",
     requested: "Requested",
     response: "Response",
+    responsesTitle: "Received responses",
+    responsesHeading: "Review what arrived before turning a response into evidence.",
+    responseStatus: "Response status",
+    receivedMaterials: "Received material",
+    identifiedGaps: "Identified gaps",
+    reviewDecision: "Review decision",
+    noReceivedMaterial: "No received or verifiable material yet.",
+    noComparisonYet: "No detailed comparison recorded yet.",
+    responseReviewRule: "Review rule",
+    responseReviewRuleCopy: "A response becomes evidence only after opening files, checking attachments, reviewing fields and recording limits.",
     ifNothingArrives: "If nothing arrives",
     requestsEyebrow: "Requests",
     requestsTitle: "Track requests made outside the platform.",
@@ -566,6 +590,10 @@ function countRequestFollowUps(investigation) {
     const decision = comparison.editorialDecision.toLowerCase();
     return decision.includes("ressalva") || decision.includes("nao usar") || decision.includes("partial");
   }).length;
+}
+
+function countReviewedResponses(investigation) {
+  return investigation.requestComparisons.filter((comparison) => comparison.received || comparison.editorialDecision).length;
 }
 
 function uniqueOptions(field) {
@@ -994,6 +1022,7 @@ function renderInvestigation() {
     ["evidence", t("evidenceBlocks")],
     ["sources", t("sources")],
     ["requests", t("requests")],
+    ["responses", t("responses")],
     ["deadlines", t("deadlines")],
     ["actions", t("actionPlan")],
     ["transparency", t("transparencyLog")],
@@ -1042,6 +1071,7 @@ function renderTab(item) {
     evidence: renderEvidenceBlocks,
     sources: renderSources,
     requests: renderRequests,
+    responses: renderResponses,
     deadlines: renderDeadlines,
     actions: renderActionPlan,
     transparency: renderTransparencyLog,
@@ -1066,6 +1096,7 @@ function renderOverview(item) {
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
       <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
+      <div><strong>${countReviewedResponses(item)}</strong><span>${t("responses")}</span></div>
       <div><strong>${countLateRequests(item)}</strong><span>${t("lateRequests")}</span></div>
       <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>${t("openGaps")}</span></div>
@@ -1083,6 +1114,7 @@ function renderOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="hypotheses">${t("addHypothesis")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="evidence">${t("mapEvidence")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("registerRequest")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="responses">${t("reviewResponse")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
       </div>
@@ -1358,6 +1390,63 @@ function renderRequests(item) {
             </article>
           `,
         )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderResponses(item) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("responsesTitle")}</p>
+      <h2>${t("responsesHeading")}</h2>
+    </section>
+    <section class="panel accent">
+      <h3>${t("responseReviewRule")}</h3>
+      <p>${t("responseReviewRuleCopy")}</p>
+    </section>
+    <div class="stack">
+      ${item.requests
+        .map((request) => {
+          const comparison = item.requestComparisons.find((entry) => entry.requestTitle === request.title);
+          const hasReceivedMaterial =
+            request.responseSummary &&
+            !request.responseSummary.toLowerCase().includes("sem resposta") &&
+            !request.responseSummary.toLowerCase().includes("no response") &&
+            !request.responseSummary.toLowerCase().includes("sem entrega");
+
+          return `
+            <article class="panel">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${request.agency}</p>
+                  <h3>${request.title}</h3>
+                </div>
+                <span class="pill ${statusClass(request.status)}">${request.status}</span>
+              </div>
+              <dl class="detail-list grid">
+                <div><dt>${t("protocol")}</dt><dd>${request.protocol}</dd></div>
+                <div><dt>${t("responseStatus")}</dt><dd>${request.status}</dd></div>
+                <div><dt>${t("sent")}</dt><dd>${request.sentDate}</dd></div>
+                <div><dt>${t("due")}</dt><dd>${request.dueDate}</dd></div>
+              </dl>
+              <dl class="detail-list">
+                <div>
+                  <dt>${t("receivedMaterials")}</dt>
+                  <dd>${comparison?.received || (hasReceivedMaterial ? request.responseSummary : t("noReceivedMaterial"))}</dd>
+                </div>
+                <div>
+                  <dt>${t("identifiedGaps")}</dt>
+                  <dd>${comparison?.missing || t("noComparisonYet")}</dd>
+                </div>
+                <div>
+                  <dt>${t("reviewDecision")}</dt>
+                  <dd>${comparison?.editorialDecision || t("noComparisonYet")}</dd>
+                </div>
+              </dl>
+            </article>
+          `;
+        })
         .join("")}
     </div>
   `;
@@ -1782,6 +1871,11 @@ function methodologyMarkdown(item) {
           localizationNotes: "Notas de localizacao",
           noLanguagePlan: "Nenhum plano de idioma registrado.",
           requestsTracked: "Pedidos acompanhados",
+          responsesReviewed: "Respostas revisadas",
+          noResponsesReviewed: "Nenhuma resposta revisada registrada.",
+          material: "Material",
+          gap: "Lacuna",
+          decision: "Decisao",
           currentCheckpoint: "Checkpoint atual",
           transparencyLog: "Diario de transparencia",
           next: "Proximo passo",
@@ -1835,6 +1929,11 @@ function methodologyMarkdown(item) {
           localizationNotes: "Localization notes",
           noLanguagePlan: "No language plan recorded.",
           requestsTracked: "Requests tracked",
+          responsesReviewed: "Responses reviewed",
+          noResponsesReviewed: "No reviewed responses recorded.",
+          material: "Material",
+          gap: "Gap",
+          decision: "Decision",
           currentCheckpoint: "Current checkpoint",
           transparencyLog: "Transparency log",
           next: "Next",
@@ -1869,6 +1968,15 @@ function methodologyMarkdown(item) {
     .join("\n");
   const comparisons = item.requestComparisons
     .map((comparison) => `- ${comparison.requestTitle}: ${comparison.editorialDecision}; ${labels.next}: ${comparison.nextStep}`)
+    .join("\n");
+  const responseReviews = item.requests
+    .map((request) => {
+      const comparison = item.requestComparisons.find((entry) => entry.requestTitle === request.title);
+      const material = comparison?.received || request.responseSummary || t("noReceivedMaterial");
+      const gap = comparison?.missing || t("noComparisonYet");
+      const decision = comparison?.editorialDecision || t("noComparisonYet");
+      return `- ${request.title}: ${request.status}. ${labels.material}: ${material} ${labels.gap}: ${gap} ${labels.decision}: ${decision}`;
+    })
     .join("\n");
   const reviews = (item.nextReviewItems || []).map((reviewItem) => `- ${reviewItem}`).join("\n");
   const law = item.accessLaw
@@ -1936,6 +2044,9 @@ ${languagePlan}
 
 ## ${labels.requestsTracked}
 ${requests}
+
+## ${labels.responsesReviewed}
+${responseReviews || labels.noResponsesReviewed}
 
 ## ${labels.transparencyLog}
 ${transparencyLog || labels.noTransparencyLog}
