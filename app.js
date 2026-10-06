@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n8";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n9";
 
 const state = {
   view: "dashboard",
@@ -475,8 +475,197 @@ const dictionary = {
   },
 };
 
+dictionary.es = {
+  ...dictionary.pt,
+  all: "Todos",
+  languageToggle: "Idioma de la interfaz",
+  topbarNote: "Flujo de investigacion para periodismo de interes publico",
+  goDashboard: "Volver al panel",
+  heroTitle: "Convierte preguntas investigativas en evidencias, vacios y afirmaciones publicables.",
+  heroCopy:
+    "Este prototipo estatico prueba el flujo central antes de backend, login o IA: mapear evidencias, seguir solicitudes, comparar respuestas y vincular afirmaciones a pruebas.",
+  prototypeGoal: "Objetivo del prototipo",
+  prototypeGoalText: "Validar si el metodo ayuda a periodistas a trabajar con menos caos.",
+  investigations: "Investigaciones",
+  testCases: "Casos de prueba",
+  shown: "investigaciones mostradas",
+  newInvestigation: "Nueva investigacion",
+  country: "Pais",
+  language: "Idioma",
+  topic: "Tema",
+  reset: "Limpiar",
+  openInvestigation: "Abrir investigacion",
+  requests: "Solicitudes",
+  responses: "Respuestas",
+  followUps: "Seguimientos",
+  qaBlockers: "bloqueos de QA",
+  emptyTitle: "Ninguna investigacion coincide con los filtros.",
+  emptyCopy: "Prueba otro pais, idioma, tema o estado. Esto prueba el estado vacio previsto en el MVP.",
+  clearFilters: "Limpiar filtros",
+  buildRoadmap: "Roadmap del producto",
+  roadmapTitle: "Que prueba este prototipo antes de que la ingenieria sea cara",
+  fellowshipScope: "alcance fellowship",
+  validationQuestion: "Pregunta de validacion",
+  mvpCoverage: "Cobertura del MVP",
+  mvpCoverageTitle: "Checklist contra el documento original",
+  mvpCoverageBadge: "revision PRD",
+  expectedInDoc: "Previsto en el documento",
+  implementedInPrototype: "En el prototipo",
+  testingGuide: "Guia de prueba",
+  testingTitle: "Que deben probar primero QA y periodistas",
+  testScript: "guion v0.1",
+  coreTasks: "Tareas centrales",
+  feedbackQuestions: "Preguntas de feedback",
+  acceptanceCriteria: "Criterios de aceptacion",
+  back: "Volver a investigaciones",
+  overview: "Vista general",
+  jurisdiction: "Jurisdiccion",
+  hypotheses: "Hipotesis",
+  evidenceBlocks: "Bloques de evidencia",
+  sources: "Fuentes",
+  deadlines: "Plazos",
+  actionPlan: "Plan de accion",
+  transparencyLog: "Diario de transparencia",
+  requestComparison: "Comparacion de solicitudes",
+  gaps: "Vacios",
+  claims: "Afirmaciones",
+  methodology: "Metodologia",
+  evidenceBlocksMetric: "bloques de evidencia",
+  lateRequests: "solicitudes atrasadas",
+  openGaps: "vacios abiertos",
+  claimsReview: "afirmaciones a revisar",
+  reviewItems: "items de revision",
+  actionItems: "acciones",
+  centralQuestion: "Pregunta central",
+  quickActions: "Acciones rapidas",
+  quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
+  addHypothesis: "Agregar hipotesis",
+  mapEvidence: "Mapear evidencia",
+  registerRequest: "Registrar solicitud",
+  reviewResponse: "Revisar respuesta",
+  addClaim: "Agregar afirmacion",
+  exportMethodology: "Exportar metodologia",
+  deadlinesNext: "Plazos y proximos pasos",
+  deadlinesTitle: "Sepa cuando esperar, revisar, contestar o escalar.",
+  sent: "Enviado",
+  originalDue: "Plazo original",
+  currentCheckpoint: "Checkpoint actual",
+  checkpointSource: "Fuente del checkpoint",
+  suggestedAction: "Accion sugerida",
+  owner: "Responsable",
+  dueCheckpoint: "Plazo/checkpoint",
+  whyItMatters: "Por que importa",
+  output: "Salida esperada",
+  actionPlanTitle: "Convierte el registro de investigacion en una fila controlada de proximos pasos.",
+  actionPlanCopy: "Cada accion debe estar ligada a una fuente, protocolo o evento procedimental documentado.",
+  priority: "prioridad",
+  requestLabel: "Solicitud",
+  due: "Plazo",
+  requested: "Solicitado",
+  response: "Respuesta",
+  responsesTitle: "Respuestas recibidas",
+  responsesHeading: "Revise lo que llego antes de convertir una respuesta en evidencia.",
+  responseStatus: "Estado de la respuesta",
+  receivedMaterials: "Material recibido",
+  identifiedGaps: "Vacios identificados",
+  reviewDecision: "Decision de revision",
+  noReceivedMaterial: "Ningun material recibido o verificable todavia.",
+  noComparisonYet: "Comparacion detallada aun no registrada.",
+  responseReviewRule: "Regla de revision",
+  responseReviewRuleCopy: "Una respuesta solo se convierte en evidencia despues de abrir archivos, revisar anexos, checar campos y registrar limites.",
+  ifNothingArrives: "Si no llega nada",
+  requestsTitle: "Acompanhe solicitudes hechas fuera de la plataforma.",
+  methodSafeguards: "Salvaguardas metodologicas",
+  methodSafeguardsTitle: "Reglas que evitan que la herramienta exagere evidencias.",
+  processGuideTitle: "Flujo atento a la jurisdiccion, todavia controlado por la reportera.",
+  transparencyLogTitle: "Diario de transparencia",
+  transparencyLogHeading: "Siga el historial procesal sin tratar movimientos como entrega de evidencia.",
+  transparencyLogCopy: "Use este registro para separar solicitud, encaminamiento, respuesta parcial, recurso y entrega real de documentos.",
+  nextStep: "Proximo paso",
+  requestComparisonTitle: "Comparacion de solicitudes",
+  requestComparisonHeading: "Compare lo que se pidio, lo que llego y lo que aun exige accion.",
+  expected: "Esperado",
+  received: "Recibido",
+  missingUnclear: "Ausente o poco claro",
+  editorialDecision: "Decision editorial",
+  followUpDraftsTitle: "Borradores de seguimiento",
+  followUpDraftsHeading: "Prepare mensajes y recursos sin enviar nada automaticamente.",
+  followUpDraftsCopy: "Cada borrador es un punto de partida para revision humana, no orientacion legal ni peticion lista.",
+  relatedRequest: "Solicitud relacionada",
+  reporterCheck: "Chequeo de la reportera",
+  gapsTitle: "Vacios y proximos pasos",
+  gapsHeading: "Convierte evidencias ausentes en acciones de seguimiento.",
+  claimMatrixTitle: "Matriz afirmacion-evidencia",
+  claimMatrixHeading: "Verifique si las afirmaciones publicables estan sustentadas.",
+  claim: "Afirmacion",
+  evidence: "Evidencia",
+  methodologyNote: "Nota metodologica",
+  methodologyHeading: "Exporte un resumen transparente de evidencias, solicitudes y limites.",
+  qaChecklistHeading: "Revise riesgos antes de tratar evidencias como publicables.",
+  qaNoBlockers: "Ningun bloqueo de QA registrado.",
+  action: "Accion",
+  editorialSafeguards: "Salvaguardas editoriales",
+  editorialSafeguardsHeading: "No transforme problemas de acceso en afirmaciones sin evidencia.",
+  jurisdictionAccess: "Jurisdiccion y reglas de acceso",
+  jurisdictionHeading: "Defina plazos y caminos de fuente antes de usar asistencia por IA.",
+  jurisdictionCopy: "La herramienta debe guiar a la reportera por reglas conocidas, no inventarlas.",
+  deadline: "Plazo",
+  requestChannels: "Canales de solicitud",
+  escalation: "Escalamiento",
+  reporterWarning: "Alerta para reportera",
+  productRule: "Regla del producto",
+  productRuleCopy:
+    "Evidence Desk solo puede sugerir proximos pasos despues de que la reportera selecciona jurisdiccion, confirma el canal de solicitud y revisa la regla de acceso relevante.",
+  sourceDiscovery: "Descubrimiento de fuentes",
+  sourceDiscoveryHeading: "Empiece por caminos controlados, despues deje que la reportera verifique.",
+  verify: "Verificar",
+  languageLocalization: "Idioma y localizacion",
+  languageHeading: "Separe traduccion de localizacion juridica y editorial.",
+  languageCopy: "Una herramienta global necesita acceso multilingue, pero la orientacion sobre ley de acceso depende de la jurisdiccion.",
+  languagePlan: "Plan de idioma",
+  workingLanguage: "Idioma de trabajo",
+  interfaceOptions: "Opciones de interfaz",
+  publicationLanguages: "Idiomas de publicacion",
+  localizationRule: "Regla de localizacion",
+  localizationRuleCopy:
+    "Traduzca libremente los rotulos de interfaz, pero localice leyes, plazos, organismos y tipos de fuente solo cuando la jurisdiccion sea conocida y revisada por la reportera.",
+  translationNotes: "Notas de traduccion",
+  translationNotesHeading: "Termos que requieren revision humana.",
+  questionsHypotheses: "Preguntas e hipotesis",
+  hypothesesHeading: "Divida la pregunta central en partes comprobables.",
+  secondaryQuestions: "Preguntas secundarias",
+  noSecondary: "Aun no hay preguntas secundarias registradas.",
+  relatedEvidence: "Evidencia relacionada",
+  evidenceBlocksTitle: "Bloques de evidencia",
+  evidenceBlocksHeading: "Que tipos de prueba son necesarios?",
+  evidenceBlocksCopy: "Los bloques ayudan a separar lo que debe probarse de donde puede encontrarse la informacion.",
+  priorityLabel: "Prioridad",
+  sourcesTitle: "Fuentes y bases de datos",
+  sourcesHeading: "Separe fuentes verificadas de caminos probables.",
+  copyMarkdown: "Copiar Markdown",
+  copied: "Copiado",
+  projectScope: "Alcance del proyecto",
+  topicLabel: "Tema",
+  updated: "Actualizado",
+  editorialSafetyRule: "Regla de seguridad editorial",
+  editorialSafetyCopy:
+    "Los vacios no son conclusiones. Son problemas de evidencia abiertos que requieren seguimiento, limite metodologico o reescritura de la afirmacion.",
+  freshnessCheck: "Chequeo de actualidad",
+  reviewRecommended: "Revision recomendada",
+  partialResponse: "Respuesta parcial recibida",
+  responseReceived: "Respuesta recibida",
+  daysToCheckpoint: "dias hasta el checkpoint",
+  dayToCheckpoint: "dia hasta el checkpoint",
+  daysLeft: "dias restantes",
+  dayLeft: "dia restante",
+  daysPastCheckpoint: "dias despues del checkpoint",
+  dayPastCheckpoint: "dia despues del checkpoint",
+  daysOverdue: "dias de atraso",
+  dayOverdue: "dia de atraso",
+};
+
 function t(key) {
-  return dictionary[state.locale]?.[key] || dictionary.en[key] || key;
+  return dictionary[state.locale]?.[key] || dictionary.pt[key] || dictionary.en[key] || key;
 }
 
 function getCurrentInvestigation() {
@@ -627,7 +816,7 @@ function investigationMatchesFilters(item) {
 }
 
 function renderShell(content) {
-  const languageToggle = ["pt", "en"]
+  const languageToggle = ["pt", "en", "es"]
     .map(
       (locale) => `
         <button class="locale-button ${state.locale === locale ? "active" : ""}" data-action="set-locale" data-locale="${locale}">
@@ -698,6 +887,45 @@ function renderDashboard() {
             "A pessoa percebe os exemplos Brasil e EUA como o mesmo metodo adaptado localmente.",
           ],
         }
+      : state.locale === "es"
+        ? {
+            tasks: [
+              {
+                title: "Abrir la investigacion de Brasil",
+                goal: "Verificar si una periodista entiende respuestas parciales de LAI, anexos ausentes y pasos de escalamiento.",
+                success: "La persona puede identificar al menos un vacio de evidencia y una proxima accion segura.",
+              },
+              {
+                title: "Abrir la investigacion de Estados Unidos",
+                goal: "Verificar si el mismo flujo funciona fuera de Brasil con registros publicos, contratos y actas escolares.",
+                success: "La persona entiende que el estado/jurisdiccion debe definirse antes de confiar en plazos o recursos.",
+              },
+              {
+                title: "Revisar una afirmacion",
+                goal: "Verificar si la fuerza de la afirmacion, el riesgo y las evidencias de apoyo son faciles de entender.",
+                success: "La persona puede decir que afirmaciones estan listas, parciales o inseguras.",
+              },
+              {
+                title: "Copiar la metodologia",
+                goal: "Verificar si la nota exportada diferencia evidencias, vacios, limites, QA y seguimientos.",
+                success: "La persona reutilizaria al menos parte de la nota en una seccion real de transparencia/metodologia.",
+              },
+            ],
+            questions: [
+              "Donde te sentiste mas orientada o mas perdida?",
+              "El termino 'bloque de evidencia' funciona o deberia cambiar?",
+              "Fuentes, solicitudes, vacios y afirmaciones estan claramente separados?",
+              "La herramienta parece util o parece burocracia extra?",
+              "Que deberia automatizarse despues, y que debe seguir bajo control de la reportera?",
+            ],
+            acceptanceCriteria: [
+              "La persona entiende el estado de una investigacion en menos de dos minutos.",
+              "La persona identifica al menos una accion pendiente sin explicacion externa.",
+              "La persona entiende los vacios como problemas de evidencia pendientes, no acusaciones automaticas.",
+              "La persona entiende que los borradores de seguimiento no se envian automaticamente.",
+              "La persona percibe los ejemplos Brasil y EE. UU. como el mismo metodo adaptado localmente.",
+            ],
+          }
       : testPlan;
   const localizedRoadmap =
     state.locale === "pt"
@@ -723,6 +951,29 @@ function renderDashboard() {
             ownerQuestion: "Quais etapas sao seguras para automatizar, e quais devem permanecer sob controle editorial?",
           },
         ]
+      : state.locale === "es"
+        ? [
+            {
+              phase: "v0.1 prototipo estatico",
+              status: "Actual",
+              goal:
+                "Validar el flujo de investigacion, idioma, filtros, seguimiento de solicitudes, vacios, afirmaciones y exportacion metodologica sin backend o IA.",
+              ownerQuestion: "Periodistas entienden la estructura suficientemente rapido para usarla en una investigacion real?",
+            },
+            {
+              phase: "v0.2 persistencia",
+              status: "Proximo",
+              goal: "Agregar investigaciones guardadas, fuentes editables, registros manuales de solicitudes, respuestas, vacios y afirmaciones.",
+              ownerQuestion: "Una reportera puede mantener un caso real actualizado sin volver a planillas y notas dispersas?",
+            },
+            {
+              phase: "v0.3 revision asistida",
+              status: "Despues",
+              goal:
+                "Agregar IA limitada para comparacion solicitud-respuesta, identificacion de vacios, resumenes de respuestas y borradores revisados por la reportera.",
+              ownerQuestion: "Que etapas son seguras para automatizar, y cuales deben permanecer bajo control editorial?",
+            },
+          ]
       : roadmap;
   const cards = filteredInvestigations
     .map(
@@ -785,10 +1036,10 @@ function renderDashboard() {
     .join("");
   const coverageCards = mvpCoverage
     .map((item) => {
-      const area = item.area[state.locale] || item.area.en;
-      const expected = item.expected[state.locale] || item.expected.en;
-      const implementation = item.implementation[state.locale] || item.implementation.en;
-      const status = item.status[state.locale] || item.status.en;
+      const area = item.area[state.locale] || item.area.pt || item.area.en;
+      const expected = item.expected[state.locale] || item.expected.pt || item.expected.en;
+      const implementation = item.implementation[state.locale] || item.implementation.pt || item.implementation.en;
+      const status = item.status[state.locale] || item.status.pt || item.status.en;
 
       return `
         <article class="panel coverage-card">
@@ -1900,6 +2151,65 @@ function methodologyMarkdown(item) {
           gaps: "Lacunas e limites abertos",
           mainClaims: "Afirmacoes principais",
         }
+      : state.locale === "es"
+        ? {
+            title: "Nota metodologica",
+            centralQuestion: "Pregunta central",
+            secondaryQuestions: "Preguntas secundarias",
+            noSecondaryQuestions: "Ninguna pregunta secundaria registrada.",
+            workingHypotheses: "Hipotesis de trabajo",
+            scope: "Alcance",
+            countryJurisdiction: "Pais/jurisdiccion",
+            territory: "Territorio",
+            period: "Periodo",
+            jurisdictionRules: "Jurisdiccion y reglas de acceso",
+            framework: "Base legal",
+            deadline: "Plazo",
+            escalation: "Escalamiento",
+            warning: "Alerta",
+            noJurisdictionRule: "Ninguna regla de jurisdiccion registrada.",
+            sourceDiscovery: "Descubrimiento de fuentes",
+            verify: "Verificar",
+            noSourceDiscovery: "Ningun mapa de descubrimiento de fuentes registrado.",
+            sources: "Fuentes, bases y documentos",
+            limits: "Limites",
+            noSources: "Ninguna fuente registrada.",
+            languageLocalization: "Idioma y localizacion",
+            workingLanguage: "Idioma de trabajo",
+            interfaceLanguages: "Idiomas de la interfaz",
+            publicationLanguages: "Idiomas de publicacion",
+            localizationNotes: "Notas de localizacion",
+            noLanguagePlan: "Ningun plan de idioma registrado.",
+            requestsTracked: "Solicitudes acompanadas",
+            responsesReviewed: "Respuestas revisadas",
+            noResponsesReviewed: "Ninguna respuesta revisada registrada.",
+            material: "Material",
+            gap: "Vacio",
+            decision: "Decision",
+            currentCheckpoint: "Checkpoint actual",
+            transparencyLog: "Diario de transparencia",
+            next: "Proximo paso",
+            noTransparencyLog: "Ningun diario de transparencia registrado.",
+            requestComparison: "Comparacion solicitud-respuesta",
+            followUpDrafts: "Borradores de seguimiento",
+            reporterCheck: "Chequeo de la reportera",
+            noFollowUps: "Ningun borrador de seguimiento registrado.",
+            actionPlan: "Plan de accion",
+            dueCheckpoint: "plazo/checkpoint",
+            noDate: "sin fecha",
+            output: "Salida",
+            noActionPlan: "Ningun plan de accion registrado.",
+            freshnessReview: "Actualidad y revision",
+            noFreshness: "Ninguna alerta de actualidad registrada.",
+            qaChecklist: "Checklist QA",
+            risk: "riesgo",
+            noQa: "Ningun checklist QA registrado.",
+            methodSafeguards: "Salvaguardas metodologicas",
+            productUse: "Uso en el producto",
+            noSafeguards: "Ninguna salvaguarda metodologica registrada.",
+            gaps: "Vacios y limites abiertos",
+            mainClaims: "Afirmaciones principales",
+          }
       : {
           title: "Methodological note",
           centralQuestion: "Central question",
