@@ -141,8 +141,8 @@ export const mvpCoverage = [
       en: "Show requested, delivered and missing items, granularity issues and next steps.",
     },
     implementation: {
-      pt: "Aba de comparacao com esperado, recebido, ausente/pouco claro e decisao editorial.",
-      en: "Comparison tab with expected, received, missing/unclear and editorial decision.",
+      pt: "Abas de respostas e comparacao com material recebido, lacunas, esperado, ausente/pouco claro e decisao editorial.",
+      en: "Responses and comparison tabs with received material, gaps, expected items, missing/unclear points and editorial decision.",
     },
     status: {
       pt: "Implementado",
