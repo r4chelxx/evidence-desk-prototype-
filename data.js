@@ -63,162 +63,198 @@ export const mvpCoverage = [
     area: {
       pt: "Criar investigacao",
       en: "Create investigation",
+      es: "Crear investigacion",
     },
     expected: {
       pt: "Titulo, pais, jurisdicao, idioma, tema, territorio, periodo, pergunta central e descricao curta.",
       en: "Title, country, jurisdiction, language, topic, territory, period, central question and short description.",
+      es: "Titulo, pais, jurisdiccion, idioma, tema, territorio, periodo, pregunta central y descripcion corta.",
     },
     implementation: {
       pt: "Formulario de nova investigacao com validacoes essenciais e preview do projeto.",
       en: "New investigation form with essential validations and project preview.",
+      es: "Formulario de nueva investigacion con validaciones esenciales y preview del proyecto.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Mapear evidencias",
       en: "Map evidence",
+      es: "Mapear evidencias",
     },
     expected: {
       pt: "Perguntas, hipoteses e blocos de evidencia necessaria, complementar, contextual ou desconhecida.",
       en: "Questions, hypotheses and evidence blocks marked as necessary, complementary, contextual or unknown.",
+      es: "Preguntas, hipotesis y bloques de evidencia necesaria, complementaria, contextual o desconocida.",
     },
     implementation: {
       pt: "Abas de hipoteses e blocos de evidencia com status, prioridade e evidencia relacionada.",
       en: "Hypotheses and evidence-block tabs with status, priority and related evidence.",
+      es: "Pestanas de hipotesis y bloques de evidencia con estado, prioridad y evidencia relacionada.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Cadastrar fontes e bases",
       en: "Register sources and databases",
+      es: "Registrar fuentes y bases",
     },
     expected: {
       pt: "Separar fonte verificada, caminho provavel e fonte a confirmar, com limites e melhor uso.",
       en: "Separate verified source, likely path and source to confirm, with limits and best use.",
+      es: "Separar fuente verificada, camino probable y fuente por confirmar, con limites y mejor uso.",
     },
     implementation: {
       pt: "Aba de fontes com status, jurisdicao, links, limites e trilhas de descoberta.",
       en: "Sources tab with status, jurisdiction, links, limits and discovery paths.",
+      es: "Pestana de fuentes con estado, jurisdiccion, enlaces, limites y rutas de descubrimiento.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Registrar pedidos feitos fora da plataforma",
       en: "Track external requests",
+      es: "Registrar solicitudes externas",
     },
     expected: {
       pt: "Orgao, canal, protocolo, data, prazo, status, resumo e itens solicitados.",
       en: "Agency, channel, protocol, date, due date, status, summary and requested items.",
+      es: "Organismo, canal, protocolo, fecha, plazo, estado, resumen e items solicitados.",
     },
     implementation: {
       pt: "Aba de pedidos com prazos, checkpoints, status e acoes sugeridas sem envio automatico.",
       en: "Requests tab with due dates, checkpoints, status and suggested actions without automatic filing.",
+      es: "Pestana de solicitudes con plazos, checkpoints, estado y acciones sugeridas sin envio automatico.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Comparar pedido e resposta",
       en: "Compare request and response",
+      es: "Comparar solicitud y respuesta",
     },
     expected: {
       pt: "Mostrar itens solicitados, entregues, ausentes, divergencias de granularidade e proximos passos.",
       en: "Show requested, delivered and missing items, granularity issues and next steps.",
+      es: "Mostrar items solicitados, entregados, ausentes, divergencias de granularidad y proximos pasos.",
     },
     implementation: {
       pt: "Abas de respostas e comparacao com material recebido, lacunas, esperado, ausente/pouco claro e decisao editorial.",
       en: "Responses and comparison tabs with received material, gaps, expected items, missing/unclear points and editorial decision.",
+      es: "Pestanas de respuestas y comparacion con material recibido, vacios, esperado, ausente/poco claro y decision editorial.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Transformar lacunas em acoes",
       en: "Turn gaps into actions",
+      es: "Convertir vacios en acciones",
     },
     expected: {
       pt: "Marcar lacunas, riscos, origem e proximo passo sem tratar ausencia como conclusao.",
       en: "Mark gaps, risks, origin and next step without treating absence as a conclusion.",
+      es: "Marcar vacios, riesgos, origen y proximo paso sin tratar ausencia como conclusion.",
     },
     implementation: {
       pt: "Abas de lacunas, plano de acao, diario de transparencia e rascunhos de follow-up.",
       en: "Gaps, action plan, transparency log and follow-up draft tabs.",
+      es: "Pestanas de vacios, plan de accion, diario de transparencia y borradores de seguimiento.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Matriz claim-to-evidence",
       en: "Claim-to-evidence matrix",
+      es: "Matriz afirmacion-evidencia",
     },
     expected: {
       pt: "Vincular afirmacoes a evidencias, forca, risco e status editorial.",
       en: "Link claims to evidence, strength, risk and editorial status.",
+      es: "Vincular afirmaciones a evidencias, fuerza, riesgo y estado editorial.",
     },
     implementation: {
       pt: "Aba de afirmacoes com evidencia, risco, forca e ressalvas.",
       en: "Claims tab with evidence, risk, strength and caveats.",
+      es: "Pestana de afirmaciones con evidencia, riesgo, fuerza y salvedades.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "Nota metodologica",
       en: "Methodology note",
+      es: "Nota metodologica",
     },
     expected: {
       pt: "Exportar pergunta, periodo, territorio, pedidos, respostas, fontes, lacunas, limites e claims.",
       en: "Export question, period, territory, requests, responses, sources, gaps, limits and claims.",
+      es: "Exportar pregunta, periodo, territorio, solicitudes, respuestas, fuentes, vacios, limites y afirmaciones.",
     },
     implementation: {
       pt: "Aba de metodologia com nota em Markdown copiavel e salvaguardas metodologicas.",
       en: "Methodology tab with copyable Markdown note and methodological safeguards.",
+      es: "Pestana de metodologia con nota en Markdown copiable y salvaguardas metodologicas.",
     },
     status: {
       pt: "Implementado",
       en: "Implemented",
+      es: "Implementado",
     },
   },
   {
     area: {
       pt: "IA, backend e envio automatico",
       en: "AI, backend and automatic filing",
+      es: "IA, backend y envio automatico",
     },
     expected: {
       pt: "Fora do MVP original: sem protocolo automatico de LAI/FOIA, login complexo ou IA decidindo fontes.",
       en: "Outside the original MVP: no automatic FOIA/LAI filing, complex login or AI deciding sources.",
+      es: "Fuera del MVP original: sin protocolo automatico de LAI/FOIA, login complejo o IA decidiendo fuentes.",
     },
     implementation: {
       pt: "Mantido como limite do prototipo; roadmap separa persistencia v0.2 e revisao assistida v0.3.",
       en: "Kept as prototype boundary; roadmap separates v0.2 persistence and v0.3 assisted review.",
+      es: "Mantenido como limite del prototipo; el roadmap separa persistencia v0.2 y revision asistida v0.3.",
     },
     status: {
       pt: "Fora do MVP",
       en: "Out of MVP",
+      es: "Fuera del MVP",
     },
   },
 ];
