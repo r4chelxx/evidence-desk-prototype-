@@ -27,8 +27,9 @@ without backend, login, external integrations or AI.
 - Human-reviewed follow-up draft examples.
 - Freshness/review warnings for stale or active investigations.
 - QA checklist with blockers and editorial risk.
+- QA v0.2 model with operational glossary, closed status lists, evidence-relation rules and testable acceptance criteria.
 - Method safeguards that prevent missing data, silence or forwarding from becoming unsupported claims.
-- Claim-to-evidence matrix.
+- Claim-to-evidence matrix with "supports / contradicts / limits" relation tracking.
 - Markdown methodological note preview/copy flow, including sources, source types and limits.
 - Dashboard testing guide with tasks, feedback questions and acceptance criteria.
 
