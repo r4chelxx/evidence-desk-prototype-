@@ -129,6 +129,96 @@ export const qaModel = {
     "A nota metodologica exportada inclui relacoes de evidencia, lacunas e salvaguardas.",
     "No teste com 5 jornalistas, pelo menos 4 identificam uma afirmacao insegura sem explicacao externa.",
   ],
+  functionalChecks: [
+    {
+      item: {
+        pt: "Status por entidade",
+        en: "Status by entity",
+        es: "Estado por entidad",
+      },
+      expectation: {
+        pt: "Hipoteses, pedidos, respostas, lacunas e afirmacoes devem ter estados separados.",
+        en: "Hypotheses, requests, responses, gaps and claims need separate status lists.",
+        es: "Hipotesis, solicitudes, respuestas, vacios y afirmaciones necesitan listas de estado separadas.",
+      },
+      coverage: {
+        pt: "Coberto na aba Checklist QA pelo glossario e lista fechada de status.",
+        en: "Covered in the QA Checklist tab through the glossary and closed status list.",
+        es: "Cubierto en la pestana Checklist QA por el glosario y la lista cerrada de estados.",
+      },
+      status: {
+        pt: "Coberto",
+        en: "Covered",
+        es: "Cubierto",
+      },
+    },
+    {
+      item: {
+        pt: "Evidencia contraditoria",
+        en: "Contradictory evidence",
+        es: "Evidencia contradictoria",
+      },
+      expectation: {
+        pt: "A matriz precisa registrar se cada evidencia sustenta, contradiz ou limita uma afirmacao.",
+        en: "The matrix must record whether each evidence item supports, contradicts or limits a claim.",
+        es: "La matriz debe registrar si cada evidencia sustenta, contradice o limita una afirmacion.",
+      },
+      coverage: {
+        pt: "Coberto na matriz de afirmacoes e na nota metodologica exportada.",
+        en: "Covered in the claims matrix and exported methodology note.",
+        es: "Cubierto en la matriz de afirmaciones y en la nota metodologica exportada.",
+      },
+      status: {
+        pt: "Coberto",
+        en: "Covered",
+        es: "Cubierto",
+      },
+    },
+    {
+      item: {
+        pt: "Prazos por jurisdicao",
+        en: "Jurisdiction deadlines",
+        es: "Plazos por jurisdiccion",
+      },
+      expectation: {
+        pt: "O produto nao deve calcular prazo legal sem jurisdicao, orgao e regra revisada.",
+        en: "The product should not calculate legal deadlines without jurisdiction, agency and reviewed rule.",
+        es: "El producto no debe calcular plazos legales sin jurisdiccion, organismo y regla revisada.",
+      },
+      coverage: {
+        pt: "Parcial: o prototipo mostra prazos registrados e limites, mas nao calcula regras automaticamente.",
+        en: "Partial: the prototype shows logged deadlines and limits, but does not calculate rules automatically.",
+        es: "Parcial: el prototipo muestra plazos registrados y limites, pero no calcula reglas automaticamente.",
+      },
+      status: {
+        pt: "Parcial",
+        en: "Partial",
+        es: "Parcial",
+      },
+    },
+    {
+      item: {
+        pt: "Persistencia de investigacao",
+        en: "Investigation persistence",
+        es: "Persistencia de investigacion",
+      },
+      expectation: {
+        pt: "Uma jornalista deve conseguir salvar, exportar ou reabrir uma investigacao real.",
+        en: "A journalist should be able to save, export or reopen a real investigation.",
+        es: "Una periodista debe poder guardar, exportar o reabrir una investigacion real.",
+      },
+      coverage: {
+        pt: "Fora desta versao: formulario valida estrutura, mas nao salva dados.",
+        en: "Out of this version: the form validates structure, but does not save data.",
+        es: "Fuera de esta version: el formulario valida estructura, pero no guarda datos.",
+      },
+      status: {
+        pt: "Fora do MVP",
+        en: "Out of MVP",
+        es: "Fuera del MVP",
+      },
+    },
+  ],
 };
 
 export const prototypeLimits = [
