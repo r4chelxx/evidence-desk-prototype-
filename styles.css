@@ -479,6 +479,14 @@ label small {
   gap: 0.75rem;
 }
 
+.button-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
 .preview-panel {
   display: grid;
   gap: 1rem;
@@ -1146,6 +1154,10 @@ tr:last-child td {
   }
 
   .quick-action-row {
+    justify-content: flex-start;
+  }
+
+  .button-row {
     justify-content: flex-start;
   }
 
