@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa3";
+import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa4";
 
 const state = {
   view: "dashboard",
@@ -105,6 +105,8 @@ const dictionary = {
     openQueue: "Abrir fila",
     addClaim: "Adicionar afirmacao",
     exportMethodology: "Exportar metodologia",
+    exportJson: "Exportar JSON",
+    exportedJson: "JSON exportado",
     deadlinesNext: "Prazos e proximos passos",
     deadlinesTitle: "Saiba quando esperar, checar, contestar ou escalar.",
     sent: "Enviado",
@@ -391,6 +393,8 @@ const dictionary = {
     openQueue: "Open queue",
     addClaim: "Add claim",
     exportMethodology: "Export methodology",
+    exportJson: "Export JSON",
+    exportedJson: "JSON exported",
     deadlinesNext: "Deadlines and next steps",
     deadlinesTitle: "Know when to wait, check, contest or escalate.",
     sent: "Sent",
@@ -676,6 +680,8 @@ dictionary.es = {
   openQueue: "Abrir fila",
   addClaim: "Agregar afirmacion",
   exportMethodology: "Exportar metodologia",
+  exportJson: "Exportar JSON",
+  exportedJson: "JSON exportado",
   deadlinesNext: "Plazos y proximos pasos",
   deadlinesTitle: "Sepa cuando esperar, revisar, contestar o escalar.",
   sent: "Enviado",
@@ -1618,6 +1624,7 @@ function renderOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="queue">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
+        <button class="button" data-action="export-json">${t("exportJson")}</button>
       </div>
     </section>
     ${renderFreshnessPanel(item)}
@@ -2788,12 +2795,59 @@ function renderMethodology(item) {
   const markdown = methodologyMarkdown(item);
   return `
     <section class="content-header">
-      <p class="eyebrow">${t("methodologyNote")}</p>
-      <h2>${t("methodologyHeading")}</h2>
-      <button class="button" data-action="copy-methodology">${t("copyMarkdown")}</button>
+      <div>
+        <p class="eyebrow">${t("methodologyNote")}</p>
+        <h2>${t("methodologyHeading")}</h2>
+      </div>
+      <div class="button-row">
+        <button class="button secondary active-secondary" data-action="export-json">${t("exportJson")}</button>
+        <button class="button" data-action="copy-methodology">${t("copyMarkdown")}</button>
+      </div>
     </section>
     <pre class="methodology" id="methodology-text">${markdown}</pre>
   `;
+}
+
+function investigationExportPayload(item) {
+  return {
+    schema: "evidence-desk-investigation-v0.1",
+    exportedAt: new Date().toISOString(),
+    exportedFrom: "Evidence Desk static prototype",
+    locale: state.locale,
+    investigation: item,
+  };
+}
+
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 72);
+}
+
+function exportCurrentInvestigationJson(button) {
+  const item = getCurrentInvestigation();
+  const payload = investigationExportPayload(item);
+  const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${slugify(item.title) || "evidence-desk-investigation"}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  if (button) {
+    const originalLabel = button.textContent;
+    button.textContent = t("exportedJson");
+    setTimeout(() => {
+      button.textContent = originalLabel;
+    }, 1500);
+  }
 }
 
 function bindActions() {
@@ -2895,6 +2949,12 @@ function bindActions() {
       setTimeout(() => {
         button.textContent = t("copyMarkdown");
       }, 1500);
+    });
+  });
+
+  document.querySelectorAll("[data-action='export-json']").forEach((button) => {
+    button.addEventListener("click", () => {
+      exportCurrentInvestigationJson(button);
     });
   });
 }
