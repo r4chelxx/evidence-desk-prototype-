@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n9";
+import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n10";
 
 const state = {
   view: "dashboard",
@@ -81,6 +81,7 @@ const dictionary = {
     sources: "Fontes",
     deadlines: "Prazos",
     actionPlan: "Plano de acao",
+    editorialQueue: "Fila editorial",
     transparencyLog: "Diario de transparencia",
     requestComparison: "Comparacao de pedidos",
     gaps: "Lacunas",
@@ -93,6 +94,7 @@ const dictionary = {
     claimsReview: "afirmacoes a revisar",
     reviewItems: "itens de revisao",
     actionItems: "acoes",
+    queueItems: "itens na fila",
     centralQuestion: "Pergunta central",
     quickActions: "Acoes rapidas",
     quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
@@ -100,6 +102,7 @@ const dictionary = {
     mapEvidence: "Mapear evidencia",
     registerRequest: "Registrar pedido",
     reviewResponse: "Revisar resposta",
+    openQueue: "Abrir fila",
     addClaim: "Adicionar afirmacao",
     exportMethodology: "Exportar metodologia",
     deadlinesNext: "Prazos e proximos passos",
@@ -118,6 +121,15 @@ const dictionary = {
     output: "Saida esperada",
     actionPlanTitle: "Transforme o log da apuracao em uma fila controlada de proximos passos.",
     actionPlanCopy: "Cada acao deve estar ligada a uma fonte, protocolo ou evento procedimental documentado.",
+    editorialQueueTitle: "Fila editorial",
+    editorialQueueHeading: "Veja o que precisa de decisao humana antes de publicar ou automatizar.",
+    editorialQueueCopy: "A fila combina checkpoints, revisoes e acoes prioritarias sem transformar pendencia em conclusao.",
+    queueDeadlines: "Checkpoints ativos",
+    queueReviews: "Revisoes editoriais",
+    queueActions: "Acoes prioritarias",
+    queueEmpty: "Nenhum item prioritario registrado.",
+    queueRule: "Regra da fila",
+    queueRuleCopy: "Cada item precisa apontar para protocolo, fonte, prazo ou lacuna antes de virar tarefa de reportagem.",
     priority: "prioridade",
     requestLabel: "Pedido",
     protocol: "Protocolo",
@@ -303,6 +315,7 @@ const dictionary = {
     sources: "Sources",
     deadlines: "Deadlines",
     actionPlan: "Action plan",
+    editorialQueue: "Editorial queue",
     transparencyLog: "Transparency log",
     requestComparison: "Request comparison",
     gaps: "Gaps",
@@ -315,6 +328,7 @@ const dictionary = {
     claimsReview: "claims to review",
     reviewItems: "review items",
     actionItems: "action items",
+    queueItems: "queue items",
     centralQuestion: "Central question",
     quickActions: "Quick actions",
     quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
@@ -322,6 +336,7 @@ const dictionary = {
     mapEvidence: "Map evidence",
     registerRequest: "Register request",
     reviewResponse: "Review response",
+    openQueue: "Open queue",
     addClaim: "Add claim",
     exportMethodology: "Export methodology",
     deadlinesNext: "Deadlines and next steps",
@@ -340,6 +355,15 @@ const dictionary = {
     output: "Output",
     actionPlanTitle: "Turn the reporting log into a controlled next-step queue.",
     actionPlanCopy: "Each action must stay tied to a source, protocol or documented procedural event.",
+    editorialQueueTitle: "Editorial queue",
+    editorialQueueHeading: "See what needs a human decision before publishing or automating.",
+    editorialQueueCopy: "The queue combines checkpoints, reviews and priority actions without turning pending work into a conclusion.",
+    queueDeadlines: "Active checkpoints",
+    queueReviews: "Editorial reviews",
+    queueActions: "Priority actions",
+    queueEmpty: "No priority item recorded.",
+    queueRule: "Queue rule",
+    queueRuleCopy: "Each item must point to a protocol, source, deadline or gap before becoming a reporting task.",
     priority: "priority",
     requestLabel: "Request",
     protocol: "Protocol",
@@ -525,6 +549,7 @@ dictionary.es = {
   sources: "Fuentes",
   deadlines: "Plazos",
   actionPlan: "Plan de accion",
+  editorialQueue: "Fila editorial",
   transparencyLog: "Diario de transparencia",
   requestComparison: "Comparacion de solicitudes",
   gaps: "Vacios",
@@ -536,6 +561,7 @@ dictionary.es = {
   claimsReview: "afirmaciones a revisar",
   reviewItems: "items de revision",
   actionItems: "acciones",
+  queueItems: "items en la fila",
   centralQuestion: "Pregunta central",
   quickActions: "Acciones rapidas",
   quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
@@ -543,6 +569,7 @@ dictionary.es = {
   mapEvidence: "Mapear evidencia",
   registerRequest: "Registrar solicitud",
   reviewResponse: "Revisar respuesta",
+  openQueue: "Abrir fila",
   addClaim: "Agregar afirmacion",
   exportMethodology: "Exportar metodologia",
   deadlinesNext: "Plazos y proximos pasos",
@@ -558,6 +585,15 @@ dictionary.es = {
   output: "Salida esperada",
   actionPlanTitle: "Convierte el registro de investigacion en una fila controlada de proximos pasos.",
   actionPlanCopy: "Cada accion debe estar ligada a una fuente, protocolo o evento procedimental documentado.",
+  editorialQueueTitle: "Fila editorial",
+  editorialQueueHeading: "Vea que necesita decision humana antes de publicar o automatizar.",
+  editorialQueueCopy: "La fila combina checkpoints, revisiones y acciones prioritarias sin transformar pendientes en conclusion.",
+  queueDeadlines: "Checkpoints activos",
+  queueReviews: "Revisiones editoriales",
+  queueActions: "Acciones prioritarias",
+  queueEmpty: "Ningun item prioritario registrado.",
+  queueRule: "Regla de la fila",
+  queueRuleCopy: "Cada item debe apuntar a protocolo, fuente, plazo o vacio antes de convertirse en tarea de investigacion.",
   priority: "prioridad",
   requestLabel: "Solicitud",
   due: "Plazo",
@@ -722,6 +758,41 @@ function countQaBlockers(investigation) {
 
 function countActionItems(investigation) {
   return investigation.actionItems?.filter((item) => !item.status.toLowerCase().includes("done")).length || 0;
+}
+
+function getEditorialQueue(item) {
+  const deadlineItems = item.requests
+    .map((request) => ({ request, timing: getRequestTiming(request) }))
+    .filter(({ request, timing }) => request.currentCheckpoint || timing.tone === "danger" || timing.tone === "warning")
+    .map(({ request, timing }) => ({
+      title: request.title,
+      meta: `${request.agency} / ${request.protocol}`,
+      status: timing.label,
+      detail: suggestDeadlineAction(request, timing),
+    }));
+
+  const reviewItems = (item.nextReviewItems || []).map((reviewItem) => ({
+    title: reviewItem,
+    meta: item.freshness?.checkedAt || item.updatedAt,
+    status: item.freshness?.status || t("reviewRecommended"),
+    detail: item.freshness?.summary || t("reviewLog"),
+  }));
+
+  const actionItems = (item.actionItems || [])
+    .filter((action) => !action.status.toLowerCase().includes("done"))
+    .map((action) => ({
+      title: action.action,
+      meta: `${action.source} / ${action.owner}`,
+      status: `${action.priority} / ${action.status}`,
+      detail: action.output,
+    }));
+
+  return { deadlineItems, reviewItems, actionItems };
+}
+
+function countQueueItems(investigation) {
+  const queue = getEditorialQueue(investigation);
+  return queue.deadlineItems.length + queue.reviewItems.length + queue.actionItems.length;
 }
 
 function getRequestTiming(request) {
@@ -1276,6 +1347,7 @@ function renderInvestigation() {
     ["responses", t("responses")],
     ["deadlines", t("deadlines")],
     ["actions", t("actionPlan")],
+    ["queue", t("editorialQueue")],
     ["transparency", t("transparencyLog")],
     ["comparison", t("requestComparison")],
     ["followups", t("followUps")],
@@ -1325,6 +1397,7 @@ function renderTab(item) {
     responses: renderResponses,
     deadlines: renderDeadlines,
     actions: renderActionPlan,
+    queue: renderEditorialQueue,
     transparency: renderTransparencyLog,
     comparison: renderRequestComparison,
     followups: renderFollowUps,
@@ -1354,6 +1427,7 @@ function renderOverview(item) {
       <div><strong>${countOpenClaims(item)}</strong><span>${t("claimsReview")}</span></div>
       <div><strong>${countReviewItems(item)}</strong><span>${t("reviewItems")}</span></div>
       <div><strong>${countActionItems(item)}</strong><span>${t("actionItems")}</span></div>
+      <div><strong>${countQueueItems(item)}</strong><span>${t("queueItems")}</span></div>
       <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
     </section>
     <section class="panel quick-actions">
@@ -1366,6 +1440,7 @@ function renderOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="evidence">${t("mapEvidence")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("registerRequest")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="responses">${t("reviewResponse")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="queue">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
       </div>
@@ -1851,6 +1926,54 @@ function renderActionPlan(item) {
         )
         .join("") || `<section class="empty-state"><h3>${t("noActionTitle")}</h3><p>${t("noActionCopy")}</p></section>`}
     </div>
+  `;
+}
+
+function renderQueueSection(title, items) {
+  return `
+    <section class="queue-section">
+      <div class="section-header compact-header">
+        <h3>${title}</h3>
+        <span class="pill neutral">${items.length}</span>
+      </div>
+      <div class="stack">
+        ${
+          items
+            .map(
+              (queueItem) => `
+                <article class="row-card">
+                  <div>
+                    <p class="eyebrow">${queueItem.meta}</p>
+                    <h3>${queueItem.title}</h3>
+                    <p class="muted">${queueItem.detail}</p>
+                  </div>
+                  <span class="pill ${statusClass(queueItem.status)}">${queueItem.status}</span>
+                </article>
+              `,
+            )
+            .join("") || `<section class="empty-state compact-empty"><p>${t("queueEmpty")}</p></section>`
+        }
+      </div>
+    </section>
+  `;
+}
+
+function renderEditorialQueue(item) {
+  const queue = getEditorialQueue(item);
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("editorialQueueTitle")}</p>
+      <h2>${t("editorialQueueHeading")}</h2>
+      <p>${t("editorialQueueCopy")}</p>
+    </section>
+    <section class="panel accent">
+      <h3>${t("queueRule")}</h3>
+      <p>${t("queueRuleCopy")}</p>
+    </section>
+    ${renderQueueSection(t("queueDeadlines"), queue.deadlineItems)}
+    ${renderQueueSection(t("queueReviews"), queue.reviewItems)}
+    ${renderQueueSection(t("queueActions"), queue.actionItems)}
   `;
 }
 
