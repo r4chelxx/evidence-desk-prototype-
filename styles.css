@@ -731,6 +731,37 @@ dd {
   margin: 0;
 }
 
+.qa-model-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1.25rem;
+}
+
+.definition-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.definition-list div {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.75rem;
+}
+
+.definition-list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.definition-list p,
+.definition-list small {
+  color: var(--muted);
+  display: block;
+  line-height: 1.5;
+  margin: 0.25rem 0 0;
+}
+
 .law-card dd {
   line-height: 1.5;
 }
@@ -1096,6 +1127,7 @@ tr:last-child td {
   .comparison-lane,
   .quick-actions,
   .safeguard-grid,
+  .qa-model-grid,
   .source-map {
     grid-template-columns: 1fr;
   }
