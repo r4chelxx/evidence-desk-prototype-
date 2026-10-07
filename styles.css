@@ -693,6 +693,23 @@ dd {
   margin-top: 1.25rem;
 }
 
+.queue-section {
+  margin-top: 1.4rem;
+}
+
+.compact-header {
+  margin-bottom: 0.65rem;
+}
+
+.compact-header h3 {
+  margin: 0;
+}
+
+.compact-empty {
+  margin-top: 0;
+  padding: 0.9rem;
+}
+
 .comparison-grid {
   display: grid;
   gap: 1rem;
