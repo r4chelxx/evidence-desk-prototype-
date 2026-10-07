@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, roadmap, testPlan } from "./data.js?v=20261005-i18n10";
+import { investigations, mvpCoverage, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa1";
 
 const state = {
   view: "dashboard",
@@ -177,8 +177,15 @@ const dictionary = {
     claimMatrixHeading: "Verifique se afirmacoes publicaveis estao sustentadas.",
     claim: "Afirmacao",
     evidence: "Evidencia",
+    evidenceRelation: "Relacao",
     strength: "Forca",
     risk: "Risco",
+    qaModelTitle: "Modelo QA v0.2",
+    qaModelHeading: "Glossario, status fechados e evidencias contraditorias.",
+    qaModelCopy: "Rodada baseada na revisao de QA: o prototipo agora registra se uma evidencia sustenta, contradiz ou limita uma afirmacao.",
+    glossaryTerms: "Glossario operacional",
+    statusRegistry: "Lista fechada de status",
+    evidenceRelations: "Relacoes de evidencia",
     methodologyNote: "Nota metodologica",
     methodologyHeading: "Exporte um resumo transparente de evidencias, pedidos e limites.",
     qaChecklistHeading: "Revise riscos antes de tratar evidencias como publicaveis.",
@@ -411,8 +418,15 @@ const dictionary = {
     claimMatrixHeading: "Check whether publishable claims are supported.",
     claim: "Claim",
     evidence: "Evidence",
+    evidenceRelation: "Relation",
     strength: "Strength",
     risk: "Risk",
+    qaModelTitle: "QA model v0.2",
+    qaModelHeading: "Glossary, closed status lists and contradictory evidence.",
+    qaModelCopy: "QA-review update: the prototype now records whether evidence supports, contradicts or limits a claim.",
+    glossaryTerms: "Operational glossary",
+    statusRegistry: "Closed status list",
+    evidenceRelations: "Evidence relations",
     methodologyNote: "Methodological note",
     methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
     qaChecklistHeading: "Review risk before treating evidence as publishable.",
@@ -635,6 +649,15 @@ dictionary.es = {
   claimMatrixHeading: "Verifique si las afirmaciones publicables estan sustentadas.",
   claim: "Afirmacion",
   evidence: "Evidencia",
+  evidenceRelation: "Relacion",
+  strength: "Fuerza",
+  risk: "Riesgo",
+  qaModelTitle: "Modelo QA v0.2",
+  qaModelHeading: "Glosario, lista cerrada de estados y evidencias contradictorias.",
+  qaModelCopy: "Actualizacion basada en QA: el prototipo registra si una evidencia sustenta, contradice o limita una afirmacion.",
+  glossaryTerms: "Glosario operativo",
+  statusRegistry: "Lista cerrada de estados",
+  evidenceRelations: "Relaciones de evidencia",
   methodologyNote: "Nota metodologica",
   methodologyHeading: "Exporte un resumen transparente de evidencias, solicitudes y limites.",
   qaChecklistHeading: "Revise riesgos antes de tratar evidencias como publicables.",
@@ -732,7 +755,9 @@ function statusClass(value = "") {
   if (normalized.includes("implementado") || normalized.includes("implemented")) return "success";
   if (normalized.includes("ready") || normalized.includes("low")) return "success";
   if (normalized.includes("current")) return "success";
-  if (normalized.includes("sustentada") || normalized.includes("supported") || normalized.includes("forte")) return "success";
+  if (normalized.includes("sustenta") || normalized.includes("supported") || normalized.includes("support") || normalized.includes("forte")) return "success";
+  if (normalized.includes("contradiz") || normalized.includes("contradict")) return "danger";
+  if (normalized.includes("limita") || normalized.includes("limit")) return "warning";
   if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
   return "neutral";
 }
@@ -2132,7 +2157,7 @@ function renderClaims(item) {
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>${t("claim")}</th><th>${t("type")}</th><th>${t("evidence")}</th><th>${t("strength")}</th><th>${t("risk")}</th><th>${t("status")}</th></tr>
+          <tr><th>${t("claim")}</th><th>${t("type")}</th><th>${t("evidence")}</th><th>${t("evidenceRelation")}</th><th>${t("strength")}</th><th>${t("risk")}</th><th>${t("status")}</th></tr>
         </thead>
         <tbody>
           ${item.claims
@@ -2142,6 +2167,7 @@ function renderClaims(item) {
                   <td>${claim.text}</td>
                   <td>${claim.type}</td>
                   <td>${claim.evidence}</td>
+                  <td><span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span></td>
                   <td><span class="pill ${statusClass(claim.strength)}">${claim.strength}</span></td>
                   <td><span class="pill ${statusClass(claim.risk)}">${claim.risk}</span></td>
                   <td>${claim.status}</td>
@@ -2151,6 +2177,70 @@ function renderClaims(item) {
             .join("")}
         </tbody>
       </table>
+    </div>
+  `;
+}
+
+function renderQaModel() {
+  return `
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("qaModelTitle")}</p>
+      <h2>${t("qaModelHeading")}</h2>
+      <p>${t("qaModelCopy")}</p>
+    </section>
+    <div class="qa-model-grid">
+      <article class="panel">
+        <h3>${t("glossaryTerms")}</h3>
+        <div class="definition-list">
+          ${qaModel.glossary
+            .map(
+              (entry) => `
+                <div>
+                  <strong>${entry.term}</strong>
+                  <p>${entry.meaning}</p>
+                  <small>${entry.qaRule}</small>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel">
+        <h3>${t("statusRegistry")}</h3>
+        <div class="definition-list">
+          ${qaModel.statuses
+            .map(
+              (entry) => `
+                <div>
+                  <strong>${entry.entity}</strong>
+                  <p>${entry.values}</p>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel">
+        <h3>${t("evidenceRelations")}</h3>
+        <div class="definition-list">
+          ${qaModel.evidenceRelations
+            .map(
+              (entry) => `
+                <div>
+                  <span class="pill ${statusClass(entry.relation)}">${entry.relation}</span>
+                  <p>${entry.meaning}</p>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel">
+        <h3>${t("acceptanceCriteria")}</h3>
+        <ul class="review-list">
+          ${qaModel.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("")}
+        </ul>
+      </article>
     </div>
   `;
 }
@@ -2190,6 +2280,7 @@ function renderQaChecklist(item) {
         )
         .join("")}
     </div>
+    ${renderQaModel()}
     ${
       rules.length
         ? `<section class="content-header process-header">
@@ -2273,6 +2364,7 @@ function methodologyMarkdown(item) {
           noSafeguards: "Nenhuma salvaguarda metodologica registrada.",
           gaps: "Lacunas e limites abertos",
           mainClaims: "Afirmacoes principais",
+          evidenceRelation: "relacao da evidencia",
         }
       : state.locale === "es"
         ? {
@@ -2332,6 +2424,7 @@ function methodologyMarkdown(item) {
             noSafeguards: "Ninguna salvaguarda metodologica registrada.",
             gaps: "Vacios y limites abiertos",
             mainClaims: "Afirmaciones principales",
+            evidenceRelation: "relacion de evidencia",
           }
       : {
           title: "Methodological note",
@@ -2390,6 +2483,7 @@ function methodologyMarkdown(item) {
           noSafeguards: "No method safeguards recorded.",
           gaps: "Open gaps and limitations",
           mainClaims: "Main claims",
+          evidenceRelation: "evidence relation",
         };
   const requests = item.requests
     .map((request) => {
@@ -2445,7 +2539,9 @@ function methodologyMarkdown(item) {
     .map((rule) => `- ${rule.rule} ${labels.productUse}: ${rule.productUse}`)
     .join("\n");
   const gaps = item.gaps.map((gap) => `- ${gap.description} (${gap.status})`).join("\n");
-  const claims = item.claims.map((claim) => `- ${claim.text} - ${claim.status}`).join("\n");
+  const claims = item.claims
+    .map((claim) => `- ${claim.text} - ${claim.status}; ${labels.evidenceRelation}: ${claim.relation || "not set"}`)
+    .join("\n");
 
   return `# ${labels.title}: ${item.title}
 
