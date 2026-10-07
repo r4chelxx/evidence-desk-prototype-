@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa1";
+import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa2";
 
 const state = {
   view: "dashboard",
@@ -269,6 +269,48 @@ const dictionary = {
     dayPastCheckpoint: "dia depois do checkpoint",
     daysOverdue: "dias de atraso",
     dayOverdue: "dia de atraso",
+    prototypeLimits: "Limites do prototipo",
+    prototypeLimitsTitle: "O que esta testavel agora e o que ainda nao deve ser prometido",
+    currentBehavior: "Comportamento atual",
+    nextProductStep: "Proximo passo de produto",
+    createTitle: "Comece com uma pergunta que a evidencia consegue responder.",
+    createCopy:
+      "Este formulario simulado testa o fluxo inicial do MVP. Ele valida campos obrigatorios, mostra a estrutura do projeto e mantem o salvamento desativado ate existir backend.",
+    cancel: "Cancelar",
+    reviewBeforeContinue: "Revise antes de continuar",
+    investigationTitle: "Titulo da investigacao",
+    investigationTitlePlaceholder: "ex.: Violencia obstetrica e transparencia de dados publicos",
+    countryPlaceholder: "ex.: Brasil, Estados Unidos, Mexico",
+    jurisdictionLocality: "Jurisdicao/localidade",
+    jurisdictionPlaceholder: "ex.: Bahia, Cook County, Cidade do Mexico",
+    primaryLanguage: "Idioma principal",
+    primaryLanguagePlaceholder: "ex.: Portugues, Ingles, Espanhol",
+    generalTopic: "Tema geral",
+    topicPlaceholder: "ex.: Saude publica, educacao, meio ambiente",
+    investigatedTerritory: "Territorio investigado",
+    territoryPlaceholder: "ex.: Salvador e interior da Bahia",
+    investigatedPeriod: "Periodo investigado",
+    periodPlaceholder: "ex.: 2020-2026",
+    centralInvestigativeQuestion: "Pergunta investigativa central",
+    centralQuestionPlaceholder: "Que pergunta esta investigacao deve responder com evidencias?",
+    centralQuestionHelp: "Obrigatorio. Prefira uma pergunta que possa ser respondida com documentos, dados, entrevistas ou respostas oficiais.",
+    shortDescription: "Descricao curta",
+    descriptionPlaceholder: "O que a pauta tenta entender?",
+    validateStructure: "Validar estrutura",
+    saveDraftAfterBackend: "Salvar rascunho apos backend",
+    workspacePreview: "Previa do espaco de trabalho",
+    untitledInvestigation: "Investigacao sem titulo",
+    countryJurisdiction: "Pais/jurisdicao",
+    starterStructure: "Estrutura inicial",
+    sourcesDatabases: "Fontes/bases",
+    notSet: "Nao definido",
+    draftReady: "Estrutura pronta para a proxima etapa do MVP: mapear hipoteses e blocos de evidencia.",
+    errorTitleRequired: "Adicione um titulo para a investigacao.",
+    errorCountryRequired: "Adicione um pais.",
+    errorLanguageRequired: "Adicione o idioma principal.",
+    errorQuestionRequired: "Adicione uma pergunta investigativa central.",
+    errorTitleSpecific: "Deixe o titulo mais especifico para QA entender o caso.",
+    errorQuestionMark: "Formule a pergunta central como pergunta.",
   },
   en: {
     all: "All",
@@ -510,6 +552,48 @@ const dictionary = {
     dayPastCheckpoint: "day past checkpoint",
     daysOverdue: "days overdue",
     dayOverdue: "day overdue",
+    prototypeLimits: "Prototype limits",
+    prototypeLimitsTitle: "What is testable now and what should not be promised yet",
+    currentBehavior: "Current behavior",
+    nextProductStep: "Next product step",
+    createTitle: "Start with a question the evidence can actually answer.",
+    createCopy:
+      "This simulated form tests the MVP onboarding flow. It validates required fields, shows the project structure and keeps saving disabled until a backend exists.",
+    cancel: "Cancel",
+    reviewBeforeContinue: "Review before continuing",
+    investigationTitle: "Investigation title",
+    investigationTitlePlaceholder: "e.g. Obstetric violence and public data transparency",
+    countryPlaceholder: "e.g. Brazil, United States, Mexico",
+    jurisdictionLocality: "Jurisdiction/locality",
+    jurisdictionPlaceholder: "e.g. Bahia, Cook County, Mexico City",
+    primaryLanguage: "Primary language",
+    primaryLanguagePlaceholder: "e.g. Portuguese, English, Spanish",
+    generalTopic: "General topic",
+    topicPlaceholder: "e.g. Public health, education, environment",
+    investigatedTerritory: "Investigated territory",
+    territoryPlaceholder: "e.g. Salvador and Bahia interior",
+    investigatedPeriod: "Investigated period",
+    periodPlaceholder: "e.g. 2020-2026",
+    centralInvestigativeQuestion: "Central investigative question",
+    centralQuestionPlaceholder: "What question should this investigation answer with evidence?",
+    centralQuestionHelp: "Required. Prefer a question that can be answered with documents, data, interviews or official responses.",
+    shortDescription: "Short description",
+    descriptionPlaceholder: "What is the story trying to understand?",
+    validateStructure: "Validate project structure",
+    saveDraftAfterBackend: "Save draft after backend",
+    workspacePreview: "Generated workspace preview",
+    untitledInvestigation: "Untitled investigation",
+    countryJurisdiction: "Country/jurisdiction",
+    starterStructure: "Starter structure",
+    sourcesDatabases: "Sources/databases",
+    notSet: "Not set",
+    draftReady: "Structure looks ready for the next MVP step: mapping hypotheses and evidence blocks.",
+    errorTitleRequired: "Add an investigation title.",
+    errorCountryRequired: "Add a country.",
+    errorLanguageRequired: "Add the primary language.",
+    errorQuestionRequired: "Add a central investigative question.",
+    errorTitleSpecific: "Make the title more specific so QA can understand the case.",
+    errorQuestionMark: "Phrase the central question as a question.",
   },
 };
 
@@ -624,7 +708,7 @@ dictionary.es = {
   responseReviewRule: "Regla de revision",
   responseReviewRuleCopy: "Una respuesta solo se convierte en evidencia despues de abrir archivos, revisar anexos, checar campos y registrar limites.",
   ifNothingArrives: "Si no llega nada",
-  requestsTitle: "Acompanhe solicitudes hechas fuera de la plataforma.",
+  requestsTitle: "Siga solicitudes hechas fuera de la plataforma.",
   methodSafeguards: "Salvaguardas metodologicas",
   methodSafeguardsTitle: "Reglas que evitan que la herramienta exagere evidencias.",
   processGuideTitle: "Flujo atento a la jurisdiccion, todavia controlado por la reportera.",
@@ -689,7 +773,7 @@ dictionary.es = {
   localizationRuleCopy:
     "Traduzca libremente los rotulos de interfaz, pero localice leyes, plazos, organismos y tipos de fuente solo cuando la jurisdiccion sea conocida y revisada por la reportera.",
   translationNotes: "Notas de traduccion",
-  translationNotesHeading: "Termos que requieren revision humana.",
+  translationNotesHeading: "Terminos que requieren revision humana.",
   questionsHypotheses: "Preguntas e hipotesis",
   hypothesesHeading: "Divida la pregunta central en partes comprobables.",
   secondaryQuestions: "Preguntas secundarias",
@@ -698,6 +782,48 @@ dictionary.es = {
   evidenceBlocksTitle: "Bloques de evidencia",
   evidenceBlocksHeading: "Que tipos de prueba son necesarios?",
   evidenceBlocksCopy: "Los bloques ayudan a separar lo que debe probarse de donde puede encontrarse la informacion.",
+  prototypeLimits: "Limites del prototipo",
+  prototypeLimitsTitle: "Que esta probado ahora y que aun no debe prometerse",
+  currentBehavior: "Comportamiento actual",
+  nextProductStep: "Proximo paso de producto",
+  createTitle: "Empiece con una pregunta que la evidencia pueda responder.",
+  createCopy:
+    "Este formulario simulado prueba el flujo inicial del MVP. Valida campos obligatorios, muestra la estructura del proyecto y mantiene el guardado desactivado hasta que exista backend.",
+  cancel: "Cancelar",
+  reviewBeforeContinue: "Revise antes de continuar",
+  investigationTitle: "Titulo de la investigacion",
+  investigationTitlePlaceholder: "ej.: Violencia obstetrica y transparencia de datos publicos",
+  countryPlaceholder: "ej.: Brasil, Estados Unidos, Mexico",
+  jurisdictionLocality: "Jurisdiccion/localidad",
+  jurisdictionPlaceholder: "ej.: Bahia, Cook County, Ciudad de Mexico",
+  primaryLanguage: "Idioma principal",
+  primaryLanguagePlaceholder: "ej.: Portugues, Ingles, Espanol",
+  generalTopic: "Tema general",
+  topicPlaceholder: "ej.: Salud publica, educacion, medio ambiente",
+  investigatedTerritory: "Territorio investigado",
+  territoryPlaceholder: "ej.: Salvador e interior de Bahia",
+  investigatedPeriod: "Periodo investigado",
+  periodPlaceholder: "ej.: 2020-2026",
+  centralInvestigativeQuestion: "Pregunta investigativa central",
+  centralQuestionPlaceholder: "Que pregunta debe responder esta investigacion con evidencia?",
+  centralQuestionHelp: "Obligatorio. Prefiera una pregunta que pueda responderse con documentos, datos, entrevistas o respuestas oficiales.",
+  shortDescription: "Descripcion corta",
+  descriptionPlaceholder: "Que intenta entender la pauta?",
+  validateStructure: "Validar estructura",
+  saveDraftAfterBackend: "Guardar borrador despues del backend",
+  workspacePreview: "Vista previa del espacio de trabajo",
+  untitledInvestigation: "Investigacion sin titulo",
+  countryJurisdiction: "Pais/jurisdiccion",
+  starterStructure: "Estructura inicial",
+  sourcesDatabases: "Fuentes/bases",
+  notSet: "No definido",
+  draftReady: "Estructura lista para la proxima etapa del MVP: mapear hipotesis y bloques de evidencia.",
+  errorTitleRequired: "Agregue un titulo para la investigacion.",
+  errorCountryRequired: "Agregue un pais.",
+  errorLanguageRequired: "Agregue el idioma principal.",
+  errorQuestionRequired: "Agregue una pregunta investigativa central.",
+  errorTitleSpecific: "Haga el titulo mas especifico para que QA entienda el caso.",
+  errorQuestionMark: "Formule la pregunta central como pregunta.",
   priorityLabel: "Prioridad",
   sourcesTitle: "Fuentes y bases de datos",
   sourcesHeading: "Separe fuentes verificadas de caminos probables.",
@@ -1157,6 +1283,29 @@ function renderDashboard() {
       `;
     })
     .join("");
+  const limitCards = prototypeLimits
+    .map((item) => {
+      const area = item.area[state.locale] || item.area.pt || item.area.en;
+      const current = item.current[state.locale] || item.current.pt || item.current.en;
+      const next = item.next[state.locale] || item.next.pt || item.next.en;
+
+      return `
+        <article class="panel limit-card">
+          <h3>${area}</h3>
+          <dl class="detail-list">
+            <div>
+              <dt>${t("currentBehavior")}</dt>
+              <dd>${current}</dd>
+            </div>
+            <div>
+              <dt>${t("nextProductStep")}</dt>
+              <dd>${next}</dd>
+            </div>
+          </dl>
+        </article>
+      `;
+    })
+    .join("");
 
   renderShell(`
     <main class="page dashboard">
@@ -1197,6 +1346,15 @@ function renderDashboard() {
         </div>
         <div class="coverage-grid">${coverageCards}</div>
       </section>
+      <section class="limits-section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">${t("prototypeLimits")}</p>
+            <h2>${t("prototypeLimitsTitle")}</h2>
+          </div>
+        </div>
+        <div class="limits-grid">${limitCards}</div>
+      </section>
       <section class="roadmap-section">
         <div class="section-header">
           <div>
@@ -1235,45 +1393,28 @@ function renderDashboard() {
 }
 
 function renderNewInvestigation() {
-  const fields =
-    state.locale === "pt"
-      ? [
-          ["title", "Titulo da investigacao", "ex.: Violencia obstetrica e transparencia de dados publicos"],
-          ["country", "Pais", "ex.: Brasil, Estados Unidos, Mexico"],
-          ["jurisdiction", "Jurisdicao/localidade", "ex.: Bahia, Cook County, Cidade do Mexico"],
-          ["language", "Idioma principal", "ex.: Portugues, Ingles, Espanhol"],
-          ["topic", "Tema geral", "ex.: Saude publica, educacao, meio ambiente"],
-          ["territory", "Territorio investigado", "ex.: Salvador e interior da Bahia"],
-          ["period", "Periodo investigado", "ex.: 2020-2026"],
-        ]
-      : [
-          ["title", "Investigation title", "e.g. Obstetric violence and public data transparency"],
-          ["country", "Country", "e.g. Brazil, United States, Mexico"],
-          ["jurisdiction", "Jurisdiction/locality", "e.g. Bahia, Cook County, Mexico City"],
-          ["language", "Primary language", "e.g. Portuguese, English, Spanish"],
-          ["topic", "General topic", "e.g. Public health, education, environment"],
-          ["territory", "Investigated territory", "e.g. Salvador and Bahia interior"],
-          ["period", "Investigated period", "e.g. 2020-2026"],
-        ];
+  const fields = [
+    ["title", t("investigationTitle"), t("investigationTitlePlaceholder")],
+    ["country", t("country"), t("countryPlaceholder")],
+    ["jurisdiction", t("jurisdictionLocality"), t("jurisdictionPlaceholder")],
+    ["language", t("primaryLanguage"), t("primaryLanguagePlaceholder")],
+    ["topic", t("generalTopic"), t("topicPlaceholder")],
+    ["territory", t("investigatedTerritory"), t("territoryPlaceholder")],
+    ["period", t("investigatedPeriod"), t("periodPlaceholder")],
+  ];
   const errors = state.draftErrors.map((error) => `<li>${error}</li>`).join("");
 
   renderShell(`
     <main class="page">
       <section class="content-header create-header">
         <div>
-          <p class="eyebrow">${state.locale === "pt" ? "Nova investigacao" : "New investigation"}</p>
-          <h1>${state.locale === "pt" ? "Comece com uma pergunta que a evidencia consegue responder." : "Start with a question the evidence can actually answer."}</h1>
-          <p>
-            ${
-              state.locale === "pt"
-                ? "Este formulario simulado testa o fluxo inicial do MVP. Ele valida campos obrigatorios, mostra a estrutura do projeto e mantem o salvamento desativado ate existir backend."
-                : "This simulated form tests the MVP onboarding flow. It validates required fields, shows the project structure and keeps saving disabled until a backend exists."
-            }
-          </p>
+          <p class="eyebrow">${t("newInvestigation")}</p>
+          <h1>${t("createTitle")}</h1>
+          <p>${t("createCopy")}</p>
         </div>
-        <button class="button secondary active-secondary" data-action="dashboard">${state.locale === "pt" ? "Cancelar" : "Cancel"}</button>
+        <button class="button secondary active-secondary" data-action="dashboard">${t("cancel")}</button>
       </section>
-      ${errors ? `<section class="error-box"><strong>${state.locale === "pt" ? "Revise antes de continuar" : "Review before continuing"}</strong><ul>${errors}</ul></section>` : ""}
+      ${errors ? `<section class="error-box"><strong>${t("reviewBeforeContinue")}</strong><ul>${errors}</ul></section>` : ""}
       ${state.draftNotice ? `<section class="success-box"><strong>${state.draftNotice}</strong></section>` : ""}
       <section class="create-grid">
         <form class="panel create-form" data-action="draft-form">
@@ -1290,38 +1431,38 @@ function renderNewInvestigation() {
               .join("")}
           </div>
           <label>
-            <span>${state.locale === "pt" ? "Pergunta investigativa central" : "Central investigative question"}</span>
-            <textarea data-field="centralQuestion" rows="4" placeholder="${state.locale === "pt" ? "Que pergunta esta investigacao deve responder com evidencias?" : "What question should this investigation answer with evidence?"}">${escapeHtml(state.draft.centralQuestion)}</textarea>
-            <small>${state.locale === "pt" ? "Obrigatorio. Prefira uma pergunta que possa ser respondida com documentos, dados, entrevistas ou respostas oficiais." : "Required. Prefer a question that can be answered with documents, data, interviews or official responses."}</small>
+            <span>${t("centralInvestigativeQuestion")}</span>
+            <textarea data-field="centralQuestion" rows="4" placeholder="${t("centralQuestionPlaceholder")}">${escapeHtml(state.draft.centralQuestion)}</textarea>
+            <small>${t("centralQuestionHelp")}</small>
           </label>
           <label>
-            <span>${state.locale === "pt" ? "Descricao curta" : "Short description"}</span>
-            <textarea data-field="description" rows="3" placeholder="${state.locale === "pt" ? "O que a pauta tenta entender?" : "What is the story trying to understand?"}">${escapeHtml(state.draft.description)}</textarea>
+            <span>${t("shortDescription")}</span>
+            <textarea data-field="description" rows="3" placeholder="${t("descriptionPlaceholder")}">${escapeHtml(state.draft.description)}</textarea>
           </label>
           <div class="form-actions">
-            <button class="button" data-action="validate-draft" type="button">${state.locale === "pt" ? "Validar estrutura" : "Validate project structure"}</button>
-            <button class="button secondary" type="button" disabled>${state.locale === "pt" ? "Salvar rascunho apos backend" : "Save draft after backend"}</button>
+            <button class="button" data-action="validate-draft" type="button">${t("validateStructure")}</button>
+            <button class="button secondary" type="button" disabled>${t("saveDraftAfterBackend")}</button>
           </div>
         </form>
         <aside class="panel preview-panel">
-          <p class="eyebrow">${state.locale === "pt" ? "Previa do espaco de trabalho" : "Generated workspace preview"}</p>
-          <h2>${escapeHtml(state.draft.title) || (state.locale === "pt" ? "Investigacao sem titulo" : "Untitled investigation")}</h2>
+          <p class="eyebrow">${t("workspacePreview")}</p>
+          <h2>${escapeHtml(state.draft.title) || t("untitledInvestigation")}</h2>
           <dl class="detail-list">
-            <div><dt>${state.locale === "pt" ? "Pais/jurisdicao" : "Country/jurisdiction"}</dt><dd>${previewValue(state.draft.country)} / ${previewValue(state.draft.jurisdiction)}</dd></div>
+            <div><dt>${t("countryJurisdiction")}</dt><dd>${previewValue(state.draft.country)} / ${previewValue(state.draft.jurisdiction)}</dd></div>
             <div><dt>${t("language")}</dt><dd>${previewValue(state.draft.language)}</dd></div>
             <div><dt>${t("topic")}</dt><dd>${previewValue(state.draft.topic)}</dd></div>
-            <div><dt>${state.locale === "pt" ? "Territorio" : "Territory"}</dt><dd>${previewValue(state.draft.territory)}</dd></div>
-            <div><dt>${state.locale === "pt" ? "Periodo" : "Period"}</dt><dd>${previewValue(state.draft.period)}</dd></div>
+            <div><dt>${t("territory")}</dt><dd>${previewValue(state.draft.territory)}</dd></div>
+            <div><dt>${t("period")}</dt><dd>${previewValue(state.draft.period)}</dd></div>
           </dl>
           <div class="preview-question">
-            <strong>${state.locale === "pt" ? "Pergunta central" : "Central question"}</strong>
-            <p>${escapeHtml(state.draft.centralQuestion) || (state.locale === "pt" ? "Escreva uma pergunta para gerar o primeiro mapa de evidencias." : "Write a question to generate the first evidence map.")}</p>
+            <strong>${t("centralQuestion")}</strong>
+            <p>${escapeHtml(state.draft.centralQuestion) || t("centralQuestionPlaceholder")}</p>
           </div>
           <div class="starter-stack">
-            <h3>${state.locale === "pt" ? "Estrutura inicial" : "Starter structure"}</h3>
+            <h3>${t("starterStructure")}</h3>
             <span class="pill neutral">${t("hypotheses")}</span>
             <span class="pill neutral">${t("evidenceBlocks")}</span>
-            <span class="pill neutral">${state.locale === "pt" ? "Fontes/bases" : "Sources/databases"}</span>
+            <span class="pill neutral">${t("sourcesDatabases")}</span>
             <span class="pill neutral">${t("requests")}</span>
             <span class="pill neutral">${t("gaps")}</span>
             <span class="pill neutral">${t("claims")}</span>
@@ -1333,30 +1474,30 @@ function renderNewInvestigation() {
 }
 
 function previewValue(value) {
-  return escapeHtml(value) || "Not set";
+  return escapeHtml(value) || t("notSet");
 }
 
 function validateDraft() {
   const required = [
-    ["title", "Add an investigation title."],
-    ["country", "Add a country."],
-    ["language", "Add the primary language."],
-    ["centralQuestion", "Add a central investigative question."],
+    ["title", t("errorTitleRequired")],
+    ["country", t("errorCountryRequired")],
+    ["language", t("errorLanguageRequired")],
+    ["centralQuestion", t("errorQuestionRequired")],
   ];
   const errors = required
     .filter(([field]) => !state.draft[field].trim())
     .map(([, message]) => message);
 
   if (state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
-    errors.push("Make the title more specific so QA can understand the case.");
+    errors.push(t("errorTitleSpecific"));
   }
 
   if (state.draft.centralQuestion.trim() && !state.draft.centralQuestion.includes("?")) {
-    errors.push("Phrase the central question as a question.");
+    errors.push(t("errorQuestionMark"));
   }
 
   state.draftErrors = errors;
-  state.draftNotice = errors.length ? "" : "Structure looks ready for the next MVP step: mapping hypotheses and evidence blocks.";
+  state.draftNotice = errors.length ? "" : t("draftReady");
 }
 
 function renderInvestigation() {
