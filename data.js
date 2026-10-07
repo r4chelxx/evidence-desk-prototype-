@@ -58,6 +58,79 @@ export const roadmap = [
   },
 ];
 
+export const qaModel = {
+  glossary: [
+    {
+      term: "Hipotese",
+      meaning: "Possibilidade investigativa ainda em teste.",
+      qaRule: "Nao deve aparecer como conclusao enquanto evidencias suficientes nao forem revisadas.",
+    },
+    {
+      term: "Afirmacao",
+      meaning: "Frase publicavel que precisa estar ligada a evidencia, limite e risco editorial.",
+      qaRule: "Toda afirmacao deve mostrar se a evidencia sustenta, contradiz ou limita o que esta sendo dito.",
+    },
+    {
+      term: "Bloco de evidencia",
+      meaning: "Tipo de prova, dado, documento ou fonte necessario para testar uma hipotese.",
+      qaRule: "Pode existir antes da fonte concreta ser encontrada, mas precisa ter prioridade e status.",
+    },
+    {
+      term: "Lacuna",
+      meaning: "Informacao ausente, incompleta, contraditoria ou ainda nao verificavel.",
+      qaRule: "Nunca deve virar acusacao; deve virar follow-up, limite metodologico ou reescrita.",
+    },
+    {
+      term: "Resposta parcial",
+      meaning: "Resposta que entrega parte do solicitado ou exige checagem de anexos, campos e escopo.",
+      qaRule: "So vira evidencia depois de conferencia humana do material recebido.",
+    },
+  ],
+  statuses: [
+    {
+      entity: "Hipotese",
+      values: "Aberta; em apuracao; aguardando dados; sustentada; contradita; reformular",
+    },
+    {
+      entity: "Pedido",
+      values: "Enviado; respondido; resposta parcial; em recurso; em escalonamento; fluxo separado",
+    },
+    {
+      entity: "Resposta",
+      values: "Sem material; recebida; parcial; com problema; revisada; nao usar como evidencia",
+    },
+    {
+      entity: "Afirmacao",
+      values: "Sustentada; sustentada parcialmente; limitada; contradita; precisa de evidencia; reformular",
+    },
+    {
+      entity: "Lacuna",
+      values: "Aberta; em verificacao; em escalonamento; resolvida; separada",
+    },
+  ],
+  evidenceRelations: [
+    {
+      relation: "Sustenta",
+      meaning: "A evidencia reforca a afirmacao, dentro dos limites registrados.",
+    },
+    {
+      relation: "Contradiz",
+      meaning: "A evidencia enfraquece, derruba ou exige reescrever a afirmacao.",
+    },
+    {
+      relation: "Limita",
+      meaning: "A evidencia nao contradiz, mas reduz o alcance, escopo ou nivel de certeza.",
+    },
+  ],
+  acceptanceCriteria: [
+    "Cada tela mostra a secao atual e a proxima pendencia editorial.",
+    "Cada status usado nos dados de exemplo aparece na lista fechada de status.",
+    "Toda afirmacao mostra relacao da evidencia: sustenta, contradiz ou limita.",
+    "A nota metodologica exportada inclui relacoes de evidencia, lacunas e salvaguardas.",
+    "No teste com 5 jornalistas, pelo menos 4 identificam uma afirmacao insegura sem explicacao externa.",
+  ],
+};
+
 export const mvpCoverage = [
   {
     area: {
@@ -198,14 +271,14 @@ export const mvpCoverage = [
       es: "Matriz afirmacion-evidencia",
     },
     expected: {
-      pt: "Vincular afirmacoes a evidencias, forca, risco e status editorial.",
-      en: "Link claims to evidence, strength, risk and editorial status.",
-      es: "Vincular afirmaciones a evidencias, fuerza, riesgo y estado editorial.",
+      pt: "Vincular afirmacoes a evidencias, relacao da evidencia, forca, risco e status editorial.",
+      en: "Link claims to evidence, evidence relation, strength, risk and editorial status.",
+      es: "Vincular afirmaciones a evidencias, relacion de evidencia, fuerza, riesgo y estado editorial.",
     },
     implementation: {
-      pt: "Aba de afirmacoes com evidencia, risco, forca e ressalvas.",
-      en: "Claims tab with evidence, risk, strength and caveats.",
-      es: "Pestana de afirmaciones con evidencia, riesgo, fuerza y salvedades.",
+      pt: "Aba de afirmacoes com evidencia, relacao sustenta/contradiz/limita, risco, forca e ressalvas.",
+      en: "Claims tab with evidence, supports/contradicts/limits relation, risk, strength and caveats.",
+      es: "Pestana de afirmaciones con relacion sustenta/contradice/limita, riesgo, fuerza y salvedades.",
     },
     status: {
       pt: "Implementado",
@@ -870,6 +943,7 @@ export const investigations = [
         text: "Parte dos dados recebidos nao permite identificar tipo de parto de forma consistente.",
         type: "Factual",
         evidence: "Planilha parcial VO-LAI-01",
+        relation: "Limita",
         strength: "Media",
         risk: "Medio",
         status: "Sustentada parcialmente",
@@ -878,6 +952,7 @@ export const investigations = [
         text: "Quatro pedidos de informacao estavam atrasados em setembro de 2026.",
         type: "Numerica",
         evidence: "Diario de transparencia e protocolos",
+        relation: "Sustenta",
         strength: "Forte",
         risk: "Baixo",
         status: "Precisa de rechecagem temporal",
@@ -886,6 +961,7 @@ export const investigations = [
         text: "Nao ha uma base oficial unica que meca violencia obstetrica diretamente na Bahia.",
         type: "Metodologica",
         evidence: "Arquitetura da pauta e pedidos a SESAB, Ouvidoria SUS, MP-BA, DPE-BA e CEPOIF",
+        relation: "Limita",
         strength: "Media",
         risk: "Medio",
         status: "Precisa de formulacao cautelosa",
@@ -1208,6 +1284,7 @@ export const investigations = [
         text: "The district publicly posted minutes for meetings where education technology vendors were discussed.",
         type: "Factual",
         evidence: "School board website",
+        relation: "Supports",
         strength: "Strong",
         risk: "Low",
         status: "Supported",
@@ -1216,6 +1293,7 @@ export const investigations = [
         text: "The district provided contracts only for part of the requested period.",
         type: "Factual",
         evidence: "Partial public records response",
+        relation: "Supports",
         strength: "Strong",
         risk: "Low",
         status: "Supported",
@@ -1224,6 +1302,7 @@ export const investigations = [
         text: "The vendor selection process lacked competition.",
         type: "Interpretive",
         evidence: "Procurement records still missing",
+        relation: "Limits",
         strength: "Insufficient",
         risk: "High",
         status: "Needs more evidence",
