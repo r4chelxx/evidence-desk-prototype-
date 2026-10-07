@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa2";
+import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa3";
 
 const state = {
   view: "dashboard",
@@ -186,6 +186,9 @@ const dictionary = {
     glossaryTerms: "Glossario operacional",
     statusRegistry: "Lista fechada de status",
     evidenceRelations: "Relacoes de evidencia",
+    functionalCoverage: "Cobertura funcional",
+    qaExpectation: "Criterio QA",
+    prototypeCoverage: "Cobertura no prototipo",
     methodologyNote: "Nota metodologica",
     methodologyHeading: "Exporte um resumo transparente de evidencias, pedidos e limites.",
     qaChecklistHeading: "Revise riscos antes de tratar evidencias como publicaveis.",
@@ -469,6 +472,9 @@ const dictionary = {
     glossaryTerms: "Operational glossary",
     statusRegistry: "Closed status list",
     evidenceRelations: "Evidence relations",
+    functionalCoverage: "Functional coverage",
+    qaExpectation: "QA criterion",
+    prototypeCoverage: "Prototype coverage",
     methodologyNote: "Methodological note",
     methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
     qaChecklistHeading: "Review risk before treating evidence as publishable.",
@@ -742,6 +748,9 @@ dictionary.es = {
   glossaryTerms: "Glosario operativo",
   statusRegistry: "Lista cerrada de estados",
   evidenceRelations: "Relaciones de evidencia",
+  functionalCoverage: "Cobertura funcional",
+  qaExpectation: "Criterio QA",
+  prototypeCoverage: "Cobertura en el prototipo",
   methodologyNote: "Nota metodologica",
   methodologyHeading: "Exporte un resumen transparente de evidencias, solicitudes y limites.",
   qaChecklistHeading: "Revise riesgos antes de tratar evidencias como publicables.",
@@ -878,7 +887,7 @@ function statusClass(value = "") {
   if (normalized.includes("precisa")) return "warning";
   if (normalized.includes("update") || normalized.includes("progress")) return "warning";
   if (normalized.includes("next")) return "warning";
-  if (normalized.includes("implementado") || normalized.includes("implemented")) return "success";
+  if (normalized.includes("implementado") || normalized.includes("implemented") || normalized.includes("coberto") || normalized.includes("covered")) return "success";
   if (normalized.includes("ready") || normalized.includes("low")) return "success";
   if (normalized.includes("current")) return "success";
   if (normalized.includes("sustenta") || normalized.includes("supported") || normalized.includes("support") || normalized.includes("forte")) return "success";
@@ -2323,6 +2332,8 @@ function renderClaims(item) {
 }
 
 function renderQaModel() {
+  const localized = (value) => (typeof value === "string" ? value : value[state.locale] || value.pt || value.en);
+
   return `
     <section class="content-header process-header">
       <p class="eyebrow">${t("qaModelTitle")}</p>
@@ -2382,6 +2393,31 @@ function renderQaModel() {
           ${qaModel.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("")}
         </ul>
       </article>
+    </div>
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("functionalCoverage")}</p>
+      <h2>${t("testingTitle")}</h2>
+    </section>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>${t("functionalCoverage")}</th><th>${t("qaExpectation")}</th><th>${t("prototypeCoverage")}</th><th>${t("status")}</th></tr>
+        </thead>
+        <tbody>
+          ${qaModel.functionalChecks
+            .map(
+              (check) => `
+                <tr>
+                  <td>${localized(check.item)}</td>
+                  <td>${localized(check.expectation)}</td>
+                  <td>${localized(check.coverage)}</td>
+                  <td><span class="pill ${statusClass(localized(check.status))}">${localized(check.status)}</span></td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
     </div>
   `;
 }
