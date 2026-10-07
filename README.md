@@ -15,6 +15,7 @@ without backend, login, external integrations or AI.
 - Simulated "New investigation" flow with required-field validation and generated workspace preview.
 - MVP roadmap separating current static validation, persistence and later AI assistance.
 - Explicit prototype limits for static storage, legal deadlines and AI so demos do not overpromise.
+- JSON export for the current investigation, creating a portable static data snapshot before backend work.
 - Jurisdiction/access-law guidance for each case.
 - Language/localization guidance for English, Portuguese and Spanish use.
 - Central question, secondary questions and working hypotheses for each investigation.
