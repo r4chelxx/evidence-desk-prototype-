@@ -414,6 +414,7 @@ label small {
 }
 
 .coverage-section,
+.limits-section,
 .roadmap-section {
   border-top: 1px solid var(--line);
   margin-top: 2.5rem;
@@ -443,6 +444,17 @@ label small {
   gap: 1rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 1rem;
+}
+
+.limits-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.limit-card h3 {
+  margin: 0 0 0.8rem;
 }
 
 .roadmap-card {
@@ -1118,6 +1130,7 @@ tr:last-child td {
   .tester-grid,
   .roadmap-grid,
   .coverage-grid,
+  .limits-grid,
   .filter-bar,
   .create-grid,
   .form-grid,
