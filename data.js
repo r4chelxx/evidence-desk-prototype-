@@ -131,6 +131,60 @@ export const qaModel = {
   ],
 };
 
+export const prototypeLimits = [
+  {
+    area: {
+      pt: "Dados salvos",
+      en: "Saved data",
+      es: "Datos guardados",
+    },
+    current: {
+      pt: "O prototipo e estatico: o formulario valida a estrutura, mas ainda nao persiste novas investigacoes.",
+      en: "The prototype is static: the form validates structure, but does not persist new investigations yet.",
+      es: "El prototipo es estatico: el formulario valida la estructura, pero aun no guarda nuevas investigaciones.",
+    },
+    next: {
+      pt: "v0.2 precisa de armazenamento local/exportavel antes de login ou banco de dados.",
+      en: "v0.2 needs local/exportable storage before login or database work.",
+      es: "v0.2 necesita almacenamiento local/exportable antes de login o base de datos.",
+    },
+  },
+  {
+    area: {
+      pt: "Prazos legais",
+      en: "Legal deadlines",
+      es: "Plazos legales",
+    },
+    current: {
+      pt: "Prazos aparecem quando foram registrados pela reporter ou pelo caso de teste; a ferramenta nao calcula regra por jurisdicao.",
+      en: "Deadlines appear when logged by the reporter or test case; the tool does not calculate jurisdiction rules.",
+      es: "Los plazos aparecen cuando fueron registrados por la reportera o por el caso de prueba; la herramienta no calcula reglas por jurisdiccion.",
+    },
+    next: {
+      pt: "Adicionar regras revisadas por pais/estado/orgao, sempre com alerta de verificacao humana.",
+      en: "Add reviewed rules by country/state/agency, always with human verification warnings.",
+      es: "Agregar reglas revisadas por pais/estado/organismo, siempre con alerta de verificacion humana.",
+    },
+  },
+  {
+    area: {
+      pt: "IA",
+      en: "AI",
+      es: "IA",
+    },
+    current: {
+      pt: "Nenhuma IA decide fontes, prazos, claims ou conclusoes nesta versao.",
+      en: "No AI decides sources, deadlines, claims or conclusions in this version.",
+      es: "Ninguna IA decide fuentes, plazos, afirmaciones o conclusiones en esta version.",
+    },
+    next: {
+      pt: "A IA deve entrar apenas como revisao assistida: comparar pedido-resposta, apontar lacunas e rascunhar notas revisaveis.",
+      en: "AI should enter only as assisted review: comparing request-response, flagging gaps and drafting reviewable notes.",
+      es: "La IA debe entrar solo como revision asistida: comparar solicitud-respuesta, senalar vacios y redactar notas revisables.",
+    },
+  },
+];
+
 export const mvpCoverage = [
   {
     area: {
