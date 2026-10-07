@@ -14,6 +14,7 @@ without backend, login, external integrations or AI.
 - Portuguese-first interface with a PT/EN/ES language toggle for the product UI, including dashboard, navigation and core workflow tabs.
 - Simulated "New investigation" flow with required-field validation and generated workspace preview.
 - MVP roadmap separating current static validation, persistence and later AI assistance.
+- Explicit prototype limits for static storage, legal deadlines and AI so demos do not overpromise.
 - Jurisdiction/access-law guidance for each case.
 - Language/localization guidance for English, Portuguese and Spanish use.
 - Central question, secondary questions and working hypotheses for each investigation.
