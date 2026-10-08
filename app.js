@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa8";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa9";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -64,6 +64,20 @@ const state = {
   },
   draftErrors: [],
   draftNotice: "",
+  planDraft: {
+    hypothesisText: "",
+    hypothesisEvidence: "",
+    hypothesisStatus: "",
+    evidenceType: "",
+    evidencePriority: "",
+    evidenceStatus: "",
+    sourceName: "",
+    sourceType: "",
+    sourceStatus: "",
+    sourceUse: "",
+    sourceLimits: "",
+  },
+  planNotice: "",
 };
 
 if (state.view === "investigation" && !investigations.some((item) => item.id === state.currentId)) {
@@ -391,6 +405,29 @@ const dictionary = {
     workflowRequestsCopy: "Registre prazos, materiais recebidos, anexos ausentes e próximos passos.",
     workflowClaimsTitle: "Revise afirmações publicáveis",
     workflowClaimsCopy: "Só avance quando cada afirmação tiver evidência, relação, força, risco e ressalva.",
+    addToPlan: "Adicionar ao plano",
+    addHypothesisTitle: "Adicionar hipótese de trabalho",
+    hypothesisTextLabel: "Hipótese",
+    hypothesisTextPlaceholder: "ex.: Falhas de transparência impedem comparar maternidades",
+    hypothesisEvidenceLabel: "Evidência necessária",
+    hypothesisEvidencePlaceholder: "ex.: Dados por unidade, protocolo e resposta oficial",
+    hypothesisStatusLabel: "Status da hipótese",
+    addEvidenceBlockTitle: "Adicionar bloco de evidência",
+    evidenceTypeLabel: "Tipo de evidência",
+    evidenceTypePlaceholder: "ex.: série histórica por maternidade",
+    evidencePriorityLabel: "Prioridade",
+    evidenceStatusLabel: "Status do bloco",
+    addSourceTitle: "Adicionar fonte ou base",
+    sourceNameLabel: "Nome da fonte/base",
+    sourceNamePlaceholder: "ex.: DATASUS, ministério, tribunal, prefeitura",
+    sourceTypeLabel: "Tipo",
+    sourceStatusLabel: "Status da fonte",
+    sourceUseLabel: "Uso na investigação",
+    sourceUsePlaceholder: "Que pergunta esta fonte pode ajudar a responder?",
+    sourceLimitsLabel: "Limites conhecidos",
+    sourceLimitsPlaceholder: "O que esta fonte não resolve ou precisa de checagem?",
+    itemAdded: "Item adicionado e salvo neste navegador.",
+    fillRequiredPlanFields: "Preencha os campos principais antes de adicionar.",
   },
   en: {
     all: "All",
@@ -708,6 +745,29 @@ const dictionary = {
     workflowRequestsCopy: "Log deadlines, received material, missing attachments and next steps.",
     workflowClaimsTitle: "Review publishable claims",
     workflowClaimsCopy: "Move forward only when each claim has evidence, relation, strength, risk and caveat.",
+    addToPlan: "Add to plan",
+    addHypothesisTitle: "Add working hypothesis",
+    hypothesisTextLabel: "Hypothesis",
+    hypothesisTextPlaceholder: "e.g. Transparency failures prevent comparing facilities",
+    hypothesisEvidenceLabel: "Required evidence",
+    hypothesisEvidencePlaceholder: "e.g. Data by facility, protocol and official response",
+    hypothesisStatusLabel: "Hypothesis status",
+    addEvidenceBlockTitle: "Add evidence block",
+    evidenceTypeLabel: "Evidence type",
+    evidenceTypePlaceholder: "e.g. historical series by facility",
+    evidencePriorityLabel: "Priority",
+    evidenceStatusLabel: "Block status",
+    addSourceTitle: "Add source or database",
+    sourceNameLabel: "Source/database name",
+    sourceNamePlaceholder: "e.g. data portal, ministry, court, city hall",
+    sourceTypeLabel: "Type",
+    sourceStatusLabel: "Source status",
+    sourceUseLabel: "Use in the investigation",
+    sourceUsePlaceholder: "Which question can this source help answer?",
+    sourceLimitsLabel: "Known limits",
+    sourceLimitsPlaceholder: "What does this source not solve or still require checking?",
+    itemAdded: "Item added and saved in this browser.",
+    fillRequiredPlanFields: "Fill the main fields before adding.",
   },
 };
 
@@ -972,6 +1032,29 @@ dictionary.es = {
   workflowRequestsCopy: "Registre plazos, material recibido, anexos ausentes y próximos pasos.",
   workflowClaimsTitle: "Revise afirmaciones públicables",
   workflowClaimsCopy: "Avance solo cuando cada afirmación tenga evidência, relación, fuerza, riesgo y salvedad.",
+  addToPlan: "Agregar al plan",
+  addHypothesisTitle: "Agregar hipótesis de trabajo",
+  hypothesisTextLabel: "Hipótesis",
+  hypothesisTextPlaceholder: "ej.: fallas de transparencia impiden comparar servicios",
+  hypothesisEvidenceLabel: "Evidencia necesaria",
+  hypothesisEvidencePlaceholder: "ej.: datos por unidad, protocolo y respuesta oficial",
+  hypothesisStatusLabel: "Estado de la hipótesis",
+  addEvidenceBlockTitle: "Agregar bloque de evidencia",
+  evidenceTypeLabel: "Tipo de evidencia",
+  evidenceTypePlaceholder: "ej.: serie historica por servicio",
+  evidencePriorityLabel: "Prioridad",
+  evidenceStatusLabel: "Estado del bloque",
+  addSourceTitle: "Agregar fuente o base",
+  sourceNameLabel: "Nombre de la fuente/base",
+  sourceNamePlaceholder: "ej.: portal de datos, ministerio, tribunal, municipio",
+  sourceTypeLabel: "Tipo",
+  sourceStatusLabel: "Estado de la fuente",
+  sourceUseLabel: "Uso en la investigación",
+  sourceUsePlaceholder: "Que pregunta puede ayudar a responder esta fuente?",
+  sourceLimitsLabel: "Limites conocidos",
+  sourceLimitsPlaceholder: "Que no resuelve esta fuente o que requiere chequeo?",
+  itemAdded: "Item agregado y guardado en este navegador.",
+  fillRequiredPlanFields: "Complete los campos principales antes de agregar.",
   priorityLabel: "Prioridad",
   sourcesTitle: "Fuentes y bases de datos",
   sourcesHeading: "Separe fuentes verificadas de caminos probables.",
@@ -1127,6 +1210,84 @@ function persistCreatedInvestigation() {
   state.view = "investigation";
   resetDraft();
   saveUiState();
+  return true;
+}
+
+function resetPlanDraft(fields) {
+  fields.forEach((field) => {
+    state.planDraft[field] = "";
+  });
+}
+
+function touchInvestigation(item) {
+  item.updatedAt = todayIsoDate();
+  saveInvestigations();
+}
+
+function addHypothesisToCurrent() {
+  const item = getCurrentInvestigation();
+  const text = state.planDraft.hypothesisText.trim();
+  const evidence = state.planDraft.hypothesisEvidence.trim();
+  if (!text || !evidence) {
+    state.planNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.hypotheses = [
+    ...(item.hypotheses || []),
+    {
+      text,
+      evidence,
+      status: state.planDraft.hypothesisStatus.trim() || t("reviewRecommended"),
+    },
+  ];
+  touchInvestigation(item);
+  resetPlanDraft(["hypothesisText", "hypothesisEvidence", "hypothesisStatus"]);
+  state.planNotice = t("itemAdded");
+  return true;
+}
+
+function addEvidenceBlockToCurrent() {
+  const item = getCurrentInvestigation();
+  const type = state.planDraft.evidenceType.trim();
+  if (!type) {
+    state.planNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.evidenceBlocks = [
+    ...(item.evidenceBlocks || []),
+    {
+      type,
+      priority: state.planDraft.evidencePriority.trim() || t("priorityPrefix"),
+      status: state.planDraft.evidenceStatus.trim() || t("reviewRecommended"),
+    },
+  ];
+  touchInvestigation(item);
+  resetPlanDraft(["evidenceType", "evidencePriority", "evidenceStatus"]);
+  state.planNotice = t("itemAdded");
+  return true;
+}
+
+function addSourceToCurrent() {
+  const item = getCurrentInvestigation();
+  const name = state.planDraft.sourceName.trim();
+  const use = state.planDraft.sourceUse.trim();
+  if (!name || !use) {
+    state.planNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.sources = [
+    ...(item.sources || []),
+    {
+      name,
+      type: state.planDraft.sourceType.trim() || t("sourcesDatabases"),
+      status: state.planDraft.sourceStatus.trim() || t("reviewRecommended"),
+      use,
+      limits: state.planDraft.sourceLimits.trim() || t("reviewLog"),
+    },
+  ];
+  touchInvestigation(item);
+  resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits"]);
+  state.planNotice = t("itemAdded");
   return true;
 }
 
@@ -1871,9 +2032,81 @@ function renderContextWorkspace(item) {
 
 function renderPlanningWorkspace(item) {
   return `
+    ${renderPlanAddForms()}
     ${renderHypotheses(item)}
     ${renderEvidenceBlocks(item)}
     ${renderSources(item)}
+  `;
+}
+
+function renderPlanAddForms() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("addToPlan")}</p>
+      <h2>${t("workflowPlanTitle")}</h2>
+      <p>${t("workflowPlanCopy")}</p>
+    </section>
+    ${state.planNotice ? `<section class="${state.planNotice === t("itemAdded") ? "success-box" : "error-box"}"><strong>${state.planNotice}</strong></section>` : ""}
+    <section class="plan-form-grid">
+      <article class="panel create-form plan-add-form">
+        <h3>${t("addHypothesisTitle")}</h3>
+        <label>
+          <span>${t("hypothesisTextLabel")}</span>
+          <textarea data-plan-field="hypothesisText" rows="3" placeholder="${t("hypothesisTextPlaceholder")}">${escapeHtml(state.planDraft.hypothesisText)}</textarea>
+        </label>
+        <label>
+          <span>${t("hypothesisEvidenceLabel")}</span>
+          <input data-plan-field="hypothesisEvidence" value="${escapeHtml(state.planDraft.hypothesisEvidence)}" placeholder="${t("hypothesisEvidencePlaceholder")}">
+        </label>
+        <label>
+          <span>${t("hypothesisStatusLabel")}</span>
+          <input data-plan-field="hypothesisStatus" value="${escapeHtml(state.planDraft.hypothesisStatus)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <button class="button secondary active-secondary" data-action="add-hypothesis" type="button">${t("addHypothesis")}</button>
+      </article>
+      <article class="panel create-form plan-add-form">
+        <h3>${t("addEvidenceBlockTitle")}</h3>
+        <label>
+          <span>${t("evidenceTypeLabel")}</span>
+          <textarea data-plan-field="evidenceType" rows="3" placeholder="${t("evidenceTypePlaceholder")}">${escapeHtml(state.planDraft.evidenceType)}</textarea>
+        </label>
+        <label>
+          <span>${t("evidencePriorityLabel")}</span>
+          <input data-plan-field="evidencePriority" value="${escapeHtml(state.planDraft.evidencePriority)}" placeholder="${t("priorityPrefix")}">
+        </label>
+        <label>
+          <span>${t("evidenceStatusLabel")}</span>
+          <input data-plan-field="evidenceStatus" value="${escapeHtml(state.planDraft.evidenceStatus)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <button class="button secondary active-secondary" data-action="add-evidence-block" type="button">${t("mapEvidence")}</button>
+      </article>
+      <article class="panel create-form plan-add-form">
+        <h3>${t("addSourceTitle")}</h3>
+        <label>
+          <span>${t("sourceNameLabel")}</span>
+          <input data-plan-field="sourceName" value="${escapeHtml(state.planDraft.sourceName)}" placeholder="${t("sourceNamePlaceholder")}">
+        </label>
+        <div class="form-grid compact-form-grid">
+          <label>
+            <span>${t("sourceTypeLabel")}</span>
+            <input data-plan-field="sourceType" value="${escapeHtml(state.planDraft.sourceType)}" placeholder="${t("sourcesDatabases")}">
+          </label>
+          <label>
+            <span>${t("sourceStatusLabel")}</span>
+            <input data-plan-field="sourceStatus" value="${escapeHtml(state.planDraft.sourceStatus)}" placeholder="${t("reviewRecommended")}">
+          </label>
+        </div>
+        <label>
+          <span>${t("sourceUseLabel")}</span>
+          <textarea data-plan-field="sourceUse" rows="3" placeholder="${t("sourceUsePlaceholder")}">${escapeHtml(state.planDraft.sourceUse)}</textarea>
+        </label>
+        <label>
+          <span>${t("sourceLimitsLabel")}</span>
+          <textarea data-plan-field="sourceLimits" rows="2" placeholder="${t("sourceLimitsPlaceholder")}">${escapeHtml(state.planDraft.sourceLimits)}</textarea>
+        </label>
+        <button class="button secondary active-secondary" data-action="add-source" type="button">${t("addSourceTitle")}</button>
+      </article>
+    </section>
   `;
 }
 
@@ -3360,6 +3593,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-plan-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.planDraft[field.dataset.planField] = field.value;
+      state.planNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-action='validate-draft']").forEach((button) => {
     button.addEventListener("click", () => {
       validateDraft();
@@ -3391,6 +3631,27 @@ function bindActions() {
     button.addEventListener("click", () => {
       state.currentTab = button.dataset.tab;
       saveUiState();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-hypothesis']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addHypothesisToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-evidence-block']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addEvidenceBlockToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-source']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addSourceToCurrent();
       renderInvestigation();
     });
   });
