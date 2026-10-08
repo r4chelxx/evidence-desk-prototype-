@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa6";
+import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa6b";
 
 const state = {
   view: "dashboard",
