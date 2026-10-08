@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa15";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa16";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -2516,6 +2516,32 @@ function previewValue(value) {
   return escapeHtml(value) || t("notSet");
 }
 
+function helpTip(text) {
+  return `
+    <span class="help-tip">
+      <button class="help-button" type="button" aria-label="${escapeHtml(text)}">?</button>
+      <span class="help-popover" role="tooltip">${escapeHtml(text)}</span>
+    </span>
+  `;
+}
+
+function renderAddDisclosure({ eyebrow, title, copy, notice, success, content }) {
+  return `
+    <details class="add-disclosure" ${notice ? "open" : ""}>
+      <summary>
+        <span>
+          <span class="eyebrow">${eyebrow}</span>
+          <strong>${title}</strong>
+        </span>
+        ${helpTip(copy)}
+      </summary>
+      <p class="disclosure-copy">${copy}</p>
+      ${notice ? `<section class="${notice === success ? "success-box" : "error-box"}"><strong>${notice}</strong></section>` : ""}
+      ${content}
+    </details>
+  `;
+}
+
 function validateDraft() {
   const required = [
     ["title", t("errorTitleRequired")],
@@ -2615,14 +2641,14 @@ function renderPlanningWorkspace(item) {
 }
 
 function renderPlanAddForms() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("addToPlan")}</p>
-      <h2>${t("workflowPlanTitle")}</h2>
-      <p>${t("workflowPlanCopy")}</p>
-    </section>
-    ${state.planNotice ? `<section class="${state.planNotice === t("itemAdded") ? "success-box" : "error-box"}"><strong>${state.planNotice}</strong></section>` : ""}
-    <section class="plan-form-grid">
+  return renderAddDisclosure({
+    eyebrow: t("addToPlan"),
+    title: t("workflowPlanTitle"),
+    copy: t("workflowPlanCopy"),
+    notice: state.planNotice,
+    success: t("itemAdded"),
+    content: `
+      <section class="plan-form-grid">
       <article class="panel create-form plan-add-form">
         <h3>${t("addHypothesisTitle")}</h3>
         <label>
@@ -2681,8 +2707,9 @@ function renderPlanAddForms() {
         </label>
         <button class="button secondary active-secondary" data-action="add-source" type="button">${t("addSourceTitle")}</button>
       </article>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderRequestsWorkspace(item) {
@@ -2698,14 +2725,14 @@ function renderRequestsWorkspace(item) {
 }
 
 function renderRequestAddForm() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("requestsEyebrow")}</p>
-      <h2>${t("addRequestTitle")}</h2>
-      <p>${t("requestsTitle")}</p>
-    </section>
-    ${state.requestNotice ? `<section class="${state.requestNotice === t("requestAdded") ? "success-box" : "error-box"}"><strong>${state.requestNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("requestsEyebrow"),
+    title: t("addRequestTitle"),
+    copy: t("requestsTitle"),
+    notice: state.requestNotice,
+    success: t("requestAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <div class="form-grid">
         <label>
           <span>${t("requestTitleLabel")}</span>
@@ -2747,8 +2774,9 @@ function renderRequestAddForm() {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-request" type="button">${t("addRequest")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderEditorialWorkspace(item) {
@@ -3275,14 +3303,14 @@ function renderTransparencyLog(item) {
 }
 
 function renderTransparencyAddForm() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("transparencyLogTitle")}</p>
-      <h2>${t("addTransparencyEventTitle")}</h2>
-      <p>${t("transparencyLogCopy")}</p>
-    </section>
-    ${state.transparencyNotice ? `<section class="${state.transparencyNotice === t("transparencyEventAdded") ? "success-box" : "error-box"}"><strong>${state.transparencyNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("transparencyLogTitle"),
+    title: t("addTransparencyEventTitle"),
+    copy: t("transparencyLogCopy"),
+    notice: state.transparencyNotice,
+    success: t("transparencyEventAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <div class="form-grid">
         <label>
           <span>${t("transparencyDateLabel")}</span>
@@ -3308,8 +3336,9 @@ function renderTransparencyAddForm() {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-transparency-event" type="button">${t("addTransparencyEvent")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderActionPlan(item) {
@@ -3350,14 +3379,14 @@ function renderActionPlan(item) {
 }
 
 function renderActionAddForm() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("actionPlan")}</p>
-      <h2>${t("addActionTitle")}</h2>
-      <p>${t("actionPlanCopy")}</p>
-    </section>
-    ${state.actionNotice ? `<section class="${state.actionNotice === t("actionAdded") ? "success-box" : "error-box"}"><strong>${state.actionNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("actionPlan"),
+    title: t("addActionTitle"),
+    copy: t("actionPlanCopy"),
+    notice: state.actionNotice,
+    success: t("actionAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <label>
         <span>${t("actionLabel")}</span>
         <textarea data-action-field="action" rows="3" placeholder="${t("actionPlaceholder")}">${escapeHtml(state.actionDraft.action)}</textarea>
@@ -3399,8 +3428,9 @@ function renderActionAddForm() {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-action-item" type="button">${t("addAction")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderQueueSection(title, items) {
@@ -3541,14 +3571,14 @@ function renderRequestComparison(item) {
 }
 
 function renderComparisonAddForm(requestOptions) {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("responseReviewRule")}</p>
-      <h2>${t("addComparisonTitle")}</h2>
-      <p>${t("responseReviewRuleCopy")}</p>
-    </section>
-    ${state.comparisonNotice ? `<section class="${state.comparisonNotice === t("comparisonAdded") ? "success-box" : "error-box"}"><strong>${state.comparisonNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("responseReviewRule"),
+    title: t("addComparisonTitle"),
+    copy: t("responseReviewRuleCopy"),
+    notice: state.comparisonNotice,
+    success: t("comparisonAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <datalist id="request-title-options">${requestOptions}</datalist>
       <div class="form-grid">
         <label>
@@ -3585,8 +3615,9 @@ function renderComparisonAddForm(requestOptions) {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-comparison" type="button">${t("addComparison")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderFollowUps(item) {
@@ -3628,14 +3659,14 @@ function renderFollowUps(item) {
 }
 
 function renderFollowUpAddForm(requestOptions) {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("followUpDraftsTitle")}</p>
-      <h2>${t("addFollowUpTitle")}</h2>
-      <p>${t("followUpDraftsCopy")}</p>
-    </section>
-    ${state.followUpNotice ? `<section class="${state.followUpNotice === t("followUpAdded") ? "success-box" : "error-box"}"><strong>${state.followUpNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("followUpDraftsTitle"),
+    title: t("addFollowUpTitle"),
+    copy: t("followUpDraftsCopy"),
+    notice: state.followUpNotice,
+    success: t("followUpAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <datalist id="follow-up-request-options">${requestOptions}</datalist>
       <div class="form-grid">
         <label>
@@ -3666,8 +3697,9 @@ function renderFollowUpAddForm(requestOptions) {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-follow-up" type="button">${t("addFollowUp")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderGaps(item) {
@@ -3700,14 +3732,14 @@ function renderGaps(item) {
 }
 
 function renderGapAddForm() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("editorialWorkspace")}</p>
-      <h2>${t("addGapTitle")}</h2>
-      <p>${t("editorialSafetyCopy")}</p>
-    </section>
-    ${state.gapNotice ? `<section class="${state.gapNotice === t("gapAdded") ? "success-box" : "error-box"}"><strong>${state.gapNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("editorialWorkspace"),
+    title: t("addGapTitle"),
+    copy: t("editorialSafetyCopy"),
+    notice: state.gapNotice,
+    success: t("gapAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <label>
         <span>${t("gapDescriptionLabel")}</span>
         <textarea data-gap-field="description" rows="3" placeholder="${t("gapDescriptionPlaceholder")}">${escapeHtml(state.gapDraft.description)}</textarea>
@@ -3733,8 +3765,9 @@ function renderGapAddForm() {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-gap" type="button">${t("addGap")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderClaims(item) {
@@ -3772,14 +3805,14 @@ function renderClaims(item) {
 }
 
 function renderClaimAddForm() {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("claims")}</p>
-      <h2>${t("addClaimTitle")}</h2>
-      <p>${t("workflowClaimsCopy")}</p>
-    </section>
-    ${state.claimNotice ? `<section class="${state.claimNotice === t("claimAdded") ? "success-box" : "error-box"}"><strong>${state.claimNotice}</strong></section>` : ""}
-    <section class="panel create-form request-add-form">
+  return renderAddDisclosure({
+    eyebrow: t("claims"),
+    title: t("addClaimTitle"),
+    copy: t("workflowClaimsCopy"),
+    notice: state.claimNotice,
+    success: t("claimAdded"),
+    content: `
+      <section class="panel create-form request-add-form">
       <label>
         <span>${t("claimTextLabel")}</span>
         <textarea data-claim-field="text" rows="3" placeholder="${t("claimTextPlaceholder")}">${escapeHtml(state.claimDraft.text)}</textarea>
@@ -3813,8 +3846,9 @@ function renderClaimAddForm() {
       <div class="form-actions">
         <button class="button secondary active-secondary" data-action="add-claim" type="button">${t("addClaimButton")}</button>
       </div>
-    </section>
-  `;
+      </section>
+    `,
+  });
 }
 
 function renderQaModel() {
