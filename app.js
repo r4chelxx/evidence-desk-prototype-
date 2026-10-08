@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa9";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa10";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -78,6 +78,18 @@ const state = {
     sourceLimits: "",
   },
   planNotice: "",
+  requestDraft: {
+    title: "",
+    agency: "",
+    channel: "",
+    protocol: "",
+    sentDate: "",
+    dueDate: "",
+    status: "",
+    requestedItems: "",
+    responseSummary: "",
+  },
+  requestNotice: "",
 };
 
 if (state.view === "investigation" && !investigations.some((item) => item.id === state.currentId)) {
@@ -428,6 +440,23 @@ const dictionary = {
     sourceLimitsPlaceholder: "O que esta fonte não resolve ou precisa de checagem?",
     itemAdded: "Item adicionado e salvo neste navegador.",
     fillRequiredPlanFields: "Preencha os campos principais antes de adicionar.",
+    addRequestTitle: "Registrar pedido externo",
+    requestTitleLabel: "Título do pedido",
+    requestTitlePlaceholder: "ex.: Óbitos maternos por maternidade",
+    agencyLabel: "Órgão ou instituição",
+    agencyPlaceholder: "ex.: SESAB, prefeitura, ministério",
+    channelLabel: "Canal",
+    channelPlaceholder: "ex.: e-SIC, FOIA portal, e-mail",
+    protocolPlaceholder: "ex.: protocolo, ID público ou controle interno",
+    sentDateLabel: "Data de envio",
+    dueDateLabel: "Prazo esperado",
+    requestStatusLabel: "Status do pedido",
+    requestedItemsLabel: "Itens solicitados",
+    requestedItemsPlaceholder: "Liste os campos, documentos ou bases solicitadas.",
+    responseSummaryLabel: "Resumo da resposta",
+    responseSummaryPlaceholder: "Registre se não houve resposta, se veio parcial ou o que foi entregue.",
+    addRequest: "Adicionar pedido",
+    requestAdded: "Pedido adicionado e salvo neste navegador.",
   },
   en: {
     all: "All",
@@ -768,6 +797,23 @@ const dictionary = {
     sourceLimitsPlaceholder: "What does this source not solve or still require checking?",
     itemAdded: "Item added and saved in this browser.",
     fillRequiredPlanFields: "Fill the main fields before adding.",
+    addRequestTitle: "Register external request",
+    requestTitleLabel: "Request title",
+    requestTitlePlaceholder: "e.g. Maternal deaths by facility",
+    agencyLabel: "Agency or institution",
+    agencyPlaceholder: "e.g. health department, city hall, ministry",
+    channelLabel: "Channel",
+    channelPlaceholder: "e.g. FOIA portal, email, public records form",
+    protocolPlaceholder: "e.g. protocol, public ID or internal tracking code",
+    sentDateLabel: "Sent date",
+    dueDateLabel: "Expected deadline",
+    requestStatusLabel: "Request status",
+    requestedItemsLabel: "Requested items",
+    requestedItemsPlaceholder: "List the fields, documents or datasets requested.",
+    responseSummaryLabel: "Response summary",
+    responseSummaryPlaceholder: "Log no response, partial delivery or what was received.",
+    addRequest: "Add request",
+    requestAdded: "Request added and saved in this browser.",
   },
 };
 
@@ -1055,6 +1101,23 @@ dictionary.es = {
   sourceLimitsPlaceholder: "Que no resuelve esta fuente o que requiere chequeo?",
   itemAdded: "Item agregado y guardado en este navegador.",
   fillRequiredPlanFields: "Complete los campos principales antes de agregar.",
+  addRequestTitle: "Registrar solicitud externa",
+  requestTitleLabel: "Título de la solicitud",
+  requestTitlePlaceholder: "ej.: muertes maternas por servicio",
+  agencyLabel: "Organismo o institución",
+  agencyPlaceholder: "ej.: secretaria de salud, municipio, ministerio",
+  channelLabel: "Canal",
+  channelPlaceholder: "ej.: portal de acceso, email, formulario público",
+  protocolPlaceholder: "ej.: protocolo, ID público o control interno",
+  sentDateLabel: "Fecha de envio",
+  dueDateLabel: "Plazo esperado",
+  requestStatusLabel: "Estado de la solicitud",
+  requestedItemsLabel: "Items solicitados",
+  requestedItemsPlaceholder: "Liste campos, documentos o bases solicitadas.",
+  responseSummaryLabel: "Resumen de la respuesta",
+  responseSummaryPlaceholder: "Registre si no hubo respuesta, si vino parcial o que fue entregado.",
+  addRequest: "Agregar solicitud",
+  requestAdded: "Solicitud agregada y guardada en este navegador.",
   priorityLabel: "Prioridad",
   sourcesTitle: "Fuentes y bases de datos",
   sourcesHeading: "Separe fuentes verificadas de caminos probables.",
@@ -1288,6 +1351,41 @@ function addSourceToCurrent() {
   touchInvestigation(item);
   resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits"]);
   state.planNotice = t("itemAdded");
+  return true;
+}
+
+function resetRequestDraft() {
+  Object.keys(state.requestDraft).forEach((field) => {
+    state.requestDraft[field] = "";
+  });
+}
+
+function addRequestToCurrent() {
+  const item = getCurrentInvestigation();
+  const title = state.requestDraft.title.trim();
+  const agency = state.requestDraft.agency.trim();
+  const requestedItems = state.requestDraft.requestedItems.trim();
+  if (!title || !agency || !requestedItems) {
+    state.requestNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.requests = [
+    ...(item.requests || []),
+    {
+      title,
+      agency,
+      channel: state.requestDraft.channel.trim() || t("requestChannels"),
+      protocol: state.requestDraft.protocol.trim() || t("notSet"),
+      sentDate: state.requestDraft.sentDate || todayIsoDate(),
+      dueDate: state.requestDraft.dueDate || t("noDate"),
+      status: state.requestDraft.status.trim() || t("reviewRecommended"),
+      requestedItems,
+      responseSummary: state.requestDraft.responseSummary.trim() || t("noReceivedMaterial"),
+    },
+  ];
+  touchInvestigation(item);
+  resetRequestDraft();
+  state.requestNotice = t("requestAdded");
   return true;
 }
 
@@ -2112,12 +2210,67 @@ function renderPlanAddForms() {
 
 function renderRequestsWorkspace(item) {
   return `
+    ${renderRequestAddForm()}
     ${renderRequests(item)}
     ${renderResponses(item)}
     ${renderDeadlines(item)}
     ${renderRequestComparison(item)}
     ${renderTransparencyLog(item)}
     ${renderFollowUps(item)}
+  `;
+}
+
+function renderRequestAddForm() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("requestsEyebrow")}</p>
+      <h2>${t("addRequestTitle")}</h2>
+      <p>${t("requestsTitle")}</p>
+    </section>
+    ${state.requestNotice ? `<section class="${state.requestNotice === t("requestAdded") ? "success-box" : "error-box"}"><strong>${state.requestNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <div class="form-grid">
+        <label>
+          <span>${t("requestTitleLabel")}</span>
+          <input data-request-field="title" value="${escapeHtml(state.requestDraft.title)}" placeholder="${t("requestTitlePlaceholder")}">
+        </label>
+        <label>
+          <span>${t("agencyLabel")}</span>
+          <input data-request-field="agency" value="${escapeHtml(state.requestDraft.agency)}" placeholder="${t("agencyPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("channelLabel")}</span>
+          <input data-request-field="channel" value="${escapeHtml(state.requestDraft.channel)}" placeholder="${t("channelPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("protocol")}</span>
+          <input data-request-field="protocol" value="${escapeHtml(state.requestDraft.protocol)}" placeholder="${t("protocolPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("sentDateLabel")}</span>
+          <input data-request-field="sentDate" value="${escapeHtml(state.requestDraft.sentDate)}" type="date">
+        </label>
+        <label>
+          <span>${t("dueDateLabel")}</span>
+          <input data-request-field="dueDate" value="${escapeHtml(state.requestDraft.dueDate)}" type="date">
+        </label>
+      </div>
+      <label>
+        <span>${t("requestStatusLabel")}</span>
+        <input data-request-field="status" value="${escapeHtml(state.requestDraft.status)}" placeholder="${t("reviewRecommended")}">
+      </label>
+      <label>
+        <span>${t("requestedItemsLabel")}</span>
+        <textarea data-request-field="requestedItems" rows="3" placeholder="${t("requestedItemsPlaceholder")}">${escapeHtml(state.requestDraft.requestedItems)}</textarea>
+      </label>
+      <label>
+        <span>${t("responseSummaryLabel")}</span>
+        <textarea data-request-field="responseSummary" rows="3" placeholder="${t("responseSummaryPlaceholder")}">${escapeHtml(state.requestDraft.responseSummary)}</textarea>
+      </label>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-request" type="button">${t("addRequest")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -3600,6 +3753,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-request-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.requestDraft[field.dataset.requestField] = field.value;
+      state.requestNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-action='validate-draft']").forEach((button) => {
     button.addEventListener("click", () => {
       validateDraft();
@@ -3652,6 +3812,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-source']").forEach((button) => {
     button.addEventListener("click", () => {
       addSourceToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-request']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addRequestToCurrent();
       renderInvestigation();
     });
   });
