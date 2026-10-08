@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa16";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa17";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -2808,35 +2808,7 @@ function renderOverview(item) {
       <div><strong>${countQueueItems(item)}</strong><span>${t("queueItems")}</span></div>
       <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
     </section>
-    <section class="panel workflow-guide">
-      <div class="section-header compact-header">
-        <div>
-          <p class="eyebrow">${t("startHere")}</p>
-          <h3>${t("startHereTitle")}</h3>
-        </div>
-        <span class="pill neutral">${t("startHereBadge")}</span>
-      </div>
-      <div class="process-steps">
-        ${[
-          [t("workflowContextTitle"), t("workflowContextCopy"), "context"],
-          [t("workflowPlanTitle"), t("workflowPlanCopy"), "plan"],
-          [t("workflowRequestsTitle"), t("workflowRequestsCopy"), "requests"],
-          [t("workflowClaimsTitle"), t("workflowClaimsCopy"), "claims"],
-        ]
-          .map(
-            ([title, copy, tab], index) => `
-              <button class="process-step clickable-step" data-action="tab" data-tab="${tab}">
-                <span>${index + 1}</span>
-                <div>
-                  <h3>${title}</h3>
-                  <p>${copy}</p>
-                </div>
-              </button>
-            `,
-          )
-          .join("")}
-      </div>
-    </section>
+    ${renderWorkflowMap(item)}
     <section class="panel quick-actions">
       <div>
         <p class="eyebrow">${t("quickActions")}</p>
@@ -2868,6 +2840,74 @@ function renderOverview(item) {
         <h3>${t("editorialSafetyRule")}</h3>
         <p>${t("editorialSafetyCopy")}</p>
       </article>
+    </section>
+  `;
+}
+
+function renderWorkflowMap(item) {
+  const steps = [
+    {
+      tab: "context",
+      title: t("workflowContextTitle"),
+      copy: t("workflowContextCopy"),
+      count: item.sourceDiscovery?.length || item.sources.length,
+      label: t("sources"),
+      tone: item.accessLaw?.framework && item.accessLaw.framework !== t("notSet") ? "success" : "warning",
+    },
+    {
+      tab: "plan",
+      title: t("workflowPlanTitle"),
+      copy: t("workflowPlanCopy"),
+      count: item.hypotheses.length + item.evidenceBlocks.length,
+      label: t("evidenceBlocks"),
+      tone: item.hypotheses.length && item.evidenceBlocks.length ? "success" : "warning",
+    },
+    {
+      tab: "requests",
+      title: t("workflowRequestsTitle"),
+      copy: t("workflowRequestsCopy"),
+      count: item.requests.length + item.requestComparisons.length + (item.transparencyLog || []).length,
+      label: t("requestsWorkspace"),
+      tone: countLateRequests(item) ? "danger" : item.requests.length ? "warning" : "neutral",
+    },
+    {
+      tab: "claims",
+      title: t("workflowClaimsTitle"),
+      copy: t("workflowClaimsCopy"),
+      count: item.claims.length,
+      label: t("claims"),
+      tone: countOpenClaims(item) ? "warning" : item.claims.length ? "success" : "neutral",
+    },
+  ];
+
+  return `
+    <section class="workflow-map">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("startHere")}</p>
+          <h3>${t("startHereTitle")}</h3>
+        </div>
+        <span class="pill neutral">${t("startHereBadge")}</span>
+      </div>
+      <div class="workflow-track">
+        ${steps
+          .map(
+            (step, index) => `
+              <button class="workflow-node ${step.tone}" data-action="tab" data-tab="${step.tab}">
+                <span class="workflow-index">${index + 1}</span>
+                <span class="workflow-content">
+                  <strong>${step.title}</strong>
+                  <small>${step.copy}</small>
+                </span>
+                <span class="workflow-count">
+                  <strong>${step.count}</strong>
+                  <small>${step.label}</small>
+                </span>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
