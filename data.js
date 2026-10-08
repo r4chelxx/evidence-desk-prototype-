@@ -466,9 +466,9 @@ export const mvpCoverage = [
       es: "Marcar vacios, riesgos, origen y próximo paso sin tratar ausência como conclusion.",
     },
     implementation: {
-      pt: "Abas de lacunas, plano de ação, diário de transparência e rascunhos de follow-up.",
-      en: "Gaps, action plan, transparency log and follow-up draft tabs.",
-      es: "Pestanas de vacios, plan de accion, diário de transparência y borradores de seguimiento.",
+      pt: "Aba de lacunas com cadastro local, plano de ação, diário de transparência e rascunhos de follow-up.",
+      en: "Gaps tab with local entry, action plan, transparency log and follow-up draft tabs.",
+      es: "Pestana de vacios con registro local, plan de accion, diário de transparência y borradores de seguimiento.",
     },
     status: {
       pt: "Implementado",
@@ -488,9 +488,9 @@ export const mvpCoverage = [
       es: "Vincular afirmaciones a evidências, relacion de evidência, fuerza, riesgo y estado editorial.",
     },
     implementation: {
-      pt: "Aba de afirmações com evidência, relação sustenta/contradiz/limita, risco, força e ressalvas.",
-      en: "Claims tab with evidence, supports/contradicts/limits relation, risk, strength and caveats.",
-      es: "Pestana de afirmaciones con relacion sustenta/contradice/limita, riesgo, fuerza y salvedades.",
+      pt: "Aba de afirmações com cadastro local, evidência, relação sustenta/contradiz/limita, risco, força e ressalvas.",
+      en: "Claims tab with local entry, evidence, supports/contradicts/limits relation, risk, strength and caveats.",
+      es: "Pestana de afirmaciones con registro local, relacion sustenta/contradice/limita, riesgo, fuerza y salvedades.",
     },
     status: {
       pt: "Implementado",
