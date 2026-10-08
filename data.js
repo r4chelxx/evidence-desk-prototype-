@@ -28,11 +28,12 @@ export const testPlan = {
     "Does the tool feel useful, or does it feel like extra bureaucracy?",
     "What should be automated later, and what should remain under reporter control?",
   ],
+
   acceptanceCriteria: [
     "Tester understands the state of an investigation in under two minutes.",
     "Tester can identify at least one pending action without explanation.",
     "Tester sees gaps as pending evidence problems, not automatic accusations.",
-    "Tester understands that follow-up drafts are not sent automátically.",
+    "Tester understands that follow-up drafts are not sent automatically.",
     "Tester sees the Brazil and U.S. examples as the same method adapted locally.",
   ],
 };
@@ -122,6 +123,73 @@ export const qaModel = {
       meaning: "A evidência não contradiz, mas reduz o alcance, escopo ou nível de certeza.",
     },
   ],
+  strengthScale: [
+    {
+      level: "Forte",
+      meaning: "Documento, dado ou resposta oficial diretamente ligado à afirmação, com escopo e campos suficientes.",
+      publishRule: "Pode sustentar afirmação factual se não houver lacuna crítica, contradição aberta ou ressalva ignorada.",
+    },
+    {
+      level: "Média",
+      meaning: "Evidência útil, mas parcial, agregada, incompleta ou dependente de cruzamento adicional.",
+      publishRule: "Só deve sustentar formulação cautelosa, com limite metodológico explícito.",
+    },
+    {
+      level: "Insuficiente",
+      meaning: "Material ausente, inacessível, contraditório, indireto ou ainda não conferido pela repórter.",
+      publishRule: "Não deve sustentar claim; deve virar lacuna, follow-up ou reformulação.",
+    },
+  ],
+  riskScale: [
+    {
+      level: "Baixo",
+      meaning: "Afirmação descritiva, bem delimitada e apoiada por evidência revisada.",
+      requiredAction: "Manter fonte, escopo e data visíveis na metodologia.",
+    },
+    {
+      level: "Médio",
+      meaning: "Afirmação depende de dado parcial, ausência de campo, interpretação de categoria ou recorte territorial.",
+      requiredAction: "Adicionar ressalva e pedir revisão editorial antes de publicar.",
+    },
+    {
+      level: "Alto",
+      meaning: "Afirmação pode sugerir culpa, negligência, ilegalidade ou conclusão que a evidência ainda não prova.",
+      requiredAction: "Bloquear publicação até haver nova evidência, direito de resposta ou reescrita.",
+    },
+  ],
+  dataModel: [
+    {
+      entity: "Investigação",
+      relation: "1 investigação tem várias perguntas, hipóteses, fontes, pedidos, lacunas e afirmações.",
+      qaRule: "Nada deve ser avaliado fora do contexto de país, jurisdição, período e território.",
+    },
+    {
+      entity: "Hipótese",
+      relation: "1 hipótese pode depender de vários blocos de evidência.",
+      qaRule: "Hipótese não é conclusão; precisa manter status próprio até virar afirmação verificável.",
+    },
+    {
+      entity: "Bloco de evidência",
+      relation: "1 bloco pode apontar para várias fontes, bases, documentos ou pedidos.",
+      qaRule: "O bloco define o que precisa ser provado antes de escolher o melhor caminho de coleta.",
+    },
+    {
+      entity: "Pedido",
+      relation: "1 pedido pode gerar resposta completa, parcial, problemática ou nenhuma resposta.",
+      qaRule: "Prazo, protocolo e canal são manuais nesta versão; a ferramenta não calcula regra legal sozinha.",
+    },
+    {
+      entity: "Afirmação",
+      relation: "1 afirmação deve apontar para evidência, relação, força, risco, status e ressalva.",
+      qaRule: "Afirmações sem evidência suficiente devem ficar bloqueadas, limitadas ou reescritas.",
+    },
+  ],
+  accessibilityChecks: [
+    "Status aparece como texto dentro dos pills, não apenas por cor.",
+    "Abas e atalhos principais são botões navegáveis por teclado.",
+    "Tabelas mantêm cabeçalhos visíveis para leitura de matriz e comparação.",
+    "Estados vazios e limites do protótipo são descritos em texto.",
+  ],
   acceptanceCriteria: [
     "Cada tela mostra a seção atual e a próxima pendência editorial.",
     "Cada status usado nos dados de exemplo aparece na lista fechada de status.",
@@ -186,9 +254,9 @@ export const qaModel = {
         es: "El producto no debe calcular plazos legales sin jurisdiccion, organismo y regla revisada.",
       },
       coverage: {
-        pt: "Parcial: o protótipo mostra prazos registrados e limites, mas não calcula regras automáticamente.",
-        en: "Partial: the prototype shows logged deadlines and limits, but does not calculate rules automátically.",
-        es: "Parcial: el protótipo muestra plazos registrados y limites, pero no calcula reglas automáticamente.",
+        pt: "Parcial: o protótipo mostra prazos registrados e limites, mas não calcula regras automaticamente.",
+        en: "Partial: the prototype shows logged deadlines and limits, but does not calculate rules automatically.",
+        es: "Parcial: el protótipo muestra plazos registrados y limites, pero no calcula reglas automaticamente.",
       },
       status: {
         pt: "Parcial",
@@ -210,7 +278,7 @@ export const qaModel = {
       coverage: {
         pt: "Parcial: a investigação atual pode ser exportada em JSON, mas ainda não há importação ou reabertura.",
         en: "Partial: the current investigation can be exported as JSON, but there is no import or reopening yet.",
-        es: "Parcial: la investigacion actual puede exportarse como JSON, pero aun no háy importacion ni reapertura.",
+        es: "Parcial: la investigacion actual puede exportarse como JSON, pero aun no hay importacion ni reapertura.",
       },
       status: {
         pt: "Parcial",
@@ -522,7 +590,7 @@ export const investigations = [
         dueDate: "2026-11-01",
         source: "Diário de transparência",
         rationale:
-          "A mesma trilha processual tem duas datas; o produto deve preservar ambas em vez de escolher uma automáticamente.",
+          "A mesma trilha processual tem duas datas; o produto deve preservar ambas em vez de escolher uma automaticamente.",
         output: "Nota de conflito de prazo resolvida, preservada ou escalada com prints.",
       },
       {
@@ -665,7 +733,7 @@ export const investigations = [
         date: "2026-10-01",
         actor: "MPBA / CESAU",
         event:
-          "Oficio 41/CESAU entregou certidão com 23 representações de saúde matérno-infantil das Promotorias de Justiça de Saúde da Capital, de 01/01/2020 a 20/09/2026.",
+          "Oficio 41/CESAU entregou certidão com 23 representações de saúde materno-infantil das Promotorias de Justiça de Saúde da Capital, de 01/01/2020 a 20/09/2026.",
         status: "Resposta parcial recebida",
         nextStep:
           "Estruturar e auditar os 23 registros IDEA; manter explicito o escopo da capital e não tratar como cobertura estadual.",
@@ -701,7 +769,7 @@ export const investigations = [
     followUpDrafts: [
       {
         title: "Follow-up sobre anexos ausentes",
-        request: "Mortes fetais, neonatais e maternas por matérnidade",
+        request: "Mortes fetais, neonatais e maternas por maternidade",
         type: "Reenvio de anexo",
         status: "Pronto para revisão da repórter",
         riskNote: "Não acusar omissão; documentar o problema de acesso e pedir reenvio ou canal alternativo.",
@@ -784,7 +852,7 @@ export const investigations = [
       },
     ],
     secondaryQuestions: [
-      "Como os registros se distribuem por território e por hospital ou matérnidade no recorte inicial de 29 hospitais baianos?",
+      "Como os registros se distribuem por território e por hospital ou maternidade no recorte inicial de 29 hospitais baianos?",
       "Ha concentração de denúncias ou manifestações em determinados hospitais, municípios ou regiões?",
       "O cruzamento entre manifestações, mortalidade materna/fetal/neonatal e estrutura hospitalar permite investigar mortes evitáveis?",
       "Mulheres negras, indígenas, PCDs e outros grupos vulneraveis aparecem de forma desproporcional nos dados disponíveis?",
@@ -797,7 +865,7 @@ export const investigations = [
         evidence: "SESAB, SINASC, SIM/Ministério da Saúde, CNES e Ouvidoria SUS",
       },
       {
-        text: "Manifestações sobre violência obstétrica podem estar concentradas em determinados hospitais ou matérnidades, mas isso depende de base acessível por unidade e período.",
+        text: "Manifestações sobre violência obstétrica podem estar concentradas em determinados hospitais ou maternidades, mas isso depende de base acessível por unidade e período.",
         status: "Aguardando dados",
         evidence: "Ouvidoria SUS Bahia e pedidos C5NTY0ER/links de acesso",
       },
@@ -846,7 +914,7 @@ export const investigations = [
         name: "CNES",
         type: "Cadastro administrativo",
         status: "Fonte a integrar",
-        use: "Estrutura cadastrada de matérnidades, leitos e vinculos.",
+        use: "Estrutura cadastrada de maternidades, leitos e vinculos.",
         limits: "Não mede plantao, qualidade assistêncial, presenca real de profissionais ou disponibilidade operacional.",
       },
       {
@@ -874,7 +942,7 @@ export const investigations = [
         name: "DPE-BA",
         type: "Fluxo separado",
         status: "Em manifestação própria",
-        use: "Atendimentos, ações e acordos relacionados a gestantes e matérnidades.",
+        use: "Atendimentos, ações e acordos relacionados a gestantes e maternidades.",
         limits: "Não deve ser misturado ao dossiê SESAB/CGAI enquanto seguir por manifestação diferente.",
       },
       {
@@ -887,7 +955,7 @@ export const investigations = [
     ],
     requests: [
       {
-        title: "Óbitos matérnos 2020-presente",
+        title: "Óbitos maternos 2020-presente",
         agency: "SESAB",
         channel: "Queremos Saber + e-mail",
         protocol: "PVCJ006S",
@@ -895,12 +963,12 @@ export const investigations = [
         dueDate: "2026-07-22",
         status: "Resposta parcial",
         requestedItems:
-          "Óbitos matérnos com município, estabelecimento, idade, raça/cor, escolaridade, causa básica, evitabilidade, investigação, encerramento e recomendações do Comitê.",
+          "Óbitos maternos com município, estabelecimento, idade, raça/cor, escolaridade, causa básica, evitabilidade, investigação, encerramento e recomendações do Comitê.",
         responseSummary:
           "SESAB respondeu em 31/07; anexos não apareciam na pagina, mas os dados chegaram depois via Fiquem Sabendo/Google Drive. Permanecem lacunas: evitabilidade, recomendações do Comitê, data de encerramento e valores 'não informado/ignorado'.",
       },
       {
-        title: "Mortes fetais, neonatais e maternas por matérnidade",
+        title: "Mortes fetais, neonatais e maternas por maternidade",
         agency: "SESAB",
         channel: "Queremos Saber",
         protocol: "YL5LHVVX",
@@ -915,7 +983,7 @@ export const investigations = [
             "Se não houver resposta até o checkpoint, revisar o portal em 01/11 e preparar cobranca com histórico, prints e protocolo.",
         },
         requestedItems:
-          "Mortes fetais, neonatais e maternas por matérnidade pública estadual entre 2020 e 2026, em formato aberto.",
+          "Mortes fetais, neonatais e maternas por maternidade pública estadual entre 2020 e 2026, em formato aberto.",
         responseSummary:
           "Sem resposta substantiva. Incluído na manifestação 3346148 em 24/09; encaminhado a SESAB em 02/10, sem confirmação documental de apreciação pela CGAI.",
       },
@@ -935,12 +1003,12 @@ export const investigations = [
             "Se o anexo não for entregue, manter a resposta como não cumprida e registrar nova medida de escalonamento.",
         },
         requestedItems:
-          "Manifestações anonimizadas de 2020 em diante com termos relacionados a violência obstétrica, parto, gestante, matérnidade e correlatos.",
+          "Manifestações anonimizadas de 2020 em diante com termos relacionados a violência obstétrica, parto, gestante, maternidade e correlatos.",
         responseSummary:
           "Sem entrega dos dados. Respostas administrativas citaram demanda semelhante e DGC, mas sem comprovar entrega. Recurso 202620001408821 apresentado em 02/10 por ausência do anexo mencionado.",
       },
       {
-        title: "Procedimentos instaurados sobre saúde matérno-infantil",
+        title: "Procedimentos instaurados sobre saúde materno-infantil",
         agency: "MP-BA / CESAU",
         channel: "SEI + e-mail",
         protocol: "YKXAX4NR / INF0000526 / SEI 19.09.02032.0023004/2026-55",
@@ -1008,9 +1076,9 @@ export const investigations = [
     ],
     requestComparisons: [
       {
-        requestTitle: "Óbitos matérnos 2020-presente",
+        requestTitle: "Óbitos maternos 2020-presente",
         expected:
-          "Óbitos matérnos por ano, município, idade, raça/cor, tipo de parto e causa básica.",
+          "Óbitos maternos por ano, município, idade, raça/cor, tipo de parto e causa básica.",
         received:
           "Base parcial com campos demograficos, mas sem tipo de parto consistente.",
         missing: "Tipo de parto, completude de causa básica e explicação sobre campos ignorados.",
@@ -1019,9 +1087,9 @@ export const investigations = [
         nextStep: "Fazer pedido complementar focado apenas nos campos ausentes.",
       },
       {
-        requestTitle: "Mortes fetais, neonatais e maternas por matérnidade",
+        requestTitle: "Mortes fetais, neonatais e maternas por maternidade",
         expected:
-          "Dados por matérnidade, ano, município, tipo de morte, causa básica e unidade.",
+          "Dados por maternidade, ano, município, tipo de morte, causa básica e unidade.",
         received:
           "Resposta afirma envio de anexos, mas os anexos não aparecem no sistema.",
         missing: "Arquivo original, comprovante de envio e canal alternativo de acesso.",
@@ -1041,7 +1109,7 @@ export const investigations = [
         nextStep: "Pedir reenvio por e-mail e documentar prints das telas de erro.",
       },
       {
-        requestTitle: "Procedimentos instaurados sobre saúde matérno-infantil",
+        requestTitle: "Procedimentos instaurados sobre saúde materno-infantil",
         expected:
           "Procedimentos, orientações, eventuais registros centralizados, TACs, ACPs e indicação de unidades responsaveis no período de 2020 a 2026.",
         received:
