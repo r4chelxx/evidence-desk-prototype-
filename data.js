@@ -124,7 +124,7 @@ export const qaModel = {
   ],
   acceptanceCriteria: [
     "Cada tela mostra a seção atual e a próxima pendência editorial.",
-    "Cada status usado nos dados de exemplo aparece na lista fecháda de status.",
+    "Cada status usado nos dados de exemplo aparece na lista fechada de status.",
     "Toda afirmação mostra relação da evidência: sustenta, contradiz ou limita.",
     "A nota metodológica exportada inclui relações de evidência, lacunas e salvaguardas.",
     "No teste com 5 jornalistas, pelo menos 4 identificam uma afirmação insegura sem explicação externa.",
@@ -142,7 +142,7 @@ export const qaModel = {
         es: "Hipotesis, solicitudes, respuestas, vacios y afirmaciones necesitan listas de estado separadas.",
       },
       coverage: {
-        pt: "Coberto na aba Checklist QA pelo glossário e lista fecháda de status.",
+        pt: "Coberto na aba Checklist QA pelo glossário e lista fechada de status.",
         en: "Covered in the QA Checklist tab through the glossary and closed status list.",
         es: "Cubierto en la pestana Checklist QA por el glosario y la lista cerrada de estados.",
       },
@@ -351,7 +351,7 @@ export const mvpCoverage = [
     expected: {
       pt: "Órgão, canal, protocolo, data, prazo, status, resumo e itens solicitados.",
       en: "Agency, channel, protocol, date, due date, status, summary and requested items.",
-      es: "Organismo, canal, protocolo, fechá, plazo, estado, resumen e items solicitados.",
+      es: "Organismo, canal, protocolo, fecha, plazo, estado, resumen e items solicitados.",
     },
     implementation: {
       pt: "Aba de pedidos com prazos, checkpoints, status e ações sugeridas sem envio automático.",
@@ -492,7 +492,7 @@ export const investigations = [
       status: "Precisa de revisão da repórter",
       checkedAt: "2026-10-05",
       summary:
-        "Diário de transparência mais recente revisado: 02/10/2026. MPBA/CESAU entregou certidão parcial com escopo de capital; SESAB/OuvidoriaSUS ainda tem entrega pendente, anexo ausente e dúvidas sobre encaminhámento ou decisão da CGAI.",
+        "Diário de transparência mais recente revisado: 02/10/2026. MPBA/CESAU entregou certidão parcial com escopo de capital; SESAB/OuvidoriaSUS ainda tem entrega pendente, anexo ausente e dúvidas sobre encaminhamento ou decisão da CGAI.",
     },
     nextReviewItems: [
       "Monitorar manifestação 3346148: prazo por e-mail em 24/10/2026, prazo no portal em 01/11/2026, ainda sem decisão CGAI documentada.",
@@ -527,7 +527,7 @@ export const investigations = [
       },
       {
         action: "Monitorar o recurso 202620001408821 sobre o anexo DGC/SESAB ausente.",
-        type: "Acompanhámento de recurso",
+        type: "Acompanhamento de recurso",
         priority: "Alta",
         status: "Aguardando checkpoint",
         owner: "Repórter",
@@ -626,12 +626,12 @@ export const investigations = [
         productUse: "Manter campos ausentes e valores desconhecidos como problemas diferentes de qualidade de dados.",
       },
       {
-        rule: "Falhá de protocolo não equivale a negativa de acesso.",
-        productUse: "Acompanhár problemas de sistema separadamente de negativas formais e recursos.",
+        rule: "Falha de protocolo não equivale a negativa de acesso.",
+        productUse: "Acompanhar problemas de sistema separadamente de negativas formais e recursos.",
       },
       {
-        rule: "Encaminhámento não equivale a resposta.",
-        productUse: "Não fechár um pedido quando o órgão apenas o encaminhá internamente.",
+        rule: "Encaminhamento não equivale a resposta.",
+        productUse: "Não fechar um pedido quando o órgão apenas o encaminha internamente.",
       },
       {
         rule: "Levantamento parcial não equivale a atendimento integral.",
@@ -650,7 +650,7 @@ export const investigations = [
           "Manifestação 3346148 aberta para tratar omissões em YL5LHVVX, C5NTY0ER, UID2OB7T e VEZ8KTNX, com pedido de avaliação pela CGAI.",
         status: "Em andamento",
         nextStep:
-          "Acompanhár se o caso foi efetivamente submetido a CGAI; não tratar encaminhámento para a SESAB como decisão da CGAI.",
+          "Acompanhar se o caso foi efetivamente submetido a CGAI; não tratar encaminhamento para a SESAB como decisão da CGAI.",
       },
       {
         date: "2026-09-24",
@@ -659,7 +659,7 @@ export const investigations = [
           "Representação administrativa aberta pela Ouvidoria Cidadã sob ficha 2026.01.020197 após falhas no e-SIC e em anexos.",
         status: "Fluxo separado",
         nextStep:
-          "Enviar os seis documentos de apoio por e-mail vinculado a ficha e solicitar encaminhámento a Defensoria Pública-Geral.",
+          "Enviar os seis documentos de apoio por e-mail vinculado a ficha e solicitar encaminhamento a Defensoria Pública-Geral.",
       },
       {
         date: "2026-10-01",
@@ -674,10 +674,10 @@ export const investigations = [
         date: "2026-10-02",
         actor: "SESAB / OuvidorSUS",
         event:
-          "Manifestação 3346148 foi encaminháda a SESAB; e-mail informou prazo em 24/10/2026, enquanto o portal exibia 01/11/2026.",
+          "Manifestação 3346148 foi encaminhada a SESAB; e-mail informou prazo em 24/10/2026, enquanto o portal exibia 01/11/2026.",
         status: "Conflito de prazo",
         nextStep:
-          "Registrar as duas datas e aguardar confirmação documental de encaminhámento ou decisão da CGAI.",
+          "Registrar as duas datas e aguardar confirmação documental de encaminhamento ou decisão da CGAI.",
       },
       {
         date: "2026-10-02",
@@ -695,7 +695,7 @@ export const investigations = [
           "Recurso 202620001408821 protocolado no sistema sobre anexo ausente e preservação do pedido de avaliação pela CGAI.",
         status: "Recurso protocolado",
         nextStep:
-          "Acompanhár prazo exibido pelo sistema em 01/11/2026 sem inferir base legal ou autoridade revisora.",
+          "Acompanhar prazo exibido pelo sistema em 01/11/2026 sem inferir base legal ou autoridade revisora.",
       },
     ],
     followUpDrafts: [
@@ -775,7 +775,7 @@ export const investigations = [
       {
         stage: "Resposta parcial ou acesso quebrado",
         action: "Contestar por escrito, pedir reenvio e guardar prints, e-mails e protocolos.",
-        output: "Registro de falhá verificável",
+        output: "Registro de falha verificável",
       },
       {
         stage: "Atraso ou silêncio",
@@ -861,7 +861,7 @@ export const investigations = [
         type: "Órgão público",
         status: "Fonte verificada",
         use: "Manifestações sobre violência obstétrica.",
-        limits: "Links de acesso e login podem falhár.",
+        limits: "Links de acesso e login podem falhar.",
       },
       {
         name: "Ministério Público da Bahia",
@@ -881,7 +881,7 @@ export const investigations = [
         name: "CEPOIF / Comitê de mortalidade materna",
         type: "Órgão público / comitê",
         status: "Pedido pendente",
-        use: "Fluxos, reuniões, encaminhámentos, evitabilidade e monitoramento de mortalidade materna.",
+        use: "Fluxos, reuniões, encaminhamentos, evitabilidade e monitoramento de mortalidade materna.",
         limits: "Ainda depende de resposta ao pedido VEZ8KTNX e não deve ser presumido.",
       },
     ],
@@ -917,7 +917,7 @@ export const investigations = [
         requestedItems:
           "Mortes fetais, neonatais e maternas por matérnidade pública estadual entre 2020 e 2026, em formato aberto.",
         responseSummary:
-          "Sem resposta substantiva. Incluído na manifestação 3346148 em 24/09; encaminhádo a SESAB em 02/10, sem confirmação documental de apreciação pela CGAI.",
+          "Sem resposta substantiva. Incluído na manifestação 3346148 em 24/09; encaminhado a SESAB em 02/10, sem confirmação documental de apreciação pela CGAI.",
       },
       {
         title: "Manifestações sobre violência obstétrica",
@@ -937,7 +937,7 @@ export const investigations = [
         requestedItems:
           "Manifestações anonimizadas de 2020 em diante com termos relacionados a violência obstétrica, parto, gestante, matérnidade e correlatos.",
         responseSummary:
-          "Sem entrega dos dados. Respostas administrativas citaram demanda semelhánte e DGC, mas sem comprovar entrega. Recurso 202620001408821 apresentado em 02/10 por ausência do anexo mencionado.",
+          "Sem entrega dos dados. Respostas administrativas citaram demanda semelhante e DGC, mas sem comprovar entrega. Recurso 202620001408821 apresentado em 02/10 por ausência do anexo mencionado.",
       },
       {
         title: "Procedimentos instaurados sobre saúde matérno-infantil",
@@ -948,7 +948,7 @@ export const investigations = [
         dueDate: "2026-07-22",
         status: "Resposta parcial entregue",
         requestedItems:
-          "Procedimentos relacionados a violência obstétrica, assistência obstétrica, mortalidade materna/fetal e termos correlatos, com município, unidade, objeto, situação e encaminhámentos.",
+          "Procedimentos relacionados a violência obstétrica, assistência obstétrica, mortalidade materna/fetal e termos correlatos, com município, unidade, objeto, situação e encaminhamentos.",
         responseSummary:
           "Em 01/10, Oficio 41/CESAU entregou certidão com 23 representações das Promotorias de Justiça de Saúde da Capital entre 01/01/2020 e 20/09/2026. Resposta parcial no recorte informado, não atendimento estadual integral.",
       },
@@ -990,7 +990,7 @@ export const investigations = [
         requestedItems:
           "Atas, relatórios anuais, pareceres técnicos, recomendações e planos de ação do Comitê entre 2020 e a data do pedido.",
         responseSummary:
-          "Sem resposta substantiva. Incluído na manifestação 3346148; encaminhámento a SESAB não equivale a entrega dos documentos.",
+          "Sem resposta substantiva. Incluído na manifestação 3346148; encaminhamento a SESAB não equivale a entrega dos documentos.",
       },
       {
         title: "Atendimentos, ações e acordos sobre violência obstétrica",
@@ -1001,9 +1001,9 @@ export const investigations = [
         dueDate: "2026-07-22",
         status: "Fluxo separado",
         requestedItems:
-          "Atendimentos, ações judiciais, acordos e dados relacionados a violência obstétrica e Rede Cegonhá.",
+          "Atendimentos, ações judiciais, acordos e dados relacionados a violência obstétrica e Rede Cegonha.",
         responseSummary:
-          "Protocolização enfrentou falhá persistente no e-SIC. Em 24/09, representação por omissão foi registrada na Ouvidoria da DPE-BA sob ficha 2026.01.020197; anexos devem ser enviados por e-mail vinculados a ficha.",
+          "Protocolização enfrentou falha persistente no e-SIC. Em 24/09, representação por omissão foi registrada na Ouvidoria da DPE-BA sob ficha 2026.01.020197; anexos devem ser enviados por e-mail vinculados a ficha.",
       },
     ],
     requestComparisons: [
@@ -1037,7 +1037,7 @@ export const investigations = [
           "Links divergentes e acesso parcial por e-mail, com falhas de login.",
         missing: "Base completa, link válido, orientação de acesso e dicionário de campos.",
         deadlineStatus: "Resposta com problema",
-        editorialDecision: "Tratar como falhá de acesso, não como dado final",
+        editorialDecision: "Tratar como falha de acesso, não como dado final",
         nextStep: "Pedir reenvio por e-mail e documentar prints das telas de erro.",
       },
       {
@@ -1086,7 +1086,7 @@ export const investigations = [
       {
         text: "Parte dos dados recebidos não permite identificar tipo de parto de forma consistente.",
         type: "Factual",
-        evidence: "Planilhá parcial VO-LAI-01",
+        evidence: "Planilha parcial VO-LAI-01",
         relation: "Limita",
         strength: "Média",
         risk: "Medio",
