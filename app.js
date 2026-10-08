@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa13";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa14";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -109,6 +109,14 @@ const state = {
     draft: "",
   },
   followUpNotice: "",
+  transparencyDraft: {
+    date: "",
+    actor: "",
+    event: "",
+    status: "",
+    nextStep: "",
+  },
+  transparencyNotice: "",
   gapDraft: {
     description: "",
     origin: "",
@@ -523,6 +531,17 @@ const dictionary = {
     draftTextPlaceholder: "Escreva o texto-base do follow-up para revisão humana.",
     addFollowUp: "Salvar rascunho",
     followUpAdded: "Rascunho adicionado e salvo neste navegador.",
+    addTransparencyEventTitle: "Adicionar evento ao diário",
+    transparencyDateLabel: "Data do evento",
+    transparencyActorLabel: "Ator/órgão",
+    transparencyActorPlaceholder: "ex.: SESAB, OGE, CGAI, Ouvidoria, MP",
+    transparencyEventLabel: "Evento processual",
+    transparencyEventPlaceholder: "Descreva o que aconteceu sem transformar movimentação em evidência.",
+    transparencyStatusLabel: "Status do evento",
+    transparencyNextStepLabel: "Próximo passo",
+    transparencyNextStepPlaceholder: "O que precisa ser checado, cobrado, aguardado ou escalado?",
+    addTransparencyEvent: "Adicionar evento",
+    transparencyEventAdded: "Evento adicionado ao diário e salvo neste navegador.",
     addGapTitle: "Adicionar lacuna",
     gapDescriptionLabel: "Descrição da lacuna",
     gapDescriptionPlaceholder: "ex.: O órgão informou envio, mas anexos não estão disponíveis",
@@ -932,6 +951,17 @@ const dictionary = {
     draftTextPlaceholder: "Write the base follow-up text for human review.",
     addFollowUp: "Save draft",
     followUpAdded: "Draft added and saved in this browser.",
+    addTransparencyEventTitle: "Add log event",
+    transparencyDateLabel: "Event date",
+    transparencyActorLabel: "Actor/agency",
+    transparencyActorPlaceholder: "e.g. agency, appeal office, ombuds office, records officer",
+    transparencyEventLabel: "Procedural event",
+    transparencyEventPlaceholder: "Describe what happened without turning movement into evidence.",
+    transparencyStatusLabel: "Event status",
+    transparencyNextStepLabel: "Next step",
+    transparencyNextStepPlaceholder: "What needs to be checked, requested, waited for or escalated?",
+    addTransparencyEvent: "Add event",
+    transparencyEventAdded: "Event added to the log and saved in this browser.",
     addGapTitle: "Add gap",
     gapDescriptionLabel: "Gap description",
     gapDescriptionPlaceholder: "e.g. Agency says files were sent, but attachments are not available",
@@ -1288,6 +1318,17 @@ dictionary.es = {
   draftTextPlaceholder: "Escriba el texto-base del seguimiento para revision humana.",
   addFollowUp: "Guardar borrador",
   followUpAdded: "Borrador agregado y guardado en este navegador.",
+  addTransparencyEventTitle: "Agregar evento al diário",
+  transparencyDateLabel: "Fecha del evento",
+  transparencyActorLabel: "Actor/organismo",
+  transparencyActorPlaceholder: "ej.: organismo, oficina de recurso, ouvidoria, responsable de registros",
+  transparencyEventLabel: "Evento procesal",
+  transparencyEventPlaceholder: "Describa lo que ocurrio sin convertir movimiento en evidência.",
+  transparencyStatusLabel: "Estado del evento",
+  transparencyNextStepLabel: "Próximo paso",
+  transparencyNextStepPlaceholder: "Que debe chequearse, cobrarse, esperarse o escalarse?",
+  addTransparencyEvent: "Agregar evento",
+  transparencyEventAdded: "Evento agregado al diário y guardado en este navegador.",
   addGapTitle: "Agregar vacio",
   gapDescriptionLabel: "Descripcion del vacio",
   gapDescriptionPlaceholder: "ej.: el organismo dice que envio archivos, pero anexos no estan disponibles",
@@ -1644,6 +1685,37 @@ function addFollowUpToCurrent() {
   touchInvestigation(item);
   resetFollowUpDraft();
   state.followUpNotice = t("followUpAdded");
+  return true;
+}
+
+function resetTransparencyDraft() {
+  Object.keys(state.transparencyDraft).forEach((field) => {
+    state.transparencyDraft[field] = "";
+  });
+}
+
+function addTransparencyEventToCurrent() {
+  const item = getCurrentInvestigation();
+  const event = state.transparencyDraft.event.trim();
+  const actor = state.transparencyDraft.actor.trim();
+  const nextStep = state.transparencyDraft.nextStep.trim();
+  if (!event || !actor || !nextStep) {
+    state.transparencyNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.transparencyLog = [
+    ...(item.transparencyLog || []),
+    {
+      date: state.transparencyDraft.date || todayIsoDate(),
+      actor,
+      event,
+      status: state.transparencyDraft.status.trim() || t("reviewRecommended"),
+      nextStep,
+    },
+  ];
+  touchInvestigation(item);
+  resetTransparencyDraft();
+  state.transparencyNotice = t("transparencyEventAdded");
   return true;
 }
 
@@ -3090,6 +3162,7 @@ function renderTransparencyLog(item) {
   const events = item.transparencyLog || [];
 
   return `
+    ${renderTransparencyAddForm()}
     <section class="content-header">
       <p class="eyebrow">${t("transparencyLogTitle")}</p>
       <h2>${t("transparencyLogHeading")}</h2>
@@ -3113,6 +3186,44 @@ function renderTransparencyLog(item) {
         )
         .join("") || `<section class="empty-state"><h3>${t("noTransparencyTitle")}</h3><p>${t("noTransparencyCopy")}</p></section>`}
     </div>
+  `;
+}
+
+function renderTransparencyAddForm() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("transparencyLogTitle")}</p>
+      <h2>${t("addTransparencyEventTitle")}</h2>
+      <p>${t("transparencyLogCopy")}</p>
+    </section>
+    ${state.transparencyNotice ? `<section class="${state.transparencyNotice === t("transparencyEventAdded") ? "success-box" : "error-box"}"><strong>${state.transparencyNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <div class="form-grid">
+        <label>
+          <span>${t("transparencyDateLabel")}</span>
+          <input data-transparency-field="date" value="${escapeHtml(state.transparencyDraft.date)}" type="date">
+        </label>
+        <label>
+          <span>${t("transparencyActorLabel")}</span>
+          <input data-transparency-field="actor" value="${escapeHtml(state.transparencyDraft.actor)}" placeholder="${t("transparencyActorPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("transparencyStatusLabel")}</span>
+          <input data-transparency-field="status" value="${escapeHtml(state.transparencyDraft.status)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <label>
+          <span>${t("transparencyNextStepLabel")}</span>
+          <input data-transparency-field="nextStep" value="${escapeHtml(state.transparencyDraft.nextStep)}" placeholder="${t("transparencyNextStepPlaceholder")}">
+        </label>
+      </div>
+      <label>
+        <span>${t("transparencyEventLabel")}</span>
+        <textarea data-transparency-field="event" rows="3" placeholder="${t("transparencyEventPlaceholder")}">${escapeHtml(state.transparencyDraft.event)}</textarea>
+      </label>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-transparency-event" type="button">${t("addTransparencyEvent")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -4281,6 +4392,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-transparency-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.transparencyDraft[field.dataset.transparencyField] = field.value;
+      state.transparencyNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-gap-field]").forEach((field) => {
     field.addEventListener("input", () => {
       state.gapDraft[field.dataset.gapField] = field.value;
@@ -4368,6 +4486,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-follow-up']").forEach((button) => {
     button.addEventListener("click", () => {
       addFollowUpToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-transparency-event']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addTransparencyEventToCurrent();
       renderInvestigation();
     });
   });
