@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa10";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa11";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -90,6 +90,24 @@ const state = {
     responseSummary: "",
   },
   requestNotice: "",
+  gapDraft: {
+    description: "",
+    origin: "",
+    severity: "",
+    status: "",
+    nextStep: "",
+  },
+  gapNotice: "",
+  claimDraft: {
+    text: "",
+    type: "",
+    evidence: "",
+    relation: "",
+    strength: "",
+    risk: "",
+    status: "",
+  },
+  claimNotice: "",
 };
 
 if (state.view === "investigation" && !investigations.some((item) => item.id === state.currentId)) {
@@ -457,6 +475,29 @@ const dictionary = {
     responseSummaryPlaceholder: "Registre se não houve resposta, se veio parcial ou o que foi entregue.",
     addRequest: "Adicionar pedido",
     requestAdded: "Pedido adicionado e salvo neste navegador.",
+    addGapTitle: "Adicionar lacuna",
+    gapDescriptionLabel: "Descrição da lacuna",
+    gapDescriptionPlaceholder: "ex.: O órgão informou envio, mas anexos não estão disponíveis",
+    gapOriginLabel: "Origem da lacuna",
+    gapOriginPlaceholder: "ex.: resposta parcial, base incompleta, pedido sem retorno",
+    gapSeverityLabel: "Gravidade",
+    gapStatusLabel: "Status da lacuna",
+    gapNextStepLabel: "Próximo passo",
+    gapNextStepPlaceholder: "O que precisa ser feito antes de usar esta informação?",
+    addGap: "Adicionar lacuna",
+    gapAdded: "Lacuna adicionada e salva neste navegador.",
+    addClaimTitle: "Adicionar afirmação verificável",
+    claimTextLabel: "Afirmação",
+    claimTextPlaceholder: "Escreva uma afirmação que poderia entrar no texto, ainda sujeita a revisão.",
+    claimTypeLabel: "Tipo de afirmação",
+    claimEvidenceLabel: "Evidência vinculada",
+    claimEvidencePlaceholder: "Qual dado, documento, resposta ou entrevista sustenta/limita a afirmação?",
+    claimRelationLabel: "Relação com a evidência",
+    claimStrengthLabel: "Força",
+    claimRiskLabel: "Risco",
+    claimStatusLabel: "Status editorial",
+    addClaimButton: "Adicionar afirmação",
+    claimAdded: "Afirmação adicionada e salva neste navegador.",
   },
   en: {
     all: "All",
@@ -814,6 +855,29 @@ const dictionary = {
     responseSummaryPlaceholder: "Log no response, partial delivery or what was received.",
     addRequest: "Add request",
     requestAdded: "Request added and saved in this browser.",
+    addGapTitle: "Add gap",
+    gapDescriptionLabel: "Gap description",
+    gapDescriptionPlaceholder: "e.g. Agency says files were sent, but attachments are not available",
+    gapOriginLabel: "Gap origin",
+    gapOriginPlaceholder: "e.g. partial response, incomplete dataset, no reply",
+    gapSeverityLabel: "Severity",
+    gapStatusLabel: "Gap status",
+    gapNextStepLabel: "Next step",
+    gapNextStepPlaceholder: "What must happen before this information can be used?",
+    addGap: "Add gap",
+    gapAdded: "Gap added and saved in this browser.",
+    addClaimTitle: "Add verifiable claim",
+    claimTextLabel: "Claim",
+    claimTextPlaceholder: "Write a claim that could appear in the story, still subject to review.",
+    claimTypeLabel: "Claim type",
+    claimEvidenceLabel: "Linked evidence",
+    claimEvidencePlaceholder: "Which data, document, response or interview supports/limits the claim?",
+    claimRelationLabel: "Evidence relation",
+    claimStrengthLabel: "Strength",
+    claimRiskLabel: "Risk",
+    claimStatusLabel: "Editorial status",
+    addClaimButton: "Add claim",
+    claimAdded: "Claim added and saved in this browser.",
   },
 };
 
@@ -1118,6 +1182,29 @@ dictionary.es = {
   responseSummaryPlaceholder: "Registre si no hubo respuesta, si vino parcial o que fue entregado.",
   addRequest: "Agregar solicitud",
   requestAdded: "Solicitud agregada y guardada en este navegador.",
+  addGapTitle: "Agregar vacio",
+  gapDescriptionLabel: "Descripcion del vacio",
+  gapDescriptionPlaceholder: "ej.: el organismo dice que envio archivos, pero anexos no estan disponibles",
+  gapOriginLabel: "Origen del vacio",
+  gapOriginPlaceholder: "ej.: respuesta parcial, base incompleta, sin retorno",
+  gapSeverityLabel: "Gravedad",
+  gapStatusLabel: "Estado del vacio",
+  gapNextStepLabel: "Próximo paso",
+  gapNextStepPlaceholder: "Que debe ocurrir antes de usar esta informacion?",
+  addGap: "Agregar vacio",
+  gapAdded: "Vacio agregado y guardado en este navegador.",
+  addClaimTitle: "Agregar afirmación verificable",
+  claimTextLabel: "Afirmación",
+  claimTextPlaceholder: "Escriba una afirmación que podria entrar en el texto, aun sujeta a revision.",
+  claimTypeLabel: "Tipo de afirmación",
+  claimEvidenceLabel: "Evidencia vinculada",
+  claimEvidencePlaceholder: "Que dato, documento, respuesta o entrevista sostiene/limita la afirmación?",
+  claimRelationLabel: "Relación con la evidencia",
+  claimStrengthLabel: "Fuerza",
+  claimRiskLabel: "Riesgo",
+  claimStatusLabel: "Estado editorial",
+  addClaimButton: "Agregar afirmación",
+  claimAdded: "Afirmación agregada y guardada en este navegador.",
   priorityLabel: "Prioridad",
   sourcesTitle: "Fuentes y bases de datos",
   sourcesHeading: "Separe fuentes verificadas de caminos probables.",
@@ -1386,6 +1473,68 @@ function addRequestToCurrent() {
   touchInvestigation(item);
   resetRequestDraft();
   state.requestNotice = t("requestAdded");
+  return true;
+}
+
+function resetGapDraft() {
+  Object.keys(state.gapDraft).forEach((field) => {
+    state.gapDraft[field] = "";
+  });
+}
+
+function addGapToCurrent() {
+  const item = getCurrentInvestigation();
+  const description = state.gapDraft.description.trim();
+  const nextStep = state.gapDraft.nextStep.trim();
+  if (!description || !nextStep) {
+    state.gapNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.gaps = [
+    ...(item.gaps || []),
+    {
+      description,
+      origin: state.gapDraft.origin.trim() || t("notSet"),
+      severity: state.gapDraft.severity.trim() || t("reviewRecommended"),
+      status: state.gapDraft.status.trim() || t("reviewRecommended"),
+      nextStep,
+    },
+  ];
+  touchInvestigation(item);
+  resetGapDraft();
+  state.gapNotice = t("gapAdded");
+  return true;
+}
+
+function resetClaimDraft() {
+  Object.keys(state.claimDraft).forEach((field) => {
+    state.claimDraft[field] = "";
+  });
+}
+
+function addClaimToCurrent() {
+  const item = getCurrentInvestigation();
+  const text = state.claimDraft.text.trim();
+  const evidence = state.claimDraft.evidence.trim();
+  if (!text || !evidence) {
+    state.claimNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.claims = [
+    ...(item.claims || []),
+    {
+      text,
+      type: state.claimDraft.type.trim() || t("claim"),
+      evidence,
+      relation: state.claimDraft.relation.trim() || t("reviewRecommended"),
+      strength: state.claimDraft.strength.trim() || t("reviewRecommended"),
+      risk: state.claimDraft.risk.trim() || t("reviewRecommended"),
+      status: state.claimDraft.status.trim() || t("reviewRecommended"),
+    },
+  ];
+  touchInvestigation(item);
+  resetClaimDraft();
+  state.claimNotice = t("claimAdded");
   return true;
 }
 
@@ -3000,6 +3149,7 @@ function renderFollowUps(item) {
 
 function renderGaps(item) {
   return `
+    ${renderGapAddForm()}
     <section class="content-header">
       <p class="eyebrow">${t("gapsTitle")}</p>
       <h2>${t("gapsHeading")}</h2>
@@ -3026,8 +3176,47 @@ function renderGaps(item) {
   `;
 }
 
+function renderGapAddForm() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("editorialWorkspace")}</p>
+      <h2>${t("addGapTitle")}</h2>
+      <p>${t("editorialSafetyCopy")}</p>
+    </section>
+    ${state.gapNotice ? `<section class="${state.gapNotice === t("gapAdded") ? "success-box" : "error-box"}"><strong>${state.gapNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <label>
+        <span>${t("gapDescriptionLabel")}</span>
+        <textarea data-gap-field="description" rows="3" placeholder="${t("gapDescriptionPlaceholder")}">${escapeHtml(state.gapDraft.description)}</textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          <span>${t("gapOriginLabel")}</span>
+          <input data-gap-field="origin" value="${escapeHtml(state.gapDraft.origin)}" placeholder="${t("gapOriginPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("gapSeverityLabel")}</span>
+          <input data-gap-field="severity" value="${escapeHtml(state.gapDraft.severity)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <label>
+          <span>${t("gapStatusLabel")}</span>
+          <input data-gap-field="status" value="${escapeHtml(state.gapDraft.status)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <label>
+          <span>${t("gapNextStepLabel")}</span>
+          <input data-gap-field="nextStep" value="${escapeHtml(state.gapDraft.nextStep)}" placeholder="${t("gapNextStepPlaceholder")}">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-gap" type="button">${t("addGap")}</button>
+      </div>
+    </section>
+  `;
+}
+
 function renderClaims(item) {
   return `
+    ${renderClaimAddForm()}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
@@ -3056,6 +3245,52 @@ function renderClaims(item) {
         </tbody>
       </table>
     </div>
+  `;
+}
+
+function renderClaimAddForm() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("claims")}</p>
+      <h2>${t("addClaimTitle")}</h2>
+      <p>${t("workflowClaimsCopy")}</p>
+    </section>
+    ${state.claimNotice ? `<section class="${state.claimNotice === t("claimAdded") ? "success-box" : "error-box"}"><strong>${state.claimNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <label>
+        <span>${t("claimTextLabel")}</span>
+        <textarea data-claim-field="text" rows="3" placeholder="${t("claimTextPlaceholder")}">${escapeHtml(state.claimDraft.text)}</textarea>
+      </label>
+      <label>
+        <span>${t("claimEvidenceLabel")}</span>
+        <textarea data-claim-field="evidence" rows="3" placeholder="${t("claimEvidencePlaceholder")}">${escapeHtml(state.claimDraft.evidence)}</textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          <span>${t("claimTypeLabel")}</span>
+          <input data-claim-field="type" value="${escapeHtml(state.claimDraft.type)}" placeholder="${t("claim")}">
+        </label>
+        <label>
+          <span>${t("claimRelationLabel")}</span>
+          <input data-claim-field="relation" value="${escapeHtml(state.claimDraft.relation)}" placeholder="${t("evidenceRelation")}">
+        </label>
+        <label>
+          <span>${t("claimStrengthLabel")}</span>
+          <input data-claim-field="strength" value="${escapeHtml(state.claimDraft.strength)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <label>
+          <span>${t("claimRiskLabel")}</span>
+          <input data-claim-field="risk" value="${escapeHtml(state.claimDraft.risk)}" placeholder="${t("risk")}">
+        </label>
+        <label>
+          <span>${t("claimStatusLabel")}</span>
+          <input data-claim-field="status" value="${escapeHtml(state.claimDraft.status)}" placeholder="${t("reviewRecommended")}">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-claim" type="button">${t("addClaimButton")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -3760,6 +3995,20 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-gap-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.gapDraft[field.dataset.gapField] = field.value;
+      state.gapNotice = "";
+    });
+  });
+
+  document.querySelectorAll("[data-claim-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.claimDraft[field.dataset.claimField] = field.value;
+      state.claimNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-action='validate-draft']").forEach((button) => {
     button.addEventListener("click", () => {
       validateDraft();
@@ -3819,6 +4068,20 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-request']").forEach((button) => {
     button.addEventListener("click", () => {
       addRequestToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-gap']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addGapToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-claim']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addClaimToCurrent();
       renderInvestigation();
     });
   });
