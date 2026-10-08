@@ -39,7 +39,7 @@ const dictionary = {
     heroCopy:
       "Este protótipo estático testa o fluxo central antes de backend, login ou IA: mapear evidências, acompanhar pedidos, comparar respostas e ligar afirmações a provas.",
     prototypeGoal: "Objetivo do protótipo",
-    prototypeGoalText: "Validar se o método ajuda jornalistas a trabalhár com menos caos.",
+    prototypeGoalText: "Validar se o método ajuda jornalistas a trabalhar com menos caos.",
     investigations: "Investigações",
     testCases: "Casos de teste",
     shown: "investigações exibidas",
@@ -52,7 +52,7 @@ const dictionary = {
     openInvestigation: "Abrir investigação",
     requests: "Pedidos",
     responses: "Respostas",
-    followUps: "Acompanhámentos",
+    followUps: "Acompanhamentos",
     qaBlockers: "bloqueios de QA",
     emptyTitle: "Nenhuma investigação corresponde aos filtros.",
     emptyCopy: "Tente outro país, idioma, tema ou status. Isso testa o estado vazio previsto no MVP.",
@@ -128,7 +128,7 @@ const dictionary = {
     actionPlanTitle: "Transforme o log da apuração em uma fila controlada de próximos passos.",
     actionPlanCopy: "Cada ação deve estar ligada a uma fonte, protocolo ou evento procedimental documentado.",
     editorialQueueTitle: "Fila editorial",
-    editorialQueueHeading: "Veja o que precisa de decisão humana antes de publicar ou automatizar.",
+    editorialQueueHeading: "Veja o que precisa de decisão humana antes de públicar ou automatizar.",
     editorialQueueCopy: "A fila combina checkpoints, revisões e ações prioritárias sem transformar pendência em conclusão.",
     queueDeadlines: "Checkpoints ativos",
     queueReviews: "Revisões editoriais",
@@ -172,7 +172,7 @@ const dictionary = {
     missingUnclear: "Ausente ou pouco claro",
     editorialDecision: "Decisão editorial",
     followUpDraftsTitle: "Rascunhos de follow-up",
-    followUpDraftsHeading: "Prepare mensagens e recursos sem enviar nada automaticamente.",
+    followUpDraftsHeading: "Prepare mensagens e recursos sem enviar nada automáticamente.",
     followUpDraftsCopy: "Cada rascunho é ponto de partida para revisão humana, não orientação jurídica nem petição pronta.",
     relatedRequest: "Pedido relacionado",
     reporterCheck: "Checagem da repórter",
@@ -199,8 +199,8 @@ const dictionary = {
     methodologyHeading: "Exporte um resumo transparente de evidências, pedidos e limites.",
     qaChecklistHeading: "Revise riscos antes de tratar evidências como publicáveis.",
     qaNoBlockers: "Nenhum bloqueio de QA registrado.",
-    qaBlockerSingular: "bloqueio precisa de atenção antes de demo ou publicação.",
-    qaBlockerPlural: "bloqueios precisam de atenção antes de demo ou publicação.",
+    qaBlockerSingular: "bloqueio precisa de atenção antes de demo ou públicação.",
+    qaBlockerPlural: "bloqueios precisam de atenção antes de demo ou públicação.",
     riskSuffix: "risco",
     action: "Ação",
     editorialSafeguards: "Salvaguardas editoriais",
@@ -233,7 +233,7 @@ const dictionary = {
     languagePlan: "Plano de idioma",
     workingLanguage: "Idioma de trabalho",
     interfaceOptions: "Opções de interface",
-    publicationLanguages: "Idiomas de publicação",
+    públicationLanguages: "Idiomas de públicação",
     localizationRule: "Regra de localização",
     localizationRuleCopy:
       "Traduza livremente os rótulos da interface, mas localize leis, prazos, órgãos e tipos de fonte somente quando a jurisdição for conhecida e revisada pela repórter.",
@@ -252,7 +252,7 @@ const dictionary = {
     block: "Bloco",
     priorityLabel: "Prioridade",
     sourcesTitle: "Fontes e bases de dados",
-    sourcesHeading: "Separe fontes verificadas de caminhos provaveis.",
+    sourcesHeading: "Separe fontes verificadas de caminhos prováveis.",
     limits: "Limites",
     copyMarkdown: "Copiar Markdown",
     copied: "Copiado",
@@ -471,7 +471,7 @@ const dictionary = {
     missingUnclear: "Missing or unclear",
     editorialDecision: "Editorial decision",
     followUpDraftsTitle: "Follow-up drafts",
-    followUpDraftsHeading: "Prepare messages and appeals without sending anything automatically.",
+    followUpDraftsHeading: "Prepare messages and appeals without sending anything automátically.",
     followUpDraftsCopy: "Every draft is a starting point for human review, not legal advice or a finished filing.",
     relatedRequest: "Related request",
     reporterCheck: "Reporter check",
@@ -498,8 +498,8 @@ const dictionary = {
     methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
     qaChecklistHeading: "Review risk before treating evidence as publishable.",
     qaNoBlockers: "No blocking QA issues recorded.",
-    qaBlockerSingular: "blocker needs attention before demo or publication.",
-    qaBlockerPlural: "blockers need attention before demo or publication.",
+    qaBlockerSingular: "blocker needs attention before demo or públication.",
+    qaBlockerPlural: "blockers need attention before demo or públication.",
     riskSuffix: "risk",
     action: "Action",
     editorialSafeguards: "Editorial safeguards",
@@ -532,7 +532,7 @@ const dictionary = {
     languagePlan: "Language plan",
     workingLanguage: "Working language",
     interfaceOptions: "Interface options",
-    publicationLanguages: "Publication languages",
+    públicationLanguages: "Públication languages",
     localizationRule: "Localization rule",
     localizationRuleCopy:
       "Translate interface labels freely, but localize laws, deadlines, agencies and source types only when the jurisdiction is known and reviewed by the reporter.",
@@ -643,7 +643,7 @@ dictionary.es = {
   languageToggle: "Idioma de la interfaz",
   topbarNote: "Flujo de investigacion para periodismo de interes público",
   goDashboard: "Volver al panel",
-  heroTitle: "Convierte preguntas investigativas en evidências, vacios y afirmaciones publicables.",
+  heroTitle: "Convierte preguntas investigativas en evidências, vacios y afirmaciones públicables.",
   heroCopy:
     "Este protótipo estático prueba el flujo central antes de backend, login o IA: mapear evidências, seguir solicitudes, comparar respuestas y vincular afirmaciones a pruebas.",
   prototypeGoal: "Objetivo del protótipo",
@@ -726,7 +726,7 @@ dictionary.es = {
   actionPlanTitle: "Convierte el registro de investigacion en una fila controlada de próximos pasos.",
   actionPlanCopy: "Cada accion debe estar ligada a una fuente, protocolo o evento procedimental documentado.",
   editorialQueueTitle: "Fila editorial",
-  editorialQueueHeading: "Vea que necesita decision humana antes de publicar o automatizar.",
+  editorialQueueHeading: "Vea que necesita decision humana antes de públicar o automatizar.",
   editorialQueueCopy: "La fila combina checkpoints, revisiones y acciones prioritarias sin transformar pendientes en conclusion.",
   queueDeadlines: "Checkpoints activos",
   queueReviews: "Revisiones editoriales",
@@ -765,14 +765,14 @@ dictionary.es = {
   missingUnclear: "Ausente o poco claro",
   editorialDecision: "Decision editorial",
   followUpDraftsTitle: "Borradores de seguimiento",
-  followUpDraftsHeading: "Prepare mensajes y recursos sin enviar nada automaticamente.",
+  followUpDraftsHeading: "Prepare mensajes y recursos sin enviar nada automáticamente.",
   followUpDraftsCopy: "Cada borrador es un punto de partida para revision humana, no orientacion legal ni peticion lista.",
   relatedRequest: "Solicitud relacionada",
   reporterCheck: "Chequeo de la repórtera",
   gapsTitle: "Vacios y próximos pasos",
   gapsHeading: "Convierte evidências ausentes en acciones de seguimiento.",
   claimMatrixTitle: "Matriz afirmacion-evidência",
-  claimMatrixHeading: "Verifique si las afirmaciones publicables estan sustentadas.",
+  claimMatrixHeading: "Verifique si las afirmaciones públicables estan sustentadas.",
   claim: "Afirmacion",
   evidence: "Evidência",
   evidenceRelation: "Relacion",
@@ -789,7 +789,7 @@ dictionary.es = {
   prototypeCoverage: "Cobertura en el protótipo",
   methodologyNote: "Nota metodológica",
   methodologyHeading: "Exporte un resumen transparente de evidências, solicitudes y limites.",
-  qaChecklistHeading: "Revise riesgos antes de tratar evidências como publicables.",
+  qaChecklistHeading: "Revise riesgos antes de tratar evidências como públicables.",
   qaNoBlockers: "Ningun bloqueo de QA registrado.",
   action: "Accion",
   editorialSafeguards: "Salvaguardas editoriales",
@@ -813,7 +813,7 @@ dictionary.es = {
   languagePlan: "Plan de idioma",
   workingLanguage: "Idioma de trabajo",
   interfaceOptions: "Opciones de interfaz",
-  publicationLanguages: "Idiomas de publicacion",
+  públicationLanguages: "Idiomas de públicacion",
   localizationRule: "Regla de localizacion",
   localizationRuleCopy:
     "Traduzca libremente los rótulos de interfaz, pero localice leyes, plazos, organismos y tipos de fuente solo cuando la jurisdiccion sea conocida y revisada por la repórtera.",
@@ -844,7 +844,7 @@ dictionary.es = {
   primaryLanguage: "Idioma principal",
   primaryLanguagePlaceholder: "ej.: Português, Inglês, Espanol",
   generalTopic: "Tema general",
-  topicPlaceholder: "ej.: Salud publica, educacion, médio ambiente",
+  topicPlaceholder: "ej.: Salud pública, educacion, médio ambiente",
   investigatedTerritory: "Território investigado",
   territoryPlaceholder: "ej.: Salvador e interior de Bahia",
   investigatedPeriod: "Período investigado",
@@ -882,7 +882,7 @@ dictionary.es = {
   workflowPlanCopy: "Convierta la pauta en bloques verificables y rutas de fuentes, sin dejar que la IA elija sola.",
   workflowRequestsTitle: "Siga solicitudes y respuestas",
   workflowRequestsCopy: "Registre plazos, material recibido, anexos ausentes y próximos pasos.",
-  workflowClaimsTitle: "Revise afirmaciones publicables",
+  workflowClaimsTitle: "Revise afirmaciones públicables",
   workflowClaimsCopy: "Avance solo cuando cada afirmación tenga evidência, relación, fuerza, riesgo y salvedad.",
   priorityLabel: "Prioridad",
   sourcesTitle: "Fuentes y bases de datos",
@@ -944,7 +944,7 @@ function statusClass(value = "") {
   if (normalized.includes("sustenta") || normalized.includes("supported") || normalized.includes("support") || normalized.includes("forte")) return "success";
   if (normalized.includes("contradiz") || normalized.includes("contradict")) return "danger";
   if (normalized.includes("limita") || normalized.includes("limit")) return "warning";
-  if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
+  if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraça")) return "danger";
   return "neutral";
 }
 
@@ -1165,7 +1165,7 @@ function renderDashboard() {
             "A pessoa entende o estado de uma investigação em menos de dois minutos.",
             "A pessoa identifica pelo menos uma ação pendente sem explicação externa.",
             "A pessoa entende lacunas como problemas de evidência pendentes, não acusações automáticas.",
-            "A pessoa entende que rascunhos de follow-up não são enviados automaticamente.",
+            "A pessoa entende que rascunhos de follow-up não são enviados automáticamente.",
             "A pessoa percebe os exemplos Brasil e EUA como o mesmo método adaptado localmente.",
           ],
         }
@@ -1203,8 +1203,8 @@ function renderDashboard() {
             acceptanceCriteria: [
               "La persona entiende el estado de una investigacion en menos de dos minutos.",
               "La persona identifica al menos una accion pendiente sin explicacion externa.",
-              "La persona entiende los vacios como problemas de evidência pendientes, no acusaciones automaticas.",
-              "La persona entiende que los borradores de seguimiento no se envian automaticamente.",
+              "La persona entiende los vacios como problemas de evidência pendientes, no acusaciones automáticas.",
+              "La persona entiende que los borradores de seguimiento no se envian automáticamente.",
               "La persona percibe los ejemplos Brasil y EE. UU. como el mismo metodo adaptado localmente.",
             ],
           }
@@ -1808,7 +1808,7 @@ function renderJurisdiction(item) {
 function renderLanguagePlan(item) {
   const plan = item.languagePlan;
   const interfaceLanguages = plan.interfaceLanguages.map((language) => `<span class="pill neutral">${language}</span>`).join("");
-  const publicationLanguages = plan.publicationLanguages.map((language) => `<span class="pill success">${language}</span>`).join("");
+  const públicationLanguages = plan.públicationLanguages.map((language) => `<span class="pill success">${language}</span>`).join("");
   const notes = plan.localizationNotes.map((note) => `<li>${note}</li>`).join("");
 
   return `
@@ -1823,7 +1823,7 @@ function renderLanguagePlan(item) {
         <dl class="detail-list">
           <div><dt>${t("workingLanguage")}</dt><dd>${plan.workingLanguage}</dd></div>
           <div><dt>${t("interfaceOptions")}</dt><dd class="pill-row">${interfaceLanguages}</dd></div>
-          <div><dt>${t("publicationLanguages")}</dt><dd class="pill-row">${publicationLanguages}</dd></div>
+          <div><dt>${t("públicationLanguages")}</dt><dd class="pill-row">${públicationLanguages}</dd></div>
         </dl>
       </article>
       <article class="panel accent">
@@ -2608,7 +2608,7 @@ function methodologyMarkdown(item) {
           languageLocalization: "Idioma e localização",
           workingLanguage: "Idioma de trabalho",
           interfaceLanguages: "Idiomas da interface",
-          publicationLanguages: "Idiomas de publicação",
+          públicationLanguages: "Idiomas de públicação",
           localizationNotes: "Notas de localização",
           noLanguagePlan: "Nenhum plano de idioma registrado.",
           requestsTracked: "Pedidos acompanhados",
@@ -2668,7 +2668,7 @@ function methodologyMarkdown(item) {
             languageLocalization: "Idioma y localizacion",
             workingLanguage: "Idioma de trabajo",
             interfaceLanguages: "Idiomas de la interfaz",
-            publicationLanguages: "Idiomas de publicacion",
+            públicationLanguages: "Idiomas de públicacion",
             localizationNotes: "Notas de localizacion",
             noLanguagePlan: "Ningun plan de idioma registrado.",
             requestsTracked: "Solicitudes acompanadas",
@@ -2727,7 +2727,7 @@ function methodologyMarkdown(item) {
           languageLocalization: "Language and localization",
           workingLanguage: "Working language",
           interfaceLanguages: "Interface languages",
-          publicationLanguages: "Publication languages",
+          públicationLanguages: "Públication languages",
           localizationNotes: "Localization notes",
           noLanguagePlan: "No language plan recorded.",
           requestsTracked: "Requests tracked",
@@ -2795,7 +2795,7 @@ function methodologyMarkdown(item) {
     .map((event) => `- ${event.date} / ${event.actor}: ${event.status}. ${event.event} ${labels.next}: ${event.nextStep}`)
     .join("\n");
   const languagePlan = item.languagePlan
-    ? `- ${labels.workingLanguage}: ${item.languagePlan.workingLanguage}\n- ${labels.interfaceLanguages}: ${item.languagePlan.interfaceLanguages.join(", ")}\n- ${labels.publicationLanguages}: ${item.languagePlan.publicationLanguages.join(", ")}\n- ${labels.localizationNotes}: ${item.languagePlan.localizationNotes.join(" ")}`
+    ? `- ${labels.workingLanguage}: ${item.languagePlan.workingLanguage}\n- ${labels.interfaceLanguages}: ${item.languagePlan.interfaceLanguages.join(", ")}\n- ${labels.públicationLanguages}: ${item.languagePlan.públicationLanguages.join(", ")}\n- ${labels.localizationNotes}: ${item.languagePlan.localizationNotes.join(" ")}`
     : labels.noLanguagePlan;
   const followUps = (item.followUpDrafts || [])
     .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. ${labels.reporterCheck}: ${draft.riskNote}`)
