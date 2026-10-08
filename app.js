@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa12";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa13";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -100,6 +100,15 @@ const state = {
     nextStep: "",
   },
   comparisonNotice: "",
+  followUpDraft: {
+    title: "",
+    type: "",
+    request: "",
+    status: "",
+    riskNote: "",
+    draft: "",
+  },
+  followUpNotice: "",
   gapDraft: {
     description: "",
     origin: "",
@@ -500,6 +509,20 @@ const dictionary = {
     comparisonNextStepPlaceholder: "Qual ação vem agora?",
     addComparison: "Salvar comparação",
     comparisonAdded: "Comparação adicionada e salva neste navegador.",
+    addFollowUpTitle: "Criar rascunho de follow-up",
+    followUpTitleLabel: "Título do rascunho",
+    followUpTitlePlaceholder: "ex.: Solicitar reenvio dos anexos",
+    followUpTypeLabel: "Tipo de follow-up",
+    followUpTypePlaceholder: "ex.: recurso, pedido complementar, contestação, checagem",
+    followUpRequestLabel: "Pedido relacionado",
+    followUpRequestPlaceholder: "Use o título ou protocolo do pedido relacionado.",
+    followUpStatusLabel: "Status do rascunho",
+    riskNoteLabel: "Checagem obrigatória",
+    riskNotePlaceholder: "O que a repórter precisa revisar antes de enviar?",
+    draftTextLabel: "Texto do rascunho",
+    draftTextPlaceholder: "Escreva o texto-base do follow-up para revisão humana.",
+    addFollowUp: "Salvar rascunho",
+    followUpAdded: "Rascunho adicionado e salvo neste navegador.",
     addGapTitle: "Adicionar lacuna",
     gapDescriptionLabel: "Descrição da lacuna",
     gapDescriptionPlaceholder: "ex.: O órgão informou envio, mas anexos não estão disponíveis",
@@ -895,6 +918,20 @@ const dictionary = {
     comparisonNextStepPlaceholder: "What action comes next?",
     addComparison: "Save comparison",
     comparisonAdded: "Comparison added and saved in this browser.",
+    addFollowUpTitle: "Create follow-up draft",
+    followUpTitleLabel: "Draft title",
+    followUpTitlePlaceholder: "e.g. Request attachment resend",
+    followUpTypeLabel: "Follow-up type",
+    followUpTypePlaceholder: "e.g. appeal, narrowed request, correction, check",
+    followUpRequestLabel: "Related request",
+    followUpRequestPlaceholder: "Use the title or protocol of the related request.",
+    followUpStatusLabel: "Draft status",
+    riskNoteLabel: "Required check",
+    riskNotePlaceholder: "What must the reporter review before sending?",
+    draftTextLabel: "Draft text",
+    draftTextPlaceholder: "Write the base follow-up text for human review.",
+    addFollowUp: "Save draft",
+    followUpAdded: "Draft added and saved in this browser.",
     addGapTitle: "Add gap",
     gapDescriptionLabel: "Gap description",
     gapDescriptionPlaceholder: "e.g. Agency says files were sent, but attachments are not available",
@@ -1237,6 +1274,20 @@ dictionary.es = {
   comparisonNextStepPlaceholder: "Que accion viene ahora?",
   addComparison: "Guardar comparacion",
   comparisonAdded: "Comparacion agregada y guardada en este navegador.",
+  addFollowUpTitle: "Crear borrador de seguimiento",
+  followUpTitleLabel: "Título del borrador",
+  followUpTitlePlaceholder: "ej.: solicitar reenvio de anexos",
+  followUpTypeLabel: "Tipo de seguimiento",
+  followUpTypePlaceholder: "ej.: apelacion, solicitud complementaria, contestacion, chequeo",
+  followUpRequestLabel: "Solicitud relacionada",
+  followUpRequestPlaceholder: "Use el título o protocolo de la solicitud relacionada.",
+  followUpStatusLabel: "Estado del borrador",
+  riskNoteLabel: "Chequeo obligatorio",
+  riskNotePlaceholder: "Que debe revisar la repórtera antes de enviar?",
+  draftTextLabel: "Texto del borrador",
+  draftTextPlaceholder: "Escriba el texto-base del seguimiento para revision humana.",
+  addFollowUp: "Guardar borrador",
+  followUpAdded: "Borrador agregado y guardado en este navegador.",
   addGapTitle: "Agregar vacio",
   gapDescriptionLabel: "Descripcion del vacio",
   gapDescriptionPlaceholder: "ej.: el organismo dice que envio archivos, pero anexos no estan disponibles",
@@ -1562,6 +1613,37 @@ function addComparisonToCurrent() {
   touchInvestigation(item);
   resetComparisonDraft();
   state.comparisonNotice = t("comparisonAdded");
+  return true;
+}
+
+function resetFollowUpDraft() {
+  Object.keys(state.followUpDraft).forEach((field) => {
+    state.followUpDraft[field] = "";
+  });
+}
+
+function addFollowUpToCurrent() {
+  const item = getCurrentInvestigation();
+  const title = state.followUpDraft.title.trim();
+  const draft = state.followUpDraft.draft.trim();
+  if (!title || !draft) {
+    state.followUpNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.followUpDrafts = [
+    ...(item.followUpDrafts || []),
+    {
+      title,
+      type: state.followUpDraft.type.trim() || t("followUps"),
+      request: state.followUpDraft.request.trim() || t("notSet"),
+      status: state.followUpDraft.status.trim() || t("reviewRecommended"),
+      riskNote: state.followUpDraft.riskNote.trim() || t("reporterCheck"),
+      draft,
+    },
+  ];
+  touchInvestigation(item);
+  resetFollowUpDraft();
+  state.followUpNotice = t("followUpAdded");
   return true;
 }
 
@@ -3258,8 +3340,12 @@ function renderComparisonAddForm(requestOptions) {
 
 function renderFollowUps(item) {
   const drafts = item.followUpDrafts || [];
+  const requestOptions = (item.requests || [])
+    .map((request) => `<option value="${escapeHtml(request.title)}"></option>`)
+    .join("");
 
   return `
+    ${renderFollowUpAddForm(requestOptions)}
     <section class="content-header">
       <p class="eyebrow">${t("followUpDraftsTitle")}</p>
       <h2>${t("followUpDraftsHeading")}</h2>
@@ -3287,6 +3373,49 @@ function renderFollowUps(item) {
         )
         .join("")}
     </div>
+  `;
+}
+
+function renderFollowUpAddForm(requestOptions) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("followUpDraftsTitle")}</p>
+      <h2>${t("addFollowUpTitle")}</h2>
+      <p>${t("followUpDraftsCopy")}</p>
+    </section>
+    ${state.followUpNotice ? `<section class="${state.followUpNotice === t("followUpAdded") ? "success-box" : "error-box"}"><strong>${state.followUpNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <datalist id="follow-up-request-options">${requestOptions}</datalist>
+      <div class="form-grid">
+        <label>
+          <span>${t("followUpTitleLabel")}</span>
+          <input data-follow-up-field="title" value="${escapeHtml(state.followUpDraft.title)}" placeholder="${t("followUpTitlePlaceholder")}">
+        </label>
+        <label>
+          <span>${t("followUpTypeLabel")}</span>
+          <input data-follow-up-field="type" value="${escapeHtml(state.followUpDraft.type)}" placeholder="${t("followUpTypePlaceholder")}">
+        </label>
+        <label>
+          <span>${t("followUpRequestLabel")}</span>
+          <input data-follow-up-field="request" value="${escapeHtml(state.followUpDraft.request)}" list="follow-up-request-options" placeholder="${t("followUpRequestPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("followUpStatusLabel")}</span>
+          <input data-follow-up-field="status" value="${escapeHtml(state.followUpDraft.status)}" placeholder="${t("reviewRecommended")}">
+        </label>
+      </div>
+      <label>
+        <span>${t("riskNoteLabel")}</span>
+        <textarea data-follow-up-field="riskNote" rows="2" placeholder="${t("riskNotePlaceholder")}">${escapeHtml(state.followUpDraft.riskNote)}</textarea>
+      </label>
+      <label>
+        <span>${t("draftTextLabel")}</span>
+        <textarea data-follow-up-field="draft" rows="6" placeholder="${t("draftTextPlaceholder")}">${escapeHtml(state.followUpDraft.draft)}</textarea>
+      </label>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-follow-up" type="button">${t("addFollowUp")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -4145,6 +4274,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-follow-up-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.followUpDraft[field.dataset.followUpField] = field.value;
+      state.followUpNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-gap-field]").forEach((field) => {
     field.addEventListener("input", () => {
       state.gapDraft[field.dataset.gapField] = field.value;
@@ -4225,6 +4361,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-comparison']").forEach((button) => {
     button.addEventListener("click", () => {
       addComparisonToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-follow-up']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addFollowUpToCurrent();
       renderInvestigation();
     });
   });
