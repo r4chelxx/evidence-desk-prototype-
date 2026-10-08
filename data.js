@@ -378,9 +378,9 @@ export const mvpCoverage = [
       es: "Preguntas, hipotesis y bloques de evidência necesaria, complementaria, contextual o desconocida.",
     },
     implementation: {
-      pt: "Abas de hipóteses e blocos de evidência com status, prioridade e evidência relacionada.",
-      en: "Hypotheses and evidence-block tabs with status, priority and related evidence.",
-      es: "Pestanas de hipotesis y bloques de evidência con estado, prioridad y evidência relacionada.",
+      pt: "Aba de plano com cadastro local de hipóteses, blocos de evidência e fontes, além de status, prioridade e evidência relacionada.",
+      en: "Plan tab with local entry for hypotheses, evidence blocks and sources, plus status, priority and related evidence.",
+      es: "Pestana de plan con registro local de hipotesis, bloques de evidência y fuentes, ademas de estado, prioridad y evidência relacionada.",
     },
     status: {
       pt: "Implementado",
@@ -400,9 +400,9 @@ export const mvpCoverage = [
       es: "Separar fuente verificada, camino probable y fuente por confirmar, con limites y mejor uso.",
     },
     implementation: {
-      pt: "Aba de fontes com status, jurisdição, links, limites e trilhas de descoberta.",
-      en: "Sources tab with status, jurisdiction, links, limits and discovery paths.",
-      es: "Pestana de fuentes con estado, jurisdiccion, enlaces, limites y rutas de descubrimiento.",
+      pt: "Aba de fontes com cadastro local, status, jurisdição, links, limites e trilhas de descoberta.",
+      en: "Sources tab with local entry, status, jurisdiction, links, limits and discovery paths.",
+      es: "Pestana de fuentes con registro local, estado, jurisdiccion, enlaces, limites y rutas de descubrimiento.",
     },
     status: {
       pt: "Implementado",
