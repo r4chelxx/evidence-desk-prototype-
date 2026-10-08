@@ -1,4 +1,25 @@
-import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa6b";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa7";
+
+const STORAGE_KEY = "evidence-desk-investigations-v1";
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function loadInvestigations() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return clone(seedInvestigations);
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed) || !parsed.length) return clone(seedInvestigations);
+    return parsed;
+  } catch (error) {
+    console.warn("Could not load saved investigations", error);
+    return clone(seedInvestigations);
+  }
+}
+
+let investigations = loadInvestigations();
 
 const state = {
   view: "dashboard",
@@ -111,6 +132,13 @@ const dictionary = {
     exportMethodology: "Exportar metodologia",
     exportJson: "Exportar JSON",
     exportedJson: "JSON exportado",
+    importJson: "Importar JSON",
+    resetLocalData: "Restaurar exemplos",
+    localSaveNote: "Salvo neste navegador",
+    importedJson: "JSON importado",
+    importJsonError: "Não foi possível importar este JSON.",
+    createInvestigation: "Criar investigação",
+    investigationCreated: "Investigação criada e salva neste navegador.",
     deadlinesNext: "Prazos e próximos passos",
     deadlinesTitle: "Saiba quando esperar, checar, contestar ou escalar.",
     sent: "Enviado",
@@ -206,8 +234,8 @@ const dictionary = {
     methodologyHeading: "Exporte um resumo transparente de evidências, pedidos e limites.",
     qaChecklistHeading: "Revise riscos antes de tratar evidências como publicáveis.",
     qaNoBlockers: "Nenhum bloqueio de QA registrado.",
-    qaBlockerSingular: "bloqueio precisa de atenção antes de demo ou públicação.",
-    qaBlockerPlural: "bloqueios precisam de atenção antes de demo ou públicação.",
+    qaBlockerSingular: "bloqueio precisa de atenção antes de demo ou publicação.",
+    qaBlockerPlural: "bloqueios precisam de atenção antes de demo ou publicação.",
     riskSuffix: "risco",
     action: "Ação",
     editorialSafeguards: "Salvaguardas editoriais",
@@ -240,7 +268,7 @@ const dictionary = {
     languagePlan: "Plano de idioma",
     workingLanguage: "Idioma de trabalho",
     interfaceOptions: "Opções de interface",
-    públicationLanguages: "Idiomas de públicação",
+    publicationLanguages: "Idiomas de publicação",
     localizationRule: "Regra de localização",
     localizationRuleCopy:
       "Traduza livremente os rótulos da interface, mas localize leis, prazos, órgãos e tipos de fonte somente quando a jurisdição for conhecida e revisada pela repórter.",
@@ -313,7 +341,7 @@ const dictionary = {
     shortDescription: "Descrição curta",
     descriptionPlaceholder: "O que a pauta tenta entender?",
     validateStructure: "Validar estrutura",
-    saveDraftAfterBackend: "Salvar rascunho após backend",
+    saveDraftAfterBackend: "Salvar rascunho local",
     workspacePreview: "Prévia do espaço de trabalho",
     untitledInvestigation: "Investigação sem título",
     countryJurisdiction: "País/jurisdição",
@@ -417,6 +445,13 @@ const dictionary = {
     exportMethodology: "Export methodology",
     exportJson: "Export JSON",
     exportedJson: "JSON exported",
+    importJson: "Import JSON",
+    resetLocalData: "Restore examples",
+    localSaveNote: "Saved in this browser",
+    importedJson: "JSON imported",
+    importJsonError: "Could not import this JSON.",
+    createInvestigation: "Create investigation",
+    investigationCreated: "Investigation created and saved in this browser.",
     deadlinesNext: "Deadlines and next steps",
     deadlinesTitle: "Know when to wait, check, contest or escalate.",
     sent: "Sent",
@@ -512,8 +547,8 @@ const dictionary = {
     methodologyHeading: "Export a transparent summary of evidence, requests and limits.",
     qaChecklistHeading: "Review risk before treating evidence as publishable.",
     qaNoBlockers: "No blocking QA issues recorded.",
-    qaBlockerSingular: "blocker needs attention before demo or públication.",
-    qaBlockerPlural: "blockers need attention before demo or públication.",
+    qaBlockerSingular: "blocker needs attention before demo or publication.",
+    qaBlockerPlural: "blockers need attention before demo or publication.",
     riskSuffix: "risk",
     action: "Action",
     editorialSafeguards: "Editorial safeguards",
@@ -546,7 +581,7 @@ const dictionary = {
     languagePlan: "Language plan",
     workingLanguage: "Working language",
     interfaceOptions: "Interface options",
-    públicationLanguages: "Públication languages",
+    publicationLanguages: "Publication languages",
     localizationRule: "Localization rule",
     localizationRuleCopy:
       "Translate interface labels freely, but localize laws, deadlines, agencies and source types only when the jurisdiction is known and reviewed by the reporter.",
@@ -726,6 +761,13 @@ dictionary.es = {
   exportMethodology: "Exportar metodologia",
   exportJson: "Exportar JSON",
   exportedJson: "JSON exportado",
+  importJson: "Importar JSON",
+  resetLocalData: "Restaurar ejemplos",
+  localSaveNote: "Guardado en este navegador",
+  importedJson: "JSON importado",
+  importJsonError: "No fue posible importar este JSON.",
+  createInvestigation: "Crear investigación",
+  investigationCreated: "Investigación creada y guardada en este navegador.",
   deadlinesNext: "Plazos y próximos pasos",
   deadlinesTitle: "Sepa cuando esperar, revisar, contestar o escalar.",
   sent: "Enviado",
@@ -834,7 +876,7 @@ dictionary.es = {
   languagePlan: "Plan de idioma",
   workingLanguage: "Idioma de trabajo",
   interfaceOptions: "Opciones de interfaz",
-  públicationLanguages: "Idiomas de públicacion",
+  publicationLanguages: "Idiomas de públicacion",
   localizationRule: "Regla de localizacion",
   localizationRuleCopy:
     "Traduzca libremente los rótulos de interfaz, pero localice leyes, plazos, organismos y tipos de fuente solo cuando la jurisdiccion sea conocida y revisada por la repórtera.",
@@ -876,7 +918,7 @@ dictionary.es = {
   shortDescription: "Descripcion corta",
   descriptionPlaceholder: "Que intenta entender la pauta?",
   validateStructure: "Validar estructura",
-  saveDraftAfterBackend: "Guardar borrador despues del backend",
+  saveDraftAfterBackend: "Guardar borrador local",
   workspacePreview: "Vista prévia del espacio de trabajo",
   untitledInvestigation: "Investigacion sin título",
   countryJurisdiction: "País/jurisdiccion",
@@ -938,6 +980,139 @@ function getCurrentInvestigation() {
   return investigations.find((item) => item.id === state.currentId) || investigations[0];
 }
 
+function saveInvestigations() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(investigations));
+}
+
+function resetDraft() {
+  state.draft = {
+    title: "",
+    country: "",
+    jurisdiction: "",
+    language: "",
+    topic: "",
+    territory: "",
+    period: "",
+    centralQuestion: "",
+    description: "",
+  };
+  state.draftErrors = [];
+  state.draftNotice = "";
+}
+
+function resetLocalInvestigations() {
+  investigations = clone(seedInvestigations);
+  localStorage.removeItem(STORAGE_KEY);
+  state.currentId = investigations[0].id;
+  state.currentTab = "overview";
+}
+
+function todayIsoDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function createEmptyInvestigation(draft) {
+  const title = draft.title.trim();
+  const country = draft.country.trim();
+  const jurisdiction = draft.jurisdiction.trim() || country;
+  const language = draft.language.trim();
+  const topic = draft.topic.trim() || t("topic");
+  const territory = draft.territory.trim() || jurisdiction;
+  const period = draft.period.trim() || t("notSet");
+  const id = `${slugify(title) || "investigation"}-${Date.now().toString(36)}`;
+
+  return {
+    id,
+    title,
+    country,
+    jurisdiction,
+    language,
+    topic,
+    status: t("reviewRecommended"),
+    period,
+    territory,
+    updatedAt: todayIsoDate(),
+    freshness: {
+      status: t("reviewRecommended"),
+      checkedAt: todayIsoDate(),
+      summary: t("draftReady"),
+    },
+    nextReviewItems: [t("workflowPlanCopy"), t("workflowRequestsCopy")],
+    actionItems: [],
+    accessLaw: {
+      framework: t("notSet"),
+      deadline: t("noDate"),
+      escalation: t("notSet"),
+      requestChannels: t("notSet"),
+      reporterWarning: t("productRuleCopy"),
+    },
+    languagePlan: {
+      workingLanguage: language,
+      interfaceLanguages: ["Português", "English", "Español"],
+      publicationLanguages: [language],
+      localizationNotes: [t("localizationRuleCopy")],
+      glossary: [],
+    },
+    sourceDiscovery: [],
+    methodRules: [],
+    transparencyLog: [],
+    followUpDrafts: [],
+    qaChecklist: [],
+    centralQuestion: draft.centralQuestion.trim(),
+    description: draft.description.trim() || draft.centralQuestion.trim(),
+    processGuide: [
+      { stage: t("workflowContextTitle"), action: t("workflowContextCopy"), output: t("context") },
+      { stage: t("workflowPlanTitle"), action: t("workflowPlanCopy"), output: t("planTab") },
+      { stage: t("workflowRequestsTitle"), action: t("workflowRequestsCopy"), output: t("requestsWorkspace") },
+    ],
+    secondaryQuestions: [],
+    hypotheses: [],
+    evidenceBlocks: [],
+    sources: [],
+    requests: [],
+    requestComparisons: [],
+    gaps: [],
+    claims: [],
+  };
+}
+
+function persistCreatedInvestigation() {
+  validateDraft();
+  if (state.draftErrors.length) return false;
+  const investigation = createEmptyInvestigation(state.draft);
+  investigations = [investigation, ...investigations];
+  saveInvestigations();
+  state.currentId = investigation.id;
+  state.currentTab = "overview";
+  state.view = "investigation";
+  resetDraft();
+  return true;
+}
+
+function normalizeImportedInvestigation(payload) {
+  const item = payload?.investigation || payload;
+  if (!item || typeof item !== "object") throw new Error("Invalid investigation payload");
+  if (!item.title || !item.country || !item.language || !item.centralQuestion) {
+    throw new Error("Missing required investigation fields");
+  }
+  return {
+    ...createEmptyInvestigation({
+      title: item.title,
+      country: item.country,
+      jurisdiction: item.jurisdiction || item.country,
+      language: item.language,
+      topic: item.topic || "",
+      territory: item.territory || "",
+      period: item.period || "",
+      centralQuestion: item.centralQuestion,
+      description: item.description || "",
+    }),
+    ...item,
+    id: item.id ? `${item.id}-${Date.now().toString(36)}` : `${slugify(item.title)}-${Date.now().toString(36)}`,
+    updatedAt: todayIsoDate(),
+  };
+}
+
 function escapeHtml(value = "") {
   return value
     .replaceAll("&", "&amp;")
@@ -965,7 +1140,7 @@ function statusClass(value = "") {
   if (normalized.includes("sustenta") || normalized.includes("supported") || normalized.includes("support") || normalized.includes("forte")) return "success";
   if (normalized.includes("contradiz") || normalized.includes("contradict")) return "danger";
   if (normalized.includes("limita") || normalized.includes("limit")) return "warning";
-  if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraça")) return "danger";
+  if (normalized.includes("atrasado") || normalized.includes("broken") || normalized.includes("fraca")) return "danger";
   return "neutral";
 }
 
@@ -1406,8 +1581,14 @@ function renderDashboard() {
           <p class="eyebrow">${t("investigations")}</p>
           <h2>${t("testCases")}</h2>
           <p class="muted">${filteredInvestigations.length} / ${investigations.length} ${t("shown")}</p>
+          <p class="muted">${t("localSaveNote")}</p>
         </div>
-        <button class="button secondary active-secondary" data-action="new-investigation">${t("newInvestigation")}</button>
+        <div class="button-row">
+          <button class="button secondary active-secondary" data-action="import-json">${t("importJson")}</button>
+          <button class="button secondary" data-action="reset-local-data">${t("resetLocalData")}</button>
+          <button class="button secondary active-secondary" data-action="new-investigation">${t("newInvestigation")}</button>
+          <input class="visually-hidden" type="file" accept="application/json,.json" data-role="json-import">
+        </div>
       </section>
       <section class="filter-bar" aria-label="Investigation filters">
         ${renderFilterSelect("status", t("status"))}
@@ -1522,7 +1703,7 @@ function renderNewInvestigation() {
           </label>
           <div class="form-actions">
             <button class="button" data-action="validate-draft" type="button">${t("validateStructure")}</button>
-            <button class="button secondary" type="button" disabled>${t("saveDraftAfterBackend")}</button>
+            <button class="button secondary active-secondary" data-action="create-investigation" type="button">${t("createInvestigation")}</button>
           </div>
         </form>
         <aside class="panel preview-panel">
@@ -1829,7 +2010,7 @@ function renderJurisdiction(item) {
 function renderLanguagePlan(item) {
   const plan = item.languagePlan;
   const interfaceLanguages = plan.interfaceLanguages.map((language) => `<span class="pill neutral">${language}</span>`).join("");
-  const públicationLanguages = plan.públicationLanguages.map((language) => `<span class="pill success">${language}</span>`).join("");
+  const publicationLanguages = plan.publicationLanguages.map((language) => `<span class="pill success">${language}</span>`).join("");
   const notes = plan.localizationNotes.map((note) => `<li>${note}</li>`).join("");
 
   return `
@@ -1844,7 +2025,7 @@ function renderLanguagePlan(item) {
         <dl class="detail-list">
           <div><dt>${t("workingLanguage")}</dt><dd>${plan.workingLanguage}</dd></div>
           <div><dt>${t("interfaceOptions")}</dt><dd class="pill-row">${interfaceLanguages}</dd></div>
-          <div><dt>${t("públicationLanguages")}</dt><dd class="pill-row">${públicationLanguages}</dd></div>
+          <div><dt>${t("publicationLanguages")}</dt><dd class="pill-row">${publicationLanguages}</dd></div>
         </dl>
       </article>
       <article class="panel accent">
@@ -2694,7 +2875,7 @@ function methodologyMarkdown(item) {
           languageLocalization: "Idioma e localização",
           workingLanguage: "Idioma de trabalho",
           interfaceLanguages: "Idiomas da interface",
-          públicationLanguages: "Idiomas de públicação",
+          publicationLanguages: "Idiomas de publicação",
           localizationNotes: "Notas de localização",
           noLanguagePlan: "Nenhum plano de idioma registrado.",
           requestsTracked: "Pedidos acompanhados",
@@ -2754,7 +2935,7 @@ function methodologyMarkdown(item) {
             languageLocalization: "Idioma y localizacion",
             workingLanguage: "Idioma de trabajo",
             interfaceLanguages: "Idiomas de la interfaz",
-            públicationLanguages: "Idiomas de públicacion",
+            publicationLanguages: "Idiomas de públicacion",
             localizationNotes: "Notas de localizacion",
             noLanguagePlan: "Ningun plan de idioma registrado.",
             requestsTracked: "Solicitudes acompanadas",
@@ -2813,7 +2994,7 @@ function methodologyMarkdown(item) {
           languageLocalization: "Language and localization",
           workingLanguage: "Working language",
           interfaceLanguages: "Interface languages",
-          públicationLanguages: "Públication languages",
+          publicationLanguages: "Publication languages",
           localizationNotes: "Localization notes",
           noLanguagePlan: "No language plan recorded.",
           requestsTracked: "Requests tracked",
@@ -2881,7 +3062,7 @@ function methodologyMarkdown(item) {
     .map((event) => `- ${event.date} / ${event.actor}: ${event.status}. ${event.event} ${labels.next}: ${event.nextStep}`)
     .join("\n");
   const languagePlan = item.languagePlan
-    ? `- ${labels.workingLanguage}: ${item.languagePlan.workingLanguage}\n- ${labels.interfaceLanguages}: ${item.languagePlan.interfaceLanguages.join(", ")}\n- ${labels.públicationLanguages}: ${item.languagePlan.públicationLanguages.join(", ")}\n- ${labels.localizationNotes}: ${item.languagePlan.localizationNotes.join(" ")}`
+    ? `- ${labels.workingLanguage}: ${item.languagePlan.workingLanguage}\n- ${labels.interfaceLanguages}: ${item.languagePlan.interfaceLanguages.join(", ")}\n- ${labels.publicationLanguages}: ${item.languagePlan.publicationLanguages.join(", ")}\n- ${labels.localizationNotes}: ${item.languagePlan.localizationNotes.join(" ")}`
     : labels.noLanguagePlan;
   const followUps = (item.followUpDrafts || [])
     .map((draft) => `- ${draft.title} (${draft.type}): ${draft.status}. ${labels.reporterCheck}: ${draft.riskNote}`)
@@ -3032,8 +3213,7 @@ function bindActions() {
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
-      state.draftErrors = [];
-      state.draftNotice = "";
+      resetDraft();
       renderDashboard();
     });
   });
@@ -3044,6 +3224,42 @@ function bindActions() {
       state.draftErrors = [];
       state.draftNotice = "";
       renderNewInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='reset-local-data']").forEach((button) => {
+    button.addEventListener("click", () => {
+      resetLocalInvestigations();
+      renderDashboard();
+    });
+  });
+
+  document.querySelectorAll("[data-action='import-json']").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelector("[data-role='json-import']")?.click();
+    });
+  });
+
+  document.querySelectorAll("[data-role='json-import']").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const imported = normalizeImportedInvestigation(JSON.parse(text));
+        investigations = [imported, ...investigations];
+        saveInvestigations();
+        state.currentId = imported.id;
+        state.currentTab = "overview";
+        state.view = "investigation";
+        renderInvestigation();
+      } catch (error) {
+        state.draftErrors = [t("importJsonError")];
+        state.view = "new-investigation";
+        renderNewInvestigation();
+      } finally {
+        input.value = "";
+      }
     });
   });
 
@@ -3099,6 +3315,16 @@ function bindActions() {
   document.querySelectorAll("[data-action='validate-draft']").forEach((button) => {
     button.addEventListener("click", () => {
       validateDraft();
+      renderNewInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='create-investigation']").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (persistCreatedInvestigation()) {
+        renderInvestigation();
+        return;
+      }
       renderNewInvestigation();
     });
   });
