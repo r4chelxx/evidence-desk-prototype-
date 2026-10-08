@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa11";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa12";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -90,6 +90,16 @@ const state = {
     responseSummary: "",
   },
   requestNotice: "",
+  comparisonDraft: {
+    requestTitle: "",
+    deadlineStatus: "",
+    expected: "",
+    received: "",
+    missing: "",
+    editorialDecision: "",
+    nextStep: "",
+  },
+  comparisonNotice: "",
   gapDraft: {
     description: "",
     origin: "",
@@ -475,6 +485,21 @@ const dictionary = {
     responseSummaryPlaceholder: "Registre se não houve resposta, se veio parcial ou o que foi entregue.",
     addRequest: "Adicionar pedido",
     requestAdded: "Pedido adicionado e salvo neste navegador.",
+    addComparisonTitle: "Comparar pedido e resposta",
+    comparisonRequestLabel: "Pedido comparado",
+    comparisonRequestPlaceholder: "Digite o título do pedido ou selecione pelo mesmo nome já registrado.",
+    deadlineStatusLabel: "Status do prazo/resposta",
+    expectedLabel: "O que foi solicitado",
+    expectedPlaceholder: "Liste os campos, documentos, recortes ou anexos que deveriam chegar.",
+    receivedLabel: "O que foi recebido",
+    receivedPlaceholder: "Registre exatamente o que chegou, incluindo links, anexos, arquivos ou ausência de entrega.",
+    missingLabel: "Ausente ou pouco claro",
+    missingPlaceholder: "O que ainda falta, veio incompleto ou não permite comparação?",
+    editorialDecisionLabel: "Decisão editorial",
+    editorialDecisionPlaceholder: "ex.: usar com ressalva, não usar, recorrer, fazer novo pedido",
+    comparisonNextStepPlaceholder: "Qual ação vem agora?",
+    addComparison: "Salvar comparação",
+    comparisonAdded: "Comparação adicionada e salva neste navegador.",
     addGapTitle: "Adicionar lacuna",
     gapDescriptionLabel: "Descrição da lacuna",
     gapDescriptionPlaceholder: "ex.: O órgão informou envio, mas anexos não estão disponíveis",
@@ -855,6 +880,21 @@ const dictionary = {
     responseSummaryPlaceholder: "Log no response, partial delivery or what was received.",
     addRequest: "Add request",
     requestAdded: "Request added and saved in this browser.",
+    addComparisonTitle: "Compare request and response",
+    comparisonRequestLabel: "Compared request",
+    comparisonRequestPlaceholder: "Type the request title or match an already registered title.",
+    deadlineStatusLabel: "Deadline/response status",
+    expectedLabel: "What was requested",
+    expectedPlaceholder: "List the fields, documents, cuts or attachments that should have arrived.",
+    receivedLabel: "What was received",
+    receivedPlaceholder: "Record exactly what arrived, including links, attachments, files or no delivery.",
+    missingLabel: "Missing or unclear",
+    missingPlaceholder: "What is still missing, incomplete or not comparable?",
+    editorialDecisionLabel: "Editorial decision",
+    editorialDecisionPlaceholder: "e.g. use with caveat, do not use, appeal, file new request",
+    comparisonNextStepPlaceholder: "What action comes next?",
+    addComparison: "Save comparison",
+    comparisonAdded: "Comparison added and saved in this browser.",
     addGapTitle: "Add gap",
     gapDescriptionLabel: "Gap description",
     gapDescriptionPlaceholder: "e.g. Agency says files were sent, but attachments are not available",
@@ -1182,6 +1222,21 @@ dictionary.es = {
   responseSummaryPlaceholder: "Registre si no hubo respuesta, si vino parcial o que fue entregado.",
   addRequest: "Agregar solicitud",
   requestAdded: "Solicitud agregada y guardada en este navegador.",
+  addComparisonTitle: "Comparar solicitud y respuesta",
+  comparisonRequestLabel: "Solicitud comparada",
+  comparisonRequestPlaceholder: "Digite el título de la solicitud o use el mismo nombre ya registrado.",
+  deadlineStatusLabel: "Estado del plazo/respuesta",
+  expectedLabel: "Lo que fue solicitado",
+  expectedPlaceholder: "Liste campos, documentos, recortes o anexos que deberian llegar.",
+  receivedLabel: "Lo que fue recibido",
+  receivedPlaceholder: "Registre exactamente lo que llego, incluyendo enlaces, anexos, archivos o ausencia de entrega.",
+  missingLabel: "Ausente o poco claro",
+  missingPlaceholder: "Que falta, vino incompleto o no permite comparacion?",
+  editorialDecisionLabel: "Decision editorial",
+  editorialDecisionPlaceholder: "ej.: usar con salvedad, no usar, apelar, hacer nueva solicitud",
+  comparisonNextStepPlaceholder: "Que accion viene ahora?",
+  addComparison: "Guardar comparacion",
+  comparisonAdded: "Comparacion agregada y guardada en este navegador.",
   addGapTitle: "Agregar vacio",
   gapDescriptionLabel: "Descripcion del vacio",
   gapDescriptionPlaceholder: "ej.: el organismo dice que envio archivos, pero anexos no estan disponibles",
@@ -1473,6 +1528,40 @@ function addRequestToCurrent() {
   touchInvestigation(item);
   resetRequestDraft();
   state.requestNotice = t("requestAdded");
+  return true;
+}
+
+function resetComparisonDraft() {
+  Object.keys(state.comparisonDraft).forEach((field) => {
+    state.comparisonDraft[field] = "";
+  });
+}
+
+function addComparisonToCurrent() {
+  const item = getCurrentInvestigation();
+  const requestTitle = state.comparisonDraft.requestTitle.trim();
+  const expected = state.comparisonDraft.expected.trim();
+  const received = state.comparisonDraft.received.trim();
+  const missing = state.comparisonDraft.missing.trim();
+  if (!requestTitle || !expected || !received || !missing) {
+    state.comparisonNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.requestComparisons = [
+    ...(item.requestComparisons || []),
+    {
+      requestTitle,
+      deadlineStatus: state.comparisonDraft.deadlineStatus.trim() || t("reviewRecommended"),
+      expected,
+      received,
+      missing,
+      editorialDecision: state.comparisonDraft.editorialDecision.trim() || t("reviewRecommended"),
+      nextStep: state.comparisonDraft.nextStep.trim() || t("reviewLog"),
+    },
+  ];
+  touchInvestigation(item);
+  resetComparisonDraft();
+  state.comparisonNotice = t("comparisonAdded");
   return true;
 }
 
@@ -3064,7 +3153,12 @@ function suggestDeadlineAction(request, timing) {
 }
 
 function renderRequestComparison(item) {
+  const requestOptions = (item.requests || [])
+    .map((request) => `<option value="${escapeHtml(request.title)}"></option>`)
+    .join("");
+
   return `
+    ${renderComparisonAddForm(requestOptions)}
     <section class="content-header">
       <p class="eyebrow">${t("requestComparisonTitle")}</p>
       <h2>${t("requestComparisonHeading")}</h2>
@@ -3110,6 +3204,55 @@ function renderRequestComparison(item) {
         )
         .join("")}
     </div>
+  `;
+}
+
+function renderComparisonAddForm(requestOptions) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("responseReviewRule")}</p>
+      <h2>${t("addComparisonTitle")}</h2>
+      <p>${t("responseReviewRuleCopy")}</p>
+    </section>
+    ${state.comparisonNotice ? `<section class="${state.comparisonNotice === t("comparisonAdded") ? "success-box" : "error-box"}"><strong>${state.comparisonNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <datalist id="request-title-options">${requestOptions}</datalist>
+      <div class="form-grid">
+        <label>
+          <span>${t("comparisonRequestLabel")}</span>
+          <input data-comparison-field="requestTitle" value="${escapeHtml(state.comparisonDraft.requestTitle)}" list="request-title-options" placeholder="${t("comparisonRequestPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("deadlineStatusLabel")}</span>
+          <input data-comparison-field="deadlineStatus" value="${escapeHtml(state.comparisonDraft.deadlineStatus)}" placeholder="${t("reviewRecommended")}">
+        </label>
+      </div>
+      <label>
+        <span>${t("expectedLabel")}</span>
+        <textarea data-comparison-field="expected" rows="3" placeholder="${t("expectedPlaceholder")}">${escapeHtml(state.comparisonDraft.expected)}</textarea>
+      </label>
+      <label>
+        <span>${t("receivedLabel")}</span>
+        <textarea data-comparison-field="received" rows="3" placeholder="${t("receivedPlaceholder")}">${escapeHtml(state.comparisonDraft.received)}</textarea>
+      </label>
+      <label>
+        <span>${t("missingLabel")}</span>
+        <textarea data-comparison-field="missing" rows="3" placeholder="${t("missingPlaceholder")}">${escapeHtml(state.comparisonDraft.missing)}</textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          <span>${t("editorialDecisionLabel")}</span>
+          <input data-comparison-field="editorialDecision" value="${escapeHtml(state.comparisonDraft.editorialDecision)}" placeholder="${t("editorialDecisionPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("nextStep")}</span>
+          <input data-comparison-field="nextStep" value="${escapeHtml(state.comparisonDraft.nextStep)}" placeholder="${t("comparisonNextStepPlaceholder")}">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-comparison" type="button">${t("addComparison")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -3995,6 +4138,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-comparison-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.comparisonDraft[field.dataset.comparisonField] = field.value;
+      state.comparisonNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-gap-field]").forEach((field) => {
     field.addEventListener("input", () => {
       state.gapDraft[field.dataset.gapField] = field.value;
@@ -4068,6 +4218,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-request']").forEach((button) => {
     button.addEventListener("click", () => {
       addRequestToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-comparison']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addComparisonToCurrent();
       renderInvestigation();
     });
   });
