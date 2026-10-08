@@ -69,7 +69,7 @@ export const qaModel = {
     {
       term: "Afirmação",
       meaning: "Frase publicável que precisa estar ligada a evidência, limite e risco editorial.",
-      qaRule: "Toda afirmação deve mostrar se a evidência sustenta, contradiz ou limita o que esta sendo dito.",
+      qaRule: "Toda afirmação deve mostrar se a evidência sustenta, contradiz ou limita o que está sendo dito.",
     },
     {
       term: "Bloco de evidência",
@@ -266,7 +266,7 @@ export const qaModel = {
     },
     {
       item: {
-        pt: "Persistencia de investigação",
+        pt: "Persistência de investigação",
         en: "Investigation persistence",
         es: "Persistencia de investigacion",
       },
@@ -690,7 +690,7 @@ export const investigations = [
         productUse: "Mostrar entrega ausente como lacuna de acesso, não como achado substantivo.",
       },
       {
-        rule: "'Não informado' ou 'ignorado' não e a mesma coisa que variável ausente.",
+        rule: "'Não informado' ou 'ignorado' não é a mesma coisa que variável ausente.",
         productUse: "Manter campos ausentes e valores desconhecidos como problemas diferentes de qualidade de dados.",
       },
       {
@@ -706,7 +706,7 @@ export const investigations = [
         productUse: "Exigir notas de escopo antes de usar respostas parciais em afirmações.",
       },
       {
-        rule: "Silencio institucional não prova inexistencia de informação.",
+        rule: "Silêncio institucional não prova inexistência de informação.",
         productUse: "Tratar silêncio como achado de transparência, não como evidência sobre o fato investigado.",
       },
     ],
