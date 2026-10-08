@@ -1,4 +1,4 @@
-import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa5c";
+import { investigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa6";
 
 const state = {
   view: "dashboard",
@@ -172,7 +172,7 @@ const dictionary = {
     missingUnclear: "Ausente ou pouco claro",
     editorialDecision: "Decisão editorial",
     followUpDraftsTitle: "Rascunhos de follow-up",
-    followUpDraftsHeading: "Prepare mensagens e recursos sem enviar nada automáticamente.",
+    followUpDraftsHeading: "Prepare mensagens e recursos sem enviar nada automaticamente.",
     followUpDraftsCopy: "Cada rascunho é ponto de partida para revisão humana, não orientação jurídica nem petição pronta.",
     relatedRequest: "Pedido relacionado",
     reporterCheck: "Checagem da repórter",
@@ -192,6 +192,13 @@ const dictionary = {
     glossaryTerms: "Glossário operacional",
     statusRegistry: "Lista fechada de status",
     evidenceRelations: "Relações de evidência",
+    strengthScale: "Escala de força",
+    riskScale: "Escala de risco",
+    publishRule: "Regra de publicação",
+    requiredAction: "Ação obrigatória",
+    dataModel: "Modelo de dados",
+    relationship: "Relação",
+    accessibilityChecks: "Acessibilidade",
     functionalCoverage: "Cobertura funcional",
     qaExpectation: "Critério QA",
     prototypeCoverage: "Cobertura no protótipo",
@@ -471,7 +478,7 @@ const dictionary = {
     missingUnclear: "Missing or unclear",
     editorialDecision: "Editorial decision",
     followUpDraftsTitle: "Follow-up drafts",
-    followUpDraftsHeading: "Prepare messages and appeals without sending anything automátically.",
+    followUpDraftsHeading: "Prepare messages and appeals without sending anything automatically.",
     followUpDraftsCopy: "Every draft is a starting point for human review, not legal advice or a finished filing.",
     relatedRequest: "Related request",
     reporterCheck: "Reporter check",
@@ -491,6 +498,13 @@ const dictionary = {
     glossaryTerms: "Operational glossary",
     statusRegistry: "Closed status list",
     evidenceRelations: "Evidence relations",
+    strengthScale: "Strength scale",
+    riskScale: "Risk scale",
+    publishRule: "Publishing rule",
+    requiredAction: "Required action",
+    dataModel: "Data model",
+    relationship: "Relationship",
+    accessibilityChecks: "Accessibility",
     functionalCoverage: "Functional coverage",
     qaExpectation: "QA criterion",
     prototypeCoverage: "Prototype coverage",
@@ -765,7 +779,7 @@ dictionary.es = {
   missingUnclear: "Ausente o poco claro",
   editorialDecision: "Decision editorial",
   followUpDraftsTitle: "Borradores de seguimiento",
-  followUpDraftsHeading: "Prepare mensajes y recursos sin enviar nada automáticamente.",
+  followUpDraftsHeading: "Prepare mensajes y recursos sin enviar nada automaticamente.",
   followUpDraftsCopy: "Cada borrador es un punto de partida para revision humana, no orientacion legal ni peticion lista.",
   relatedRequest: "Solicitud relacionada",
   reporterCheck: "Chequeo de la repórtera",
@@ -784,6 +798,13 @@ dictionary.es = {
   glossaryTerms: "Glosario operativo",
   statusRegistry: "Lista cerrada de estados",
   evidenceRelations: "Relaciones de evidência",
+  strengthScale: "Escala de fuerza",
+  riskScale: "Escala de riesgo",
+  publishRule: "Regla de publicación",
+  requiredAction: "Acción obligatoria",
+  dataModel: "Modelo de datos",
+  relationship: "Relación",
+  accessibilityChecks: "Accesibilidad",
   functionalCoverage: "Cobertura funcional",
   qaExpectation: "Critério QA",
   prototypeCoverage: "Cobertura en el protótipo",
@@ -822,7 +843,7 @@ dictionary.es = {
   questionsHypotheses: "Preguntas e hipotesis",
   hypothesesHeading: "Divida la pregunta central en partes comprobables.",
   secondaryQuestions: "Preguntas secundárias",
-  noSecondary: "Aun no háy preguntas secundárias registradas.",
+  noSecondary: "Aun no hay preguntas secundárias registradas.",
   relatedEvidence: "Evidência relacionada",
   evidenceBlocksTitle: "Bloques de evidência",
   evidenceBlocksHeading: "Que tipos de prueba son necesarios?",
@@ -1165,7 +1186,7 @@ function renderDashboard() {
             "A pessoa entende o estado de uma investigação em menos de dois minutos.",
             "A pessoa identifica pelo menos uma ação pendente sem explicação externa.",
             "A pessoa entende lacunas como problemas de evidência pendentes, não acusações automáticas.",
-            "A pessoa entende que rascunhos de follow-up não são enviados automáticamente.",
+            "A pessoa entende que rascunhos de follow-up não são enviados automaticamente.",
             "A pessoa percebe os exemplos Brasil e EUA como o mesmo método adaptado localmente.",
           ],
         }
@@ -1204,7 +1225,7 @@ function renderDashboard() {
               "La persona entiende el estado de una investigacion en menos de dos minutos.",
               "La persona identifica al menos una accion pendiente sin explicacion externa.",
               "La persona entiende los vacios como problemas de evidência pendientes, no acusaciones automáticas.",
-              "La persona entiende que los borradores de seguimiento no se envian automáticamente.",
+              "La persona entiende que los borradores de seguimiento no se envian automaticamente.",
               "La persona percibe los ejemplos Brasil y EE. UU. como el mismo metodo adaptado localmente.",
             ],
           }
@@ -2487,12 +2508,77 @@ function renderQaModel() {
         </div>
       </article>
       <article class="panel">
+        <h3>${t("strengthScale")}</h3>
+        <div class="definition-list">
+          ${qaModel.strengthScale
+            .map(
+              (entry) => `
+                <div>
+                  <span class="pill ${statusClass(entry.level)}">${entry.level}</span>
+                  <p>${entry.meaning}</p>
+                  <small>${t("publishRule")}: ${entry.publishRule}</small>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel">
+        <h3>${t("riskScale")}</h3>
+        <div class="definition-list">
+          ${qaModel.riskScale
+            .map(
+              (entry) => `
+                <div>
+                  <span class="pill ${statusClass(entry.level)}">${entry.level}</span>
+                  <p>${entry.meaning}</p>
+                  <small>${t("requiredAction")}: ${entry.requiredAction}</small>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel">
         <h3>${t("acceptanceCriteria")}</h3>
         <ul class="review-list">
           ${qaModel.acceptanceCriteria.map((criterion) => `<li>${criterion}</li>`).join("")}
         </ul>
       </article>
     </div>
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("dataModel")}</p>
+      <h2>${t("relationship")}</h2>
+    </section>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>${t("type")}</th><th>${t("relationship")}</th><th>${t("qaExpectation")}</th></tr>
+        </thead>
+        <tbody>
+          ${qaModel.dataModel
+            .map(
+              (entry) => `
+                <tr>
+                  <td>${entry.entity}</td>
+                  <td>${entry.relation}</td>
+                  <td>${entry.qaRule}</td>
+                </tr>
+              `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("accessibilityChecks")}</p>
+      <h2>${t("acceptanceCriteria")}</h2>
+    </section>
+    <article class="panel">
+      <ul class="review-list">
+        ${qaModel.accessibilityChecks.map((criterion) => `<li>${criterion}</li>`).join("")}
+      </ul>
+    </article>
     <section class="content-header process-header">
       <p class="eyebrow">${t("functionalCoverage")}</p>
       <h2>${t("testingTitle")}</h2>
