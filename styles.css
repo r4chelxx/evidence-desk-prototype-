@@ -487,6 +487,15 @@ label small {
   justify-content: flex-end;
 }
 
+.visually-hidden {
+  height: 1px;
+  left: -9999px;
+  overflow: hidden;
+  position: absolute;
+  top: auto;
+  width: 1px;
+}
+
 .preview-panel {
   display: grid;
   gap: 1rem;
