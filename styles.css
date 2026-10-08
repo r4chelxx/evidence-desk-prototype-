@@ -231,6 +231,56 @@ button {
   margin: 0.2rem 0 0;
 }
 
+.executive-summary {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.2rem 0;
+}
+
+.summary-tile {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid #cfc7b8;
+  border-radius: 0.45rem;
+  min-height: 138px;
+  padding: 0.9rem;
+}
+
+.summary-tile.success {
+  border-left-color: var(--green);
+}
+
+.summary-tile.warning {
+  border-left-color: var(--yellow);
+}
+
+.summary-tile.danger {
+  border-left-color: var(--red);
+}
+
+.summary-tile span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-tile strong {
+  display: block;
+  font-size: 1.75rem;
+  line-height: 1;
+  margin: 0.75rem 0 0.55rem;
+}
+
+.summary-tile p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 .workflow-track {
   display: grid;
   gap: 0.75rem;
@@ -1395,6 +1445,7 @@ tr:last-child td {
   .form-grid,
   .plan-form-grid,
   .workspace,
+  .executive-summary,
   .workflow-track,
   .two-column,
   .language-grid,
