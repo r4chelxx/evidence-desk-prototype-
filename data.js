@@ -444,9 +444,9 @@ export const mvpCoverage = [
       es: "Mostrar items solicitados, entregados, ausentes, divergências de granularidad y próximos pasos.",
     },
     implementation: {
-      pt: "Abas de respostas e comparação com material recebido, lacunas, esperado, ausente/pouco claro e decisão editorial.",
-      en: "Responses and comparison tabs with received material, gaps, expected items, missing/unclear points and editorial decision.",
-      es: "Pestanas de respuestas y comparacion con material recibido, vacios, esperado, ausente/poco claro y decision editorial.",
+      pt: "Abas de respostas e comparação com cadastro local de esperado, recebido, ausente/pouco claro, decisão editorial e próximo passo.",
+      en: "Responses and comparison tabs with local entry for expected, received, missing/unclear points, editorial decision and next step.",
+      es: "Pestanas de respuestas y comparacion con registro local de esperado, recibido, ausente/poco claro, decision editorial y próximo paso.",
     },
     status: {
       pt: "Implementado",
