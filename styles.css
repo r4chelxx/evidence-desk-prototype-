@@ -962,6 +962,23 @@ dd {
   padding: 0.95rem;
 }
 
+.clickable-step {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.clickable-step:hover,
+.clickable-step:focus-visible {
+  border-color: var(--ink);
+  outline: none;
+}
+
+.compact-header {
+  margin-bottom: 0.5rem;
+}
+
 .process-step span {
   align-items: center;
   background: var(--ink);
