@@ -340,6 +340,10 @@ button {
   margin: 0;
 }
 
+.request-add-form {
+  margin-bottom: 1.5rem;
+}
+
 .compact-form-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
