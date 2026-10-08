@@ -422,9 +422,9 @@ export const mvpCoverage = [
       es: "Organismo, canal, protocolo, fecha, plazo, estado, resumen e items solicitados.",
     },
     implementation: {
-      pt: "Aba de pedidos com prazos, checkpoints, status e ações sugeridas sem envio automático.",
-      en: "Requests tab with due dates, checkpoints, status and suggested actions without automatic filing.",
-      es: "Pestana de solicitudes con plazos, checkpoints, estado y acciones sugeridas sin envio automático.",
+      pt: "Aba de pedidos com cadastro local, prazos, checkpoints, status e ações sugeridas sem envio automático.",
+      en: "Requests tab with local entry, due dates, checkpoints, status and suggested actions without automatic filing.",
+      es: "Pestana de solicitudes con registro local, plazos, checkpoints, estado y acciones sugeridas sin envio automático.",
     },
     status: {
       pt: "Implementado",
