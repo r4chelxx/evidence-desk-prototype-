@@ -466,9 +466,9 @@ export const mvpCoverage = [
       es: "Marcar vacios, riesgos, origen y próximo paso sin tratar ausência como conclusion.",
     },
     implementation: {
-      pt: "Aba de lacunas com cadastro local, plano de ação, diário de transparência editável e rascunhos de follow-up editáveis.",
-      en: "Gaps tab with local entry, action plan, editable transparency log and editable follow-up draft tabs.",
-      es: "Pestana de vacios con registro local, plan de accion, diário de transparência editable y borradores de seguimiento editables.",
+      pt: "Aba de lacunas com cadastro local, plano de ação editável, diário de transparência editável e rascunhos de follow-up editáveis.",
+      en: "Gaps tab with local entry, editable action plan, editable transparency log and editable follow-up draft tabs.",
+      es: "Pestana de vacios con registro local, plan de accion editable, diário de transparência editable y borradores de seguimiento editables.",
     },
     status: {
       pt: "Implementado",
