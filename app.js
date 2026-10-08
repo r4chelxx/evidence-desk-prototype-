@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa17";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa18";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -231,6 +231,12 @@ const dictionary = {
     centralQuestion: "Pergunta central",
     quickActions: "Ações rápidas",
     quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
+    executiveSummary: "Resumo executivo",
+    summaryEvidence: "Evidências mapeadas",
+    summaryRequests: "Pedidos monitorados",
+    summaryRisk: "Riscos abertos",
+    summaryNext: "Próxima decisão",
+    noImmediateAction: "Nenhuma ação crítica no momento",
     addHypothesis: "Adicionar hipótese",
     mapEvidence: "Mapear evidência",
     registerRequest: "Registrar pedido",
@@ -660,6 +666,12 @@ const dictionary = {
     centralQuestion: "Central question",
     quickActions: "Quick actions",
     quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
+    executiveSummary: "Executive summary",
+    summaryEvidence: "Mapped evidence",
+    summaryRequests: "Tracked requests",
+    summaryRisk: "Open risks",
+    summaryNext: "Next decision",
+    noImmediateAction: "No critical action right now",
     addHypothesis: "Add hypothesis",
     mapEvidence: "Map evidence",
     registerRequest: "Register request",
@@ -1092,6 +1104,12 @@ dictionary.es = {
   centralQuestion: "Pregunta central",
   quickActions: "Acciones rapidas",
   quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
+  executiveSummary: "Resumen ejecutivo",
+  summaryEvidence: "Evidencias mapeadas",
+  summaryRequests: "Solicitudes monitoreadas",
+  summaryRisk: "Riesgos abiertos",
+  summaryNext: "Próxima decisión",
+  noImmediateAction: "Ninguna acción crítica por ahora",
   addHypothesis: "Agregar hipotesis",
   mapEvidence: "Mapear evidência",
   registerRequest: "Registrar solicitud",
@@ -1430,6 +1448,81 @@ dictionary.es = {
 
 function t(key) {
   return dictionary[state.locale]?.[key] || dictionary.pt[key] || dictionary.en[key] || key;
+}
+
+function getFieldSuggestions() {
+  const suggestions = {
+    pt: {
+      status: [
+        "Em revisão",
+        "Em apuração",
+        "Respondido parcialmente",
+        "Resposta recebida",
+        "Atrasado",
+        "Recurso necessário",
+        "Verificado",
+        "Não usar",
+        "Usar com ressalva",
+      ],
+      priority: ["Alta", "Média", "Baixa"],
+      risk: ["Alto", "Médio", "Baixo"],
+      relation: ["Sustenta", "Contradiz", "Limita", "Contextualiza", "Ainda insuficiente"],
+      strength: ["Forte", "Média", "Fraca", "Indeterminada"],
+    },
+    en: {
+      status: [
+        "Under review",
+        "In reporting",
+        "Partial response",
+        "Response received",
+        "Overdue",
+        "Appeal needed",
+        "Verified",
+        "Do not use",
+        "Use with caveat",
+      ],
+      priority: ["High", "Medium", "Low"],
+      risk: ["High", "Medium", "Low"],
+      relation: ["Supports", "Contradicts", "Limits", "Contextualizes", "Still insufficient"],
+      strength: ["Strong", "Medium", "Weak", "Undetermined"],
+    },
+    es: {
+      status: [
+        "En revisión",
+        "En reporteo",
+        "Respuesta parcial",
+        "Respuesta recibida",
+        "Atrasado",
+        "Recurso necesario",
+        "Verificado",
+        "No usar",
+        "Usar con salvedad",
+      ],
+      priority: ["Alta", "Media", "Baja"],
+      risk: ["Alto", "Medio", "Bajo"],
+      relation: ["Sostiene", "Contradice", "Limita", "Contextualiza", "Aún insuficiente"],
+      strength: ["Fuerte", "Media", "Débil", "Indeterminada"],
+    },
+  };
+
+  return suggestions[state.locale] || suggestions.pt;
+}
+
+function renderDatalists() {
+  const suggestions = getFieldSuggestions();
+  const datalist = (id, values) => `
+    <datalist id="${id}">
+      ${values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join("")}
+    </datalist>
+  `;
+
+  return `
+    ${datalist("status-options", suggestions.status)}
+    ${datalist("priority-options", suggestions.priority)}
+    ${datalist("risk-options", suggestions.risk)}
+    ${datalist("relation-options", suggestions.relation)}
+    ${datalist("strength-options", suggestions.strength)}
+  `;
 }
 
 function getCurrentInvestigation() {
@@ -2095,6 +2188,7 @@ function renderShell(content) {
         <div class="locale-toggle" aria-label="${t("languageToggle")}">${languageToggle}</div>
       </div>
     </header>
+    ${renderDatalists()}
     ${content}
   `;
   bindActions();
@@ -2661,7 +2755,7 @@ function renderPlanAddForms() {
         </label>
         <label>
           <span>${t("hypothesisStatusLabel")}</span>
-          <input data-plan-field="hypothesisStatus" value="${escapeHtml(state.planDraft.hypothesisStatus)}" placeholder="${t("reviewRecommended")}">
+          <input data-plan-field="hypothesisStatus" value="${escapeHtml(state.planDraft.hypothesisStatus)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
         <button class="button secondary active-secondary" data-action="add-hypothesis" type="button">${t("addHypothesis")}</button>
       </article>
@@ -2673,11 +2767,11 @@ function renderPlanAddForms() {
         </label>
         <label>
           <span>${t("evidencePriorityLabel")}</span>
-          <input data-plan-field="evidencePriority" value="${escapeHtml(state.planDraft.evidencePriority)}" placeholder="${t("priorityPrefix")}">
+          <input data-plan-field="evidencePriority" value="${escapeHtml(state.planDraft.evidencePriority)}" list="priority-options" placeholder="${t("priorityPrefix")}">
         </label>
         <label>
           <span>${t("evidenceStatusLabel")}</span>
-          <input data-plan-field="evidenceStatus" value="${escapeHtml(state.planDraft.evidenceStatus)}" placeholder="${t("reviewRecommended")}">
+          <input data-plan-field="evidenceStatus" value="${escapeHtml(state.planDraft.evidenceStatus)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
         <button class="button secondary active-secondary" data-action="add-evidence-block" type="button">${t("mapEvidence")}</button>
       </article>
@@ -2694,7 +2788,7 @@ function renderPlanAddForms() {
           </label>
           <label>
             <span>${t("sourceStatusLabel")}</span>
-            <input data-plan-field="sourceStatus" value="${escapeHtml(state.planDraft.sourceStatus)}" placeholder="${t("reviewRecommended")}">
+            <input data-plan-field="sourceStatus" value="${escapeHtml(state.planDraft.sourceStatus)}" list="status-options" placeholder="${t("reviewRecommended")}">
           </label>
         </div>
         <label>
@@ -2761,7 +2855,7 @@ function renderRequestAddForm() {
       </div>
       <label>
         <span>${t("requestStatusLabel")}</span>
-        <input data-request-field="status" value="${escapeHtml(state.requestDraft.status)}" placeholder="${t("reviewRecommended")}">
+        <input data-request-field="status" value="${escapeHtml(state.requestDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
       </label>
       <label>
         <span>${t("requestedItemsLabel")}</span>
@@ -2794,6 +2888,7 @@ function renderOverview(item) {
       <h2>${item.centralQuestion}</h2>
       <p>${item.description}</p>
     </section>
+    ${renderExecutiveSummary(item)}
     <section class="metrics-grid">
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
@@ -2840,6 +2935,57 @@ function renderOverview(item) {
         <h3>${t("editorialSafetyRule")}</h3>
         <p>${t("editorialSafetyCopy")}</p>
       </article>
+    </section>
+  `;
+}
+
+function renderExecutiveSummary(item) {
+  const queue = getEditorialQueue(item);
+  const nextItem = queue.deadlineItems[0] || queue.reviewItems[0] || queue.actionItems[0];
+  const openRisks = countOpenGaps(item) + countOpenClaims(item) + countQaBlockers(item);
+  const evidenceTotal = item.hypotheses.length + item.evidenceBlocks.length + item.sources.length;
+  const requestTotal = item.requests.length + countReviewedResponses(item) + countRequestFollowUps(item);
+
+  const tiles = [
+    {
+      label: t("summaryEvidence"),
+      value: evidenceTotal,
+      detail: `${item.evidenceBlocks.length} ${t("evidenceBlocksMetric")} / ${item.sources.length} ${t("sources").toLowerCase()}`,
+      tone: evidenceTotal ? "success" : "warning",
+    },
+    {
+      label: t("summaryRequests"),
+      value: requestTotal,
+      detail: `${countLateRequests(item)} ${t("lateRequests")} / ${countRequestFollowUps(item)} ${t("followUps").toLowerCase()}`,
+      tone: countLateRequests(item) ? "danger" : "warning",
+    },
+    {
+      label: t("summaryRisk"),
+      value: openRisks,
+      detail: `${countOpenGaps(item)} ${t("openGaps")} / ${countQaBlockers(item)} ${t("qaBlockers")}`,
+      tone: openRisks ? "danger" : "success",
+    },
+    {
+      label: t("summaryNext"),
+      value: queue.deadlineItems.length + queue.reviewItems.length + queue.actionItems.length,
+      detail: nextItem?.title || t("noImmediateAction"),
+      tone: nextItem ? statusClass(nextItem.status) : "success",
+    },
+  ];
+
+  return `
+    <section class="executive-summary" aria-label="${t("executiveSummary")}">
+      ${tiles
+        .map(
+          (tile) => `
+            <article class="summary-tile ${tile.tone}">
+              <span>${tile.label}</span>
+              <strong>${tile.value}</strong>
+              <p>${tile.detail}</p>
+            </article>
+          `,
+        )
+        .join("")}
     </section>
   `;
 }
@@ -3362,7 +3508,7 @@ function renderTransparencyAddForm() {
         </label>
         <label>
           <span>${t("transparencyStatusLabel")}</span>
-          <input data-transparency-field="status" value="${escapeHtml(state.transparencyDraft.status)}" placeholder="${t("reviewRecommended")}">
+          <input data-transparency-field="status" value="${escapeHtml(state.transparencyDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
         <label>
           <span>${t("transparencyNextStepLabel")}</span>
@@ -3438,11 +3584,11 @@ function renderActionAddForm() {
         </label>
         <label>
           <span>${t("actionPriorityLabel")}</span>
-          <input data-action-field="priority" value="${escapeHtml(state.actionDraft.priority)}" placeholder="${t("priorityPrefix")}">
+          <input data-action-field="priority" value="${escapeHtml(state.actionDraft.priority)}" list="priority-options" placeholder="${t("priorityPrefix")}">
         </label>
         <label>
           <span>${t("actionStatusLabel")}</span>
-          <input data-action-field="status" value="${escapeHtml(state.actionDraft.status)}" placeholder="${t("reviewRecommended")}">
+          <input data-action-field="status" value="${escapeHtml(state.actionDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
         <label>
           <span>${t("owner")}</span>
@@ -3627,7 +3773,7 @@ function renderComparisonAddForm(requestOptions) {
         </label>
         <label>
           <span>${t("deadlineStatusLabel")}</span>
-          <input data-comparison-field="deadlineStatus" value="${escapeHtml(state.comparisonDraft.deadlineStatus)}" placeholder="${t("reviewRecommended")}">
+          <input data-comparison-field="deadlineStatus" value="${escapeHtml(state.comparisonDraft.deadlineStatus)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
       </div>
       <label>
@@ -3723,7 +3869,7 @@ function renderFollowUpAddForm(requestOptions) {
         </label>
         <label>
           <span>${t("followUpStatusLabel")}</span>
-          <input data-follow-up-field="status" value="${escapeHtml(state.followUpDraft.status)}" placeholder="${t("reviewRecommended")}">
+          <input data-follow-up-field="status" value="${escapeHtml(state.followUpDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
       </div>
       <label>
@@ -3791,11 +3937,11 @@ function renderGapAddForm() {
         </label>
         <label>
           <span>${t("gapSeverityLabel")}</span>
-          <input data-gap-field="severity" value="${escapeHtml(state.gapDraft.severity)}" placeholder="${t("reviewRecommended")}">
+          <input data-gap-field="severity" value="${escapeHtml(state.gapDraft.severity)}" list="risk-options" placeholder="${t("reviewRecommended")}">
         </label>
         <label>
           <span>${t("gapStatusLabel")}</span>
-          <input data-gap-field="status" value="${escapeHtml(state.gapDraft.status)}" placeholder="${t("reviewRecommended")}">
+          <input data-gap-field="status" value="${escapeHtml(state.gapDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
         <label>
           <span>${t("gapNextStepLabel")}</span>
@@ -3868,19 +4014,19 @@ function renderClaimAddForm() {
         </label>
         <label>
           <span>${t("claimRelationLabel")}</span>
-          <input data-claim-field="relation" value="${escapeHtml(state.claimDraft.relation)}" placeholder="${t("evidenceRelation")}">
+          <input data-claim-field="relation" value="${escapeHtml(state.claimDraft.relation)}" list="relation-options" placeholder="${t("evidenceRelation")}">
         </label>
         <label>
           <span>${t("claimStrengthLabel")}</span>
-          <input data-claim-field="strength" value="${escapeHtml(state.claimDraft.strength)}" placeholder="${t("reviewRecommended")}">
+          <input data-claim-field="strength" value="${escapeHtml(state.claimDraft.strength)}" list="strength-options" placeholder="${t("reviewRecommended")}">
         </label>
         <label>
           <span>${t("claimRiskLabel")}</span>
-          <input data-claim-field="risk" value="${escapeHtml(state.claimDraft.risk)}" placeholder="${t("risk")}">
+          <input data-claim-field="risk" value="${escapeHtml(state.claimDraft.risk)}" list="risk-options" placeholder="${t("risk")}">
         </label>
         <label>
           <span>${t("claimStatusLabel")}</span>
-          <input data-claim-field="status" value="${escapeHtml(state.claimDraft.status)}" placeholder="${t("reviewRecommended")}">
+          <input data-claim-field="status" value="${escapeHtml(state.claimDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
         </label>
       </div>
       <div class="form-actions">
