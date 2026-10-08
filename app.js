@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa14";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa15";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -117,6 +117,18 @@ const state = {
     nextStep: "",
   },
   transparencyNotice: "",
+  actionDraft: {
+    action: "",
+    source: "",
+    priority: "",
+    status: "",
+    owner: "",
+    dueDate: "",
+    type: "",
+    rationale: "",
+    output: "",
+  },
+  actionNotice: "",
   gapDraft: {
     description: "",
     origin: "",
@@ -542,6 +554,19 @@ const dictionary = {
     transparencyNextStepPlaceholder: "O que precisa ser checado, cobrado, aguardado ou escalado?",
     addTransparencyEvent: "Adicionar evento",
     transparencyEventAdded: "Evento adicionado ao diário e salvo neste navegador.",
+    addActionTitle: "Adicionar ação editorial",
+    actionLabel: "Ação",
+    actionPlaceholder: "ex.: reenviar pedido, checar anexos, preparar recurso, buscar base alternativa",
+    actionSourceLabel: "Fonte/protocolo relacionado",
+    actionSourcePlaceholder: "ex.: VO-LAI-02, diário de transparência, resposta parcial",
+    actionPriorityLabel: "Prioridade",
+    actionStatusLabel: "Status da ação",
+    actionOwnerPlaceholder: "ex.: repórter, QA, editoria, jurídico",
+    actionTypePlaceholder: "ex.: LAI, checagem, análise de dados, entrevista, revisão",
+    actionRationalePlaceholder: "Por que essa ação precisa existir?",
+    actionOutputPlaceholder: "Qual saída concreta essa ação deve produzir?",
+    addAction: "Adicionar ação",
+    actionAdded: "Ação adicionada e salva neste navegador.",
     addGapTitle: "Adicionar lacuna",
     gapDescriptionLabel: "Descrição da lacuna",
     gapDescriptionPlaceholder: "ex.: O órgão informou envio, mas anexos não estão disponíveis",
@@ -962,6 +987,19 @@ const dictionary = {
     transparencyNextStepPlaceholder: "What needs to be checked, requested, waited for or escalated?",
     addTransparencyEvent: "Add event",
     transparencyEventAdded: "Event added to the log and saved in this browser.",
+    addActionTitle: "Add editorial action",
+    actionLabel: "Action",
+    actionPlaceholder: "e.g. resend request, check attachments, prepare appeal, find alternate dataset",
+    actionSourceLabel: "Related source/protocol",
+    actionSourcePlaceholder: "e.g. request ID, transparency log, partial response",
+    actionPriorityLabel: "Priority",
+    actionStatusLabel: "Action status",
+    actionOwnerPlaceholder: "e.g. reporter, QA, editor, legal",
+    actionTypePlaceholder: "e.g. FOIA, verification, data analysis, interview, review",
+    actionRationalePlaceholder: "Why does this action need to exist?",
+    actionOutputPlaceholder: "What concrete output should this action produce?",
+    addAction: "Add action",
+    actionAdded: "Action added and saved in this browser.",
     addGapTitle: "Add gap",
     gapDescriptionLabel: "Gap description",
     gapDescriptionPlaceholder: "e.g. Agency says files were sent, but attachments are not available",
@@ -1329,6 +1367,19 @@ dictionary.es = {
   transparencyNextStepPlaceholder: "Que debe chequearse, cobrarse, esperarse o escalarse?",
   addTransparencyEvent: "Agregar evento",
   transparencyEventAdded: "Evento agregado al diário y guardado en este navegador.",
+  addActionTitle: "Agregar acción editorial",
+  actionLabel: "Acción",
+  actionPlaceholder: "ej.: reenviar solicitud, chequear anexos, preparar recurso, buscar base alternativa",
+  actionSourceLabel: "Fuente/protocolo relacionado",
+  actionSourcePlaceholder: "ej.: ID de solicitud, diário de transparência, respuesta parcial",
+  actionPriorityLabel: "Prioridad",
+  actionStatusLabel: "Estado de la acción",
+  actionOwnerPlaceholder: "ej.: repórtera, QA, editoria, juridico",
+  actionTypePlaceholder: "ej.: acceso, chequeo, analisis de datos, entrevista, revision",
+  actionRationalePlaceholder: "Por que necesita existir esta acción?",
+  actionOutputPlaceholder: "Que salida concreta debe producir esta acción?",
+  addAction: "Agregar acción",
+  actionAdded: "Acción agregada y guardada en este navegador.",
   addGapTitle: "Agregar vacio",
   gapDescriptionLabel: "Descripcion del vacio",
   gapDescriptionPlaceholder: "ej.: el organismo dice que envio archivos, pero anexos no estan disponibles",
@@ -1716,6 +1767,40 @@ function addTransparencyEventToCurrent() {
   touchInvestigation(item);
   resetTransparencyDraft();
   state.transparencyNotice = t("transparencyEventAdded");
+  return true;
+}
+
+function resetActionDraft() {
+  Object.keys(state.actionDraft).forEach((field) => {
+    state.actionDraft[field] = "";
+  });
+}
+
+function addActionToCurrent() {
+  const item = getCurrentInvestigation();
+  const action = state.actionDraft.action.trim();
+  const output = state.actionDraft.output.trim();
+  if (!action || !output) {
+    state.actionNotice = t("fillRequiredPlanFields");
+    return false;
+  }
+  item.actionItems = [
+    ...(item.actionItems || []),
+    {
+      action,
+      source: state.actionDraft.source.trim() || t("notSet"),
+      priority: state.actionDraft.priority.trim() || t("priorityPrefix"),
+      status: state.actionDraft.status.trim() || t("reviewRecommended"),
+      owner: state.actionDraft.owner.trim() || t("owner"),
+      dueDate: state.actionDraft.dueDate || "",
+      type: state.actionDraft.type.trim() || t("action"),
+      rationale: state.actionDraft.rationale.trim() || t("reviewLog"),
+      output,
+    },
+  ];
+  touchInvestigation(item);
+  resetActionDraft();
+  state.actionNotice = t("actionAdded");
   return true;
 }
 
@@ -3231,6 +3316,7 @@ function renderActionPlan(item) {
   const actions = item.actionItems || [];
 
   return `
+    ${renderActionAddForm()}
     <section class="content-header">
       <p class="eyebrow">${t("actionPlan")}</p>
       <h2>${t("actionPlanTitle")}</h2>
@@ -3260,6 +3346,60 @@ function renderActionPlan(item) {
         )
         .join("") || `<section class="empty-state"><h3>${t("noActionTitle")}</h3><p>${t("noActionCopy")}</p></section>`}
     </div>
+  `;
+}
+
+function renderActionAddForm() {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("actionPlan")}</p>
+      <h2>${t("addActionTitle")}</h2>
+      <p>${t("actionPlanCopy")}</p>
+    </section>
+    ${state.actionNotice ? `<section class="${state.actionNotice === t("actionAdded") ? "success-box" : "error-box"}"><strong>${state.actionNotice}</strong></section>` : ""}
+    <section class="panel create-form request-add-form">
+      <label>
+        <span>${t("actionLabel")}</span>
+        <textarea data-action-field="action" rows="3" placeholder="${t("actionPlaceholder")}">${escapeHtml(state.actionDraft.action)}</textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          <span>${t("actionSourceLabel")}</span>
+          <input data-action-field="source" value="${escapeHtml(state.actionDraft.source)}" placeholder="${t("actionSourcePlaceholder")}">
+        </label>
+        <label>
+          <span>${t("actionPriorityLabel")}</span>
+          <input data-action-field="priority" value="${escapeHtml(state.actionDraft.priority)}" placeholder="${t("priorityPrefix")}">
+        </label>
+        <label>
+          <span>${t("actionStatusLabel")}</span>
+          <input data-action-field="status" value="${escapeHtml(state.actionDraft.status)}" placeholder="${t("reviewRecommended")}">
+        </label>
+        <label>
+          <span>${t("owner")}</span>
+          <input data-action-field="owner" value="${escapeHtml(state.actionDraft.owner)}" placeholder="${t("actionOwnerPlaceholder")}">
+        </label>
+        <label>
+          <span>${t("dueCheckpoint")}</span>
+          <input data-action-field="dueDate" value="${escapeHtml(state.actionDraft.dueDate)}" type="date">
+        </label>
+        <label>
+          <span>${t("type")}</span>
+          <input data-action-field="type" value="${escapeHtml(state.actionDraft.type)}" placeholder="${t("actionTypePlaceholder")}">
+        </label>
+      </div>
+      <label>
+        <span>${t("whyItMatters")}</span>
+        <textarea data-action-field="rationale" rows="2" placeholder="${t("actionRationalePlaceholder")}">${escapeHtml(state.actionDraft.rationale)}</textarea>
+      </label>
+      <label>
+        <span>${t("output")}</span>
+        <textarea data-action-field="output" rows="2" placeholder="${t("actionOutputPlaceholder")}">${escapeHtml(state.actionDraft.output)}</textarea>
+      </label>
+      <div class="form-actions">
+        <button class="button secondary active-secondary" data-action="add-action-item" type="button">${t("addAction")}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -4399,6 +4539,13 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll("[data-action-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      state.actionDraft[field.dataset.actionField] = field.value;
+      state.actionNotice = "";
+    });
+  });
+
   document.querySelectorAll("[data-gap-field]").forEach((field) => {
     field.addEventListener("input", () => {
       state.gapDraft[field.dataset.gapField] = field.value;
@@ -4493,6 +4640,13 @@ function bindActions() {
   document.querySelectorAll("[data-action='add-transparency-event']").forEach((button) => {
     button.addEventListener("click", () => {
       addTransparencyEventToCurrent();
+      renderInvestigation();
+    });
+  });
+
+  document.querySelectorAll("[data-action='add-action-item']").forEach((button) => {
+    button.addEventListener("click", () => {
+      addActionToCurrent();
       renderInvestigation();
     });
   });
