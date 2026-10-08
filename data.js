@@ -276,9 +276,9 @@ export const qaModel = {
         es: "Una periodista debe poder guardar, exportar o reabrir una investigacion real.",
       },
       coverage: {
-        pt: "Parcial: a investigação atual pode ser exportada em JSON, mas ainda não há importação ou reabertura.",
-        en: "Partial: the current investigation can be exported as JSON, but there is no import or reopening yet.",
-        es: "Parcial: la investigacion actual puede exportarse como JSON, pero aun no hay importacion ni reapertura.",
+        pt: "Parcial: agora cria, salva localmente, importa e exporta JSON, mas ainda não há conta, backend ou colaboração.",
+        en: "Partial: it now creates, saves locally, imports and exports JSON, but there is no account, backend or collaboration yet.",
+        es: "Parcial: ahora crea, guarda localmente, importa y exporta JSON, pero aun no hay cuenta, backend ni colaboracion.",
       },
       status: {
         pt: "Parcial",
@@ -297,14 +297,14 @@ export const prototypeLimits = [
       es: "Datos guardados",
     },
     current: {
-      pt: "O protótipo é estático: permite exportar a investigação atual em JSON, mas ainda não reabre nem persiste novas investigações.",
-      en: "The prototype is static: it can export the current investigation as JSON, but does not reopen or persist new investigations yet.",
-      es: "El prototipo es estático: permite exportar la investigacion actual en JSON, pero aun no reabre ni guarda nuevas investigaciones.",
+      pt: "O protótipo salva investigações no navegador, cria novos casos, importa JSON e exporta a investigação atual.",
+      en: "The prototype saves investigations in the browser, creates new cases, imports JSON and exports the current investigation.",
+      es: "El prototipo guarda investigaciones en el navegador, crea nuevos casos, importa JSON y exporta la investigacion actual.",
     },
     next: {
-      pt: "v0.2 precisa de importar JSON, armazenamento local e depois login ou banco de dados.",
-      en: "v0.2 needs JSON import, local storage and then login or database work.",
-      es: "v0.2 necesita importar JSON, almacenamiento local y despues login o base de datos.",
+      pt: "v0.2 precisa transformar armazenamento local em backend com login, permissões e colaboração.",
+      en: "v0.2 needs to move local storage into a backend with login, permissions and collaboration.",
+      es: "v0.2 necesita convertir el almacenamiento local en backend con login, permisos y colaboracion.",
     },
   },
   {
@@ -643,7 +643,7 @@ export const investigations = [
     languagePlan: {
       workingLanguage: "Português",
       interfaceLanguages: ["Inglês", "Português", "Espanhol"],
-      públicationLanguages: ["Português"],
+      publicationLanguages: ["Português"],
       localizationNotes: [
         "Manter termos legais como LAI, OGE e autoridade de monitoramento em português, com explicações curtas.",
         "Traduzir rótulos de fluxo, mas preservar nomes de órgãos, códigos de protocolo e títulos de fontes.",
@@ -671,7 +671,7 @@ export const investigations = [
       {
         source: "Diário de transparência",
         purpose: "Fonte de controle para protocolos, datas, recursos, prints e acompanhamentos.",
-        verification: "Todo status da plataforma deve bater com o diário antes de demo ou públicação.",
+        verification: "Todo status da plataforma deve bater com o diário antes de demo ou publicação.",
       },
       {
         source: "Arquivos de resposta dos órgãos",
@@ -1254,11 +1254,11 @@ export const investigations = [
     languagePlan: {
       workingLanguage: "English",
       interfaceLanguages: ["English", "Portuguese", "Spanish"],
-      públicationLanguages: ["English", "Spanish"],
+      publicationLanguages: ["English", "Spanish"],
       localizationNotes: [
         "Keep FOIA separate from state public records law because school districts usually follow state rules.",
         "Translate product UI, but localize legal guidance only after a state is selected.",
-        "Spanish públication support should explain U.S. public-records concepts instead of using literal legal translations.",
+        "Spanish publication support should explain U.S. public-records concepts instead of using literal legal translations.",
       ],
       glossary: [
         {
