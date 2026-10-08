@@ -1,6 +1,7 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa7";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa8";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
+const UI_STORAGE_KEY = "evidence-desk-ui-v1";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -21,16 +22,34 @@ function loadInvestigations() {
 
 let investigations = loadInvestigations();
 
+function loadUiState() {
+  try {
+    const stored = localStorage.getItem(UI_STORAGE_KEY);
+    if (!stored) return {};
+    const parsed = JSON.parse(stored);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    console.warn("Could not load saved interface state", error);
+    return {};
+  }
+}
+
+const savedUiState = loadUiState();
+const savedCurrentId = investigations.some((item) => item.id === savedUiState.currentId)
+  ? savedUiState.currentId
+  : investigations[0].id;
+
 const state = {
-  view: "dashboard",
-  currentId: investigations[0].id,
-  currentTab: "overview",
-  locale: "pt",
+  view: savedUiState.view || "dashboard",
+  currentId: savedCurrentId,
+  currentTab: savedUiState.currentTab || "overview",
+  locale: savedUiState.locale || "pt",
   filters: {
     status: "all",
     country: "all",
     language: "all",
     topic: "all",
+    ...(savedUiState.filters || {}),
   },
   draft: {
     title: "",
@@ -46,6 +65,12 @@ const state = {
   draftErrors: [],
   draftNotice: "",
 };
+
+if (state.view === "investigation" && !investigations.some((item) => item.id === state.currentId)) {
+  state.view = "dashboard";
+  state.currentId = investigations[0].id;
+  state.currentTab = "overview";
+}
 
 const app = document.querySelector("#app");
 
@@ -984,6 +1009,19 @@ function saveInvestigations() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(investigations));
 }
 
+function saveUiState() {
+  localStorage.setItem(
+    UI_STORAGE_KEY,
+    JSON.stringify({
+      view: state.view,
+      currentId: state.currentId,
+      currentTab: state.currentTab,
+      locale: state.locale,
+      filters: state.filters,
+    })
+  );
+}
+
 function resetDraft() {
   state.draft = {
     title: "",
@@ -1005,6 +1043,8 @@ function resetLocalInvestigations() {
   localStorage.removeItem(STORAGE_KEY);
   state.currentId = investigations[0].id;
   state.currentTab = "overview";
+  state.view = "dashboard";
+  saveUiState();
 }
 
 function todayIsoDate() {
@@ -1086,6 +1126,7 @@ function persistCreatedInvestigation() {
   state.currentTab = "overview";
   state.view = "investigation";
   resetDraft();
+  saveUiState();
   return true;
 }
 
@@ -3214,6 +3255,7 @@ function bindActions() {
     button.addEventListener("click", () => {
       state.view = "dashboard";
       resetDraft();
+      saveUiState();
       renderDashboard();
     });
   });
@@ -3223,6 +3265,7 @@ function bindActions() {
       state.view = "new-investigation";
       state.draftErrors = [];
       state.draftNotice = "";
+      saveUiState();
       renderNewInvestigation();
     });
   });
@@ -3252,10 +3295,12 @@ function bindActions() {
         state.currentId = imported.id;
         state.currentTab = "overview";
         state.view = "investigation";
+        saveUiState();
         renderInvestigation();
       } catch (error) {
         state.draftErrors = [t("importJsonError")];
         state.view = "new-investigation";
+        saveUiState();
         renderNewInvestigation();
       } finally {
         input.value = "";
@@ -3266,6 +3311,7 @@ function bindActions() {
   document.querySelectorAll("[data-action='set-locale']").forEach((button) => {
     button.addEventListener("click", () => {
       state.locale = button.dataset.locale;
+      saveUiState();
       if (state.view === "investigation") {
         renderInvestigation();
         return;
@@ -3281,6 +3327,7 @@ function bindActions() {
   document.querySelectorAll("[data-filter]").forEach((select) => {
     select.addEventListener("change", () => {
       state.filters[select.dataset.filter] = select.value;
+      saveUiState();
       renderDashboard();
     });
   });
@@ -3293,6 +3340,7 @@ function bindActions() {
         language: "all",
         topic: "all",
       };
+      saveUiState();
       renderDashboard();
     });
   });
@@ -3334,6 +3382,7 @@ function bindActions() {
       state.view = "investigation";
       state.currentId = button.dataset.id;
       state.currentTab = "overview";
+      saveUiState();
       renderInvestigation();
     });
   });
@@ -3341,6 +3390,7 @@ function bindActions() {
   document.querySelectorAll("[data-action='tab']").forEach((button) => {
     button.addEventListener("click", () => {
       state.currentTab = button.dataset.tab;
+      saveUiState();
       renderInvestigation();
     });
   });
@@ -3363,4 +3413,10 @@ function bindActions() {
   });
 }
 
-renderDashboard();
+if (state.view === "investigation") {
+  renderInvestigation();
+} else if (state.view === "new-investigation") {
+  renderNewInvestigation();
+} else {
+  renderDashboard();
+}
