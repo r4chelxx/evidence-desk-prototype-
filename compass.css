@@ -103,6 +103,70 @@
   text-transform: uppercase;
 }
 
+.investigation-spine {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0.15rem;
+  padding-top: 1rem;
+}
+
+.spine-node {
+  border-left: 1px solid var(--line);
+  display: grid;
+  gap: 0.35rem;
+  min-height: 96px;
+  padding: 0 0.9rem;
+  position: relative;
+}
+
+.spine-node:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.spine-node::before {
+  background: #cfc7b8;
+  border: 3px solid var(--paper);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--line);
+  content: "";
+  height: 0.8rem;
+  left: 0.9rem;
+  position: absolute;
+  top: -1.45rem;
+  width: 0.8rem;
+}
+
+.spine-node:first-child::before {
+  left: 0;
+}
+
+.spine-node.ready::before {
+  background: var(--green);
+}
+
+.spine-node.alert::before {
+  background: var(--red);
+}
+
+.spine-node.current::before {
+  background: var(--orange);
+}
+
+.spine-node strong {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.spine-node span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 900px) {
   .investigation-compass {
     grid-template-columns: 1fr;
@@ -118,5 +182,33 @@
 
   .compass-core h3 {
     font-size: 1.18rem;
+  }
+
+  .investigation-spine {
+    gap: 0.6rem;
+    grid-template-columns: 1fr;
+  }
+
+  .spine-node {
+    border-left: 4px solid var(--line);
+    min-height: auto;
+    padding: 0 0 0 0.8rem;
+  }
+
+  .spine-node:first-child {
+    border-left: 4px solid var(--orange);
+    padding-left: 0.8rem;
+  }
+
+  .spine-node.ready {
+    border-left-color: var(--green);
+  }
+
+  .spine-node.alert {
+    border-left-color: var(--red);
+  }
+
+  .spine-node::before {
+    display: none;
   }
 }
