@@ -35,9 +35,24 @@ function buildCompass() {
       ${compassCard("editorial", risk, "Risco editorial", "Lacunas, afirmações frágeis e bloqueios de QA antes de avançar.", risk ? "danger" : "success")}
       ${compassCard("claims", claims, "Publicação", "Afirmações e decisões prontas para revisão editorial.", claims ? "success" : "warning")}
     </div>
+    <div class="investigation-spine" aria-label="Fio da investigação">
+      ${spineNode("Pergunta", "O que precisa ser respondido com evidência?", "current")}
+      ${spineNode("Prova", `${evidence} itens mapeados para sustentar a apuração.`, evidence ? "ready" : "pending")}
+      ${spineNode("Lacuna", risk ? `${risk} pontos ainda pedem cuidado editorial.` : "Sem bloqueio crítico registrado.", risk ? "alert" : "ready")}
+      ${spineNode("Afirmação", claims ? `${claims} afirmações para revisar antes de publicar.` : "Ainda sem afirmação publicável mapeada.", claims ? "ready" : "pending")}
+    </div>
   `;
 
   executiveSummary.insertAdjacentElement("afterend", compass);
+}
+
+function spineNode(label, copy, tone) {
+  return `
+    <article class="spine-node ${tone}">
+      <strong>${label}</strong>
+      <span>${copy}</span>
+    </article>
+  `;
 }
 
 function compassCard(tab, value, title, copy, tone) {
