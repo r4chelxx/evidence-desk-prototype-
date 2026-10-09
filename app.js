@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa20";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa21";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -330,6 +330,13 @@ const dictionary = {
     origin: "Origem",
     claimMatrixTitle: "Matriz afirmação-evidência",
     claimMatrixHeading: "Verifique se afirmações publicáveis estão sustentadas.",
+    claimDashboardTitle: "Painel de afirmações",
+    claimDashboardCopy: "Veja rapidamente o que pode avançar, o que precisa de cautela e o que ainda depende de evidência.",
+    totalClaims: "Afirmações mapeadas",
+    claimsWithSupport: "Com sustentação forte",
+    claimsNeedingCare: "Exigem cautela",
+    highRiskClaims: "Alto risco",
+    noHighRiskClaims: "Nenhuma afirmação de alto risco",
     claim: "Afirmação",
     evidence: "Evidência",
     evidenceRelation: "Relação",
@@ -785,6 +792,13 @@ const dictionary = {
     origin: "Origin",
     claimMatrixTitle: "Claim-to-evidence matrix",
     claimMatrixHeading: "Check whether publishable claims are supported.",
+    claimDashboardTitle: "Claims dashboard",
+    claimDashboardCopy: "Quickly see what can move forward, what needs caution and what still depends on evidence.",
+    totalClaims: "Mapped claims",
+    claimsWithSupport: "Strongly supported",
+    claimsNeedingCare: "Need caution",
+    highRiskClaims: "High risk",
+    noHighRiskClaims: "No high-risk claim",
     claim: "Claim",
     evidence: "Evidence",
     evidenceRelation: "Relation",
@@ -1235,6 +1249,13 @@ dictionary.es = {
   gapsHeading: "Convierte evidências ausentes en acciones de seguimiento.",
   claimMatrixTitle: "Matriz afirmacion-evidência",
   claimMatrixHeading: "Verifique si las afirmaciones públicables estan sustentadas.",
+  claimDashboardTitle: "Panel de afirmaciones",
+  claimDashboardCopy: "Vea rápidamente qué puede avanzar, qué exige cautela y qué aún depende de evidencia.",
+  totalClaims: "Afirmaciones mapeadas",
+  claimsWithSupport: "Con sustento fuerte",
+  claimsNeedingCare: "Exigen cautela",
+  highRiskClaims: "Alto riesgo",
+  noHighRiskClaims: "Ninguna afirmación de alto riesgo",
   claim: "Afirmacion",
   evidence: "Evidência",
   evidenceRelation: "Relacion",
@@ -2077,8 +2098,44 @@ function statusClass(value = "") {
 
 function countOpenClaims(investigation) {
   return investigation.claims.filter((claim) => {
-    const status = claim.status.toLowerCase();
+    const status = (claim.status || "").toLowerCase();
     return status.includes("precisa") || status.includes("needs") || status.includes("partial");
+  }).length;
+}
+
+function countStrongSupportedClaims(investigation) {
+  return investigation.claims.filter((claim) => {
+    const relation = (claim.relation || "").toLowerCase();
+    const strength = (claim.strength || "").toLowerCase();
+    const risk = (claim.risk || "").toLowerCase();
+
+    return (
+      (relation.includes("sustenta") || relation.includes("support") || relation.includes("sostiene")) &&
+      (strength.includes("forte") || strength.includes("strong") || strength.includes("fuerte")) &&
+      (risk.includes("baixo") || risk.includes("low") || risk.includes("bajo"))
+    );
+  }).length;
+}
+
+function countHighRiskClaims(investigation) {
+  return investigation.claims.filter((claim) => statusClass(claim.risk) === "danger").length;
+}
+
+function countClaimsNeedingCare(investigation) {
+  return investigation.claims.filter((claim) => {
+    const relationTone = statusClass(claim.relation);
+    const strengthTone = statusClass(claim.strength);
+    const riskTone = statusClass(claim.risk);
+    const status = (claim.status || "").toLowerCase();
+
+    return (
+      relationTone !== "success" ||
+      strengthTone !== "success" ||
+      riskTone === "danger" ||
+      status.includes("precisa") ||
+      status.includes("needs") ||
+      status.includes("cautel")
+    );
   }).length;
 }
 
@@ -4130,6 +4187,7 @@ function renderGapAddForm() {
 function renderClaims(item) {
   return `
     ${renderClaimAddForm()}
+    ${renderClaimsDashboard(item)}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
@@ -4158,6 +4216,65 @@ function renderClaims(item) {
         </tbody>
       </table>
     </div>
+  `;
+}
+
+function renderClaimsDashboard(item) {
+  const strongSupported = countStrongSupportedClaims(item);
+  const claimsNeedingCare = countClaimsNeedingCare(item);
+  const highRiskClaims = countHighRiskClaims(item);
+  const firstHighRiskClaim = item.claims.find((claim) => statusClass(claim.risk) === "danger");
+  const highRiskDetail = firstHighRiskClaim?.text || t("noHighRiskClaims");
+  const cards = [
+    {
+      label: t("totalClaims"),
+      value: item.claims.length,
+      detail: t("claimMatrixHeading"),
+      tone: item.claims.length ? "warning" : "neutral",
+    },
+    {
+      label: t("claimsWithSupport"),
+      value: strongSupported,
+      detail: t("publishRule"),
+      tone: strongSupported ? "success" : "warning",
+    },
+    {
+      label: t("claimsNeedingCare"),
+      value: claimsNeedingCare,
+      detail: t("workflowClaimsCopy"),
+      tone: claimsNeedingCare ? "warning" : "success",
+    },
+    {
+      label: t("highRiskClaims"),
+      value: highRiskClaims,
+      detail: highRiskDetail,
+      tone: highRiskClaims ? "danger" : "success",
+    },
+  ];
+
+  return `
+    <section class="claim-dashboard">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("claimDashboardTitle")}</p>
+          <h3>${t("claimDashboardCopy")}</h3>
+        </div>
+        ${helpTip(t("workflowClaimsCopy"))}
+      </div>
+      <div class="claim-dashboard-grid">
+        ${cards
+          .map(
+            (card) => `
+              <article class="summary-tile compact-summary ${card.tone}">
+                <span>${card.label}</span>
+                <strong>${card.value}</strong>
+                <p>${escapeHtml(card.detail)}</p>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
   `;
 }
 
