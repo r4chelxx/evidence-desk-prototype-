@@ -1,0 +1,122 @@
+.investigation-compass {
+  align-items: stretch;
+  background:
+    linear-gradient(135deg, rgba(241, 103, 34, 0.08), transparent 38%),
+    rgba(255, 253, 247, 0.88);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.6fr);
+  margin: 1.2rem 0 1.35rem;
+  padding: 1rem;
+}
+
+.compass-core {
+  align-content: center;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  display: grid;
+  min-height: 232px;
+  padding: 1rem;
+}
+
+.compass-core h3 {
+  font-size: 1.35rem;
+  line-height: 1.18;
+  margin: 0.35rem 0 0.8rem;
+}
+
+.compass-core span {
+  align-self: end;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.compass-orbit {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compass-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid #cfc7b8;
+  border-radius: 0.5rem;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 0.45rem;
+  padding: 0.9rem;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.compass-card.success {
+  border-left-color: var(--green);
+}
+
+.compass-card.warning {
+  border-left-color: var(--yellow);
+}
+
+.compass-card.danger {
+  border-left-color: var(--red);
+}
+
+.compass-card:hover,
+.compass-card:focus-visible {
+  border-color: var(--ink);
+  box-shadow: 0 10px 24px rgba(36, 28, 15, 0.08);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.compass-value {
+  color: var(--orange);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.compass-card strong {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.compass-card small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.compass-card em {
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .investigation-compass {
+    grid-template-columns: 1fr;
+  }
+
+  .compass-core {
+    min-height: auto;
+  }
+
+  .compass-orbit {
+    grid-template-columns: 1fr;
+  }
+
+  .compass-core h3 {
+    font-size: 1.18rem;
+  }
+}
