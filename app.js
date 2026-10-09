@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa21";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa22";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -7,9 +7,34 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function readLocalStorage(key) {
+  try {
+    return window.localStorage?.getItem(key) || null;
+  } catch (error) {
+    console.warn(`Could not read ${key}`, error);
+    return null;
+  }
+}
+
+function writeLocalStorage(key, value) {
+  try {
+    window.localStorage?.setItem(key, value);
+  } catch (error) {
+    console.warn(`Could not save ${key}`, error);
+  }
+}
+
+function removeLocalStorage(key) {
+  try {
+    window.localStorage?.removeItem(key);
+  } catch (error) {
+    console.warn(`Could not remove ${key}`, error);
+  }
+}
+
 function loadInvestigations() {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readLocalStorage(STORAGE_KEY);
     if (!stored) return clone(seedInvestigations);
     const parsed = JSON.parse(stored);
     if (!Array.isArray(parsed) || !parsed.length) return clone(seedInvestigations);
@@ -24,7 +49,7 @@ let investigations = loadInvestigations();
 
 function loadUiState() {
   try {
-    const stored = localStorage.getItem(UI_STORAGE_KEY);
+    const stored = readLocalStorage(UI_STORAGE_KEY);
     if (!stored) return {};
     const parsed = JSON.parse(stored);
     return parsed && typeof parsed === "object" ? parsed : {};
@@ -1612,11 +1637,11 @@ function getCurrentInvestigation() {
 }
 
 function saveInvestigations() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(investigations));
+  writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
 }
 
 function saveUiState() {
-  localStorage.setItem(
+  writeLocalStorage(
     UI_STORAGE_KEY,
     JSON.stringify({
       view: state.view,
@@ -1646,7 +1671,7 @@ function resetDraft() {
 
 function resetLocalInvestigations() {
   investigations = clone(seedInvestigations);
-  localStorage.removeItem(STORAGE_KEY);
+  removeLocalStorage(STORAGE_KEY);
   state.currentId = investigations[0].id;
   state.currentTab = "overview";
   state.view = "dashboard";
