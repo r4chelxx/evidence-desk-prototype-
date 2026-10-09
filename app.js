@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa19";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa20";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -297,6 +297,13 @@ const dictionary = {
     ifNothingArrives: "Se nada chegar",
     requestsEyebrow: "Pedidos",
     requestsTitle: "Acompanhe pedidos feitos fora da plataforma.",
+    requestsCommandCenter: "Painel de pedidos",
+    requestsCommandCopy: "Resumo do que já foi pedido, recebido, comparado e precisa de follow-up.",
+    totalRequests: "Pedidos registrados",
+    reviewedResponses: "Respostas revisadas",
+    nextFollowUp: "Próximo follow-up",
+    noFollowUpNeeded: "Nenhum follow-up prioritário",
+    attentionNeeded: "Atenção agora",
     methodSafeguards: "Salvaguardas metodológicas",
     methodSafeguardsTitle: "Regras que impedem a ferramenta de exagerar evidências.",
     processGuide: "Guia de processo",
@@ -745,6 +752,13 @@ const dictionary = {
     ifNothingArrives: "If nothing arrives",
     requestsEyebrow: "Requests",
     requestsTitle: "Track requests made outside the platform.",
+    requestsCommandCenter: "Request dashboard",
+    requestsCommandCopy: "Summary of what was requested, received, compared and needs follow-up.",
+    totalRequests: "Registered requests",
+    reviewedResponses: "Reviewed responses",
+    nextFollowUp: "Next follow-up",
+    noFollowUpNeeded: "No priority follow-up",
+    attentionNeeded: "Needs attention now",
     methodSafeguards: "Method safeguards",
     methodSafeguardsTitle: "Rules that keep the tool from overstating evidence.",
     processGuide: "Process guide",
@@ -1190,7 +1204,15 @@ dictionary.es = {
   responseReviewRule: "Regla de revision",
   responseReviewRuleCopy: "Una respuesta solo se convierte en evidência despues de abrir archivos, revisar anexos, checar campos y registrar limites.",
   ifNothingArrives: "Si no llega nada",
+  requestsEyebrow: "Solicitudes",
   requestsTitle: "Siga solicitudes hechas fuera de la plataforma.",
+  requestsCommandCenter: "Panel de solicitudes",
+  requestsCommandCopy: "Resumen de lo que fue solicitado, recibido, comparado y necesita seguimiento.",
+  totalRequests: "Solicitudes registradas",
+  reviewedResponses: "Respuestas revisadas",
+  nextFollowUp: "Próximo seguimiento",
+  noFollowUpNeeded: "Ningún seguimiento prioritario",
+  attentionNeeded: "Atención ahora",
   methodSafeguards: "Salvaguardas metodológicas",
   methodSafeguardsTitle: "Reglas que evitan que la herramienta exagere evidências.",
   processGuideTitle: "Flujo atento a la jurisdiccion, todavia controlado por la repórtera.",
@@ -2897,12 +2919,73 @@ function renderPlanAddForms() {
 function renderRequestsWorkspace(item) {
   return `
     ${renderRequestAddForm()}
+    ${renderRequestsCommandCenter(item)}
     ${renderRequests(item)}
     ${renderResponses(item)}
     ${renderDeadlines(item)}
     ${renderRequestComparison(item)}
     ${renderTransparencyLog(item)}
     ${renderFollowUps(item)}
+  `;
+}
+
+function renderRequestsCommandCenter(item) {
+  const lateRequests = countLateRequests(item);
+  const reviewedResponses = countReviewedResponses(item);
+  const followUps = item.followUpDrafts || [];
+  const nextFollowUp = followUps.find((draft) => !draft.status?.toLowerCase().includes("enviado")) || followUps[0];
+  const attentionCount = lateRequests + countRequestFollowUps(item);
+
+  const cards = [
+    {
+      label: t("totalRequests"),
+      value: item.requests.length,
+      detail: `${item.requestComparisons.length} ${t("requestComparison").toLowerCase()}`,
+      tone: item.requests.length ? "warning" : "neutral",
+    },
+    {
+      label: t("reviewedResponses"),
+      value: reviewedResponses,
+      detail: t("responseReviewRule"),
+      tone: reviewedResponses ? "success" : "warning",
+    },
+    {
+      label: t("attentionNeeded"),
+      value: attentionCount,
+      detail: `${lateRequests} ${t("lateRequests")} / ${countRequestFollowUps(item)} ${t("followUps").toLowerCase()}`,
+      tone: attentionCount ? "danger" : "success",
+    },
+    {
+      label: t("nextFollowUp"),
+      value: followUps.length,
+      detail: nextFollowUp?.title || t("noFollowUpNeeded"),
+      tone: nextFollowUp ? statusClass(nextFollowUp.status) : "success",
+    },
+  ];
+
+  return `
+    <section class="request-command">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("requestsCommandCenter")}</p>
+          <h3>${t("requestsCommandCopy")}</h3>
+        </div>
+        ${helpTip(t("responseReviewRuleCopy"))}
+      </div>
+      <div class="request-command-grid">
+        ${cards
+          .map(
+            (card) => `
+              <article class="summary-tile compact-summary ${card.tone}">
+                <span>${card.label}</span>
+                <strong>${card.value}</strong>
+                <p>${card.detail}</p>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
   `;
 }
 
