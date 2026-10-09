@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa24";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa25";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -257,6 +257,13 @@ const dictionary = {
     quickActions: "Ações rápidas",
     quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
     executiveSummary: "Resumo executivo",
+    readinessTitle: "Prontidão da investigação",
+    readinessHeading: "Veja o que já está estruturado e o que ainda precisa de decisão antes dos testes.",
+    readinessReady: "Pronto",
+    readinessReview: "Revisar",
+    readinessAction: "Agir",
+    readinessBlocked: "Bloqueado",
+    openStep: "Abrir etapa",
     summaryEvidence: "Evidências mapeadas",
     summaryRequests: "Pedidos monitorados",
     summaryRisk: "Riscos abertos",
@@ -719,6 +726,13 @@ const dictionary = {
     quickActions: "Quick actions",
     quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
     executiveSummary: "Executive summary",
+    readinessTitle: "Investigation readiness",
+    readinessHeading: "See what is already structured and what still needs a decision before testing.",
+    readinessReady: "Ready",
+    readinessReview: "Review",
+    readinessAction: "Act",
+    readinessBlocked: "Blocked",
+    openStep: "Open step",
     summaryEvidence: "Mapped evidence",
     summaryRequests: "Tracked requests",
     summaryRisk: "Open risks",
@@ -1184,6 +1198,13 @@ dictionary.es = {
   quickActions: "Acciones rapidas",
   quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
   executiveSummary: "Resumen ejecutivo",
+  readinessTitle: "Preparación de la investigación",
+  readinessHeading: "Vea qué ya está estructurado y qué todavía necesita decisión antes de las pruebas.",
+  readinessReady: "Listo",
+  readinessReview: "Revisar",
+  readinessAction: "Actuar",
+  readinessBlocked: "Bloqueado",
+  openStep: "Abrir etapa",
   summaryEvidence: "Evidencias mapeadas",
   summaryRequests: "Solicitudes monitoreadas",
   summaryRisk: "Riesgos abiertos",
@@ -2164,6 +2185,56 @@ function countClaimsNeedingCare(investigation) {
   }).length;
 }
 
+function readinessStatus(tone) {
+  if (tone === "success") return t("readinessReady");
+  if (tone === "danger") return t("readinessBlocked");
+  if (tone === "warning") return t("readinessReview");
+  return t("readinessAction");
+}
+
+function getReadinessItems(item) {
+  const contextReady = Boolean(item.accessLaw?.framework) && (item.sourceDiscovery?.length || item.sources.length);
+  const evidenceReady = item.hypotheses.length > 0 && item.evidenceBlocks.length > 0 && item.sources.length > 0;
+  const requestAttention = countLateRequests(item) + countRequestFollowUps(item);
+  const requestsReady = item.requests.length > 0 && item.requestComparisons.length > 0 && (item.transparencyLog || []).length > 0;
+  const claimsNeedingCare = countClaimsNeedingCare(item);
+  const highRiskClaims = countHighRiskClaims(item);
+  const qaBlockers = countQaBlockers(item);
+
+  return [
+    {
+      tab: "context",
+      title: t("context"),
+      detail: `${item.country} / ${item.jurisdiction || item.territory} / ${item.sourceDiscovery?.length || item.sources.length} ${t("sources").toLowerCase()}`,
+      tone: contextReady ? "success" : "warning",
+    },
+    {
+      tab: "plan",
+      title: t("planTab"),
+      detail: `${item.hypotheses.length} ${t("hypotheses").toLowerCase()} / ${item.evidenceBlocks.length} ${t("evidenceBlocksMetric")}`,
+      tone: evidenceReady ? "success" : "warning",
+    },
+    {
+      tab: "requests",
+      title: t("requestsWorkspace"),
+      detail: `${item.requests.length} ${t("requests").toLowerCase()} / ${requestAttention} ${t("attentionNeeded").toLowerCase()}`,
+      tone: requestAttention ? "danger" : requestsReady ? "success" : "warning",
+    },
+    {
+      tab: "claims",
+      title: t("claims"),
+      detail: `${item.claims.length} ${t("claims").toLowerCase()} / ${claimsNeedingCare} ${t("claimsNeedingCare").toLowerCase()}`,
+      tone: highRiskClaims ? "danger" : claimsNeedingCare ? "warning" : item.claims.length ? "success" : "neutral",
+    },
+    {
+      tab: "qa",
+      title: "QA",
+      detail: `${qaBlockers} ${t("qaBlockers")} / ${countReviewItems(item)} ${t("reviewItems")}`,
+      tone: qaBlockers ? "danger" : item.qaChecklist?.length ? "success" : "warning",
+    },
+  ];
+}
+
 function countOpenGaps(investigation) {
   return investigation.gaps.filter((gap) => !["resolvida", "resolved"].includes(gap.status.toLowerCase())).length;
 }
@@ -3142,6 +3213,7 @@ function renderOverview(item) {
       <p>${item.description}</p>
     </section>
     ${renderExecutiveSummary(item)}
+    ${renderReadinessPanel(item)}
     <section class="metrics-grid">
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
@@ -3188,6 +3260,42 @@ function renderOverview(item) {
         <h3>${t("editorialSafetyRule")}</h3>
         <p>${t("editorialSafetyCopy")}</p>
       </article>
+    </section>
+  `;
+}
+
+function renderReadinessPanel(item) {
+  const items = getReadinessItems(item);
+
+  return `
+    <section class="readiness-panel">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("readinessTitle")}</p>
+          <h3>${t("readinessHeading")}</h3>
+        </div>
+        ${helpTip(t("qaChecklistHeading"))}
+      </div>
+      <div class="readiness-grid">
+        ${items
+          .map(
+            (readinessItem) => `
+              <article class="readiness-card ${readinessItem.tone}">
+                <div>
+                  <div class="card-footer top">
+                    <h3>${readinessItem.title}</h3>
+                    <span class="pill ${readinessItem.tone}">${readinessStatus(readinessItem.tone)}</span>
+                  </div>
+                  <p>${readinessItem.detail}</p>
+                </div>
+                <button class="button secondary active-secondary" data-action="tab" data-tab="${readinessItem.tab}">
+                  ${t("openStep")}
+                </button>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
