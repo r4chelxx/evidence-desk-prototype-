@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa18";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa19";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -480,6 +480,19 @@ const dictionary = {
     workflowRequestsCopy: "Registre prazos, materiais recebidos, anexos ausentes e próximos passos.",
     workflowClaimsTitle: "Revise afirmações publicáveis",
     workflowClaimsCopy: "Só avance quando cada afirmação tiver evidência, relação, força, risco e ressalva.",
+    navGroupStart: "Comece",
+    navGroupInvestigate: "Apure",
+    navGroupDecide: "Decida",
+    navGroupExport: "Exporte",
+    tabGuideTitle: "Como usar esta área",
+    tabGuideOverview: "Use a visão geral para entender o estado da pauta e decidir onde entrar primeiro.",
+    tabGuideContext: "Confirme território, idioma e regra de acesso antes de confiar em prazos, bases ou fontes.",
+    tabGuidePlan: "Transforme a pergunta em hipóteses, blocos de evidência e fontes verificáveis.",
+    tabGuideRequests: "Registre pedidos feitos fora da plataforma, compare respostas e acompanhe próximos passos.",
+    tabGuideEditorial: "Converta lacunas, prazos e riscos em ações humanas controladas.",
+    tabGuideClaims: "Só avance afirmações quando relação, força, risco e evidência estiverem explícitos.",
+    tabGuideQa: "Use o checklist para encontrar bloqueios antes de demo, publicação ou automação.",
+    tabGuideMethodology: "Exporte uma nota transparente sobre evidências, limites, pedidos e decisões.",
     addToPlan: "Adicionar ao plano",
     addHypothesisTitle: "Adicionar hipótese de trabalho",
     hypothesisTextLabel: "Hipótese",
@@ -919,6 +932,19 @@ const dictionary = {
     workflowRequestsCopy: "Log deadlines, received material, missing attachments and next steps.",
     workflowClaimsTitle: "Review publishable claims",
     workflowClaimsCopy: "Move forward only when each claim has evidence, relation, strength, risk and caveat.",
+    navGroupStart: "Start",
+    navGroupInvestigate: "Report",
+    navGroupDecide: "Decide",
+    navGroupExport: "Export",
+    tabGuideTitle: "How to use this area",
+    tabGuideOverview: "Use the overview to understand the story status and choose where to enter first.",
+    tabGuideContext: "Confirm territory, language and access rules before trusting deadlines, datasets or sources.",
+    tabGuidePlan: "Turn the question into hypotheses, evidence blocks and verifiable source paths.",
+    tabGuideRequests: "Log requests made outside the platform, compare responses and track next steps.",
+    tabGuideEditorial: "Turn gaps, deadlines and risks into controlled human actions.",
+    tabGuideClaims: "Move claims forward only when relation, strength, risk and evidence are explicit.",
+    tabGuideQa: "Use the checklist to catch blockers before demo, publication or automation.",
+    tabGuideMethodology: "Export a transparent note about evidence, limits, requests and decisions.",
     addToPlan: "Add to plan",
     addHypothesisTitle: "Add working hypothesis",
     hypothesisTextLabel: "Hypothesis",
@@ -1305,6 +1331,19 @@ dictionary.es = {
   workflowRequestsCopy: "Registre plazos, material recibido, anexos ausentes y próximos pasos.",
   workflowClaimsTitle: "Revise afirmaciones públicables",
   workflowClaimsCopy: "Avance solo cuando cada afirmación tenga evidência, relación, fuerza, riesgo y salvedad.",
+  navGroupStart: "Empiece",
+  navGroupInvestigate: "Investigue",
+  navGroupDecide: "Decida",
+  navGroupExport: "Exporte",
+  tabGuideTitle: "Como usar esta área",
+  tabGuideOverview: "Use la vista general para entender el estado de la pauta y decidir por donde empezar.",
+  tabGuideContext: "Confirme território, idioma y reglas de acceso antes de confiar en plazos, bases o fuentes.",
+  tabGuidePlan: "Convierta la pregunta en hipótesis, bloques de evidência y fuentes verificables.",
+  tabGuideRequests: "Registre solicitudes hechas fuera de la plataforma, compare respuestas y acompanhe próximos pasos.",
+  tabGuideEditorial: "Convierta vacios, plazos y riesgos en acciones humanas controladas.",
+  tabGuideClaims: "Avance afirmaciones solo cuando relación, fuerza, riesgo y evidência estén explícitos.",
+  tabGuideQa: "Use el checklist para encontrar bloqueos antes de demo, publicación o automatización.",
+  tabGuideMethodology: "Exporte una nota transparente sobre evidências, limites, solicitudes y decisiones.",
   addToPlan: "Agregar al plan",
   addHypothesisTitle: "Agregar hipótesis de trabajo",
   hypothesisTextLabel: "Hipótesis",
@@ -2661,27 +2700,55 @@ function validateDraft() {
 
 function renderInvestigation() {
   const item = getCurrentInvestigation();
-  const tabs = [
-    ["overview", t("overview")],
-    ["context", t("context")],
-    ["plan", t("planTab")],
-    ["requests", t("requestsWorkspace")],
-    ["editorial", t("editorialWorkspace")],
-    ["claims", t("claims")],
-    ["qa", "QA"],
-    ["methodology", t("methodology")],
+  const tabGroups = [
+    {
+      label: t("navGroupStart"),
+      tabs: [
+        ["overview", t("overview")],
+        ["context", t("context")],
+      ],
+    },
+    {
+      label: t("navGroupInvestigate"),
+      tabs: [
+        ["plan", t("planTab")],
+        ["requests", t("requestsWorkspace")],
+      ],
+    },
+    {
+      label: t("navGroupDecide"),
+      tabs: [
+        ["editorial", t("editorialWorkspace")],
+        ["claims", t("claims")],
+        ["qa", "QA"],
+      ],
+    },
+    {
+      label: t("navGroupExport"),
+      tabs: [["methodology", t("methodology")]],
+    },
   ];
+  const tabs = tabGroups.flatMap((group) => group.tabs);
 
   if (!tabs.some(([id]) => id === state.currentTab)) {
     state.currentTab = "overview";
   }
 
-  const nav = tabs
+  const nav = tabGroups
     .map(
-      ([id, label]) => `
-        <button class="tab ${state.currentTab === id ? "active" : ""}" data-action="tab" data-tab="${id}">
-          ${label}
-        </button>
+      (group) => `
+        <section class="tab-group">
+          <p>${group.label}</p>
+          ${group.tabs
+            .map(
+              ([id, label]) => `
+                <button class="tab ${state.currentTab === id ? "active" : ""}" data-action="tab" data-tab="${id}">
+                  ${label}
+                </button>
+              `,
+            )
+            .join("")}
+        </section>
       `,
     )
     .join("");
@@ -2695,6 +2762,7 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
+        ${renderTabGuide()}
         <nav class="tabs">${nav}</nav>
       </aside>
       <section class="content">
@@ -2716,6 +2784,26 @@ function renderTab(item) {
     methodology: renderMethodology,
   };
   return renderers[state.currentTab](item);
+}
+
+function renderTabGuide() {
+  const guideByTab = {
+    overview: t("tabGuideOverview"),
+    context: t("tabGuideContext"),
+    plan: t("tabGuidePlan"),
+    requests: t("tabGuideRequests"),
+    editorial: t("tabGuideEditorial"),
+    claims: t("tabGuideClaims"),
+    qa: t("tabGuideQa"),
+    methodology: t("tabGuideMethodology"),
+  };
+
+  return `
+    <aside class="tab-guide">
+      <p class="eyebrow">${t("tabGuideTitle")}</p>
+      <p>${guideByTab[state.currentTab] || guideByTab.overview}</p>
+    </aside>
+  `;
 }
 
 function renderContextWorkspace(item) {
