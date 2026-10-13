@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa25";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa26";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -256,7 +256,46 @@ const dictionary = {
     centralQuestion: "Pergunta central",
     quickActions: "Ações rápidas",
     quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
+    currentArea: "Área atual",
+    mobileNavHint: "Use as abas acima para mudar de etapa.",
     executiveSummary: "Resumo executivo",
+    investigationCompass: "Bússola da investigação",
+    investigationCompassHeading: "Quatro leituras rápidas do mesmo caso: prova, transparência, risco e publicação.",
+    compassEvidenceTitle: "Linha de prova",
+    compassEvidenceCopy: "Hipóteses, fontes e blocos de evidência já mapeados.",
+    compassAccessTitle: "Transparência",
+    compassAccessCopy: "Pedidos, respostas, comparações e follow-ups sob controle.",
+    compassRiskTitle: "Risco editorial",
+    compassRiskCopy: "Lacunas, claims frágeis e bloqueios de QA antes de avançar.",
+    compassPublishTitle: "Publicação",
+    compassPublishCopy: "Afirmações fortes, metodologia e decisões prontas para revisão.",
+    compassOpen: "Ver área",
+    investigationThread: "Fio da investigação",
+    threadQuestion: "Pergunta",
+    threadQuestionCopy: "O que precisa ser respondido com evidência?",
+    threadProof: "Prova",
+    threadProofReady: "itens mapeados para sustentar a apuração.",
+    threadGap: "Lacuna",
+    threadGapReady: "Sem bloqueio crítico registrado.",
+    threadGapAlert: "pontos ainda pedem cuidado editorial.",
+    threadClaim: "Afirmação",
+    threadClaimReady: "afirmações para revisar antes de publicar.",
+    threadClaimPending: "Ainda sem afirmação publicável mapeada.",
+    dataAuditTitle: "Auditoria do caso",
+    dataAuditHeading: "Antes do teste editorial, confira vínculos, prazos e riscos estruturais.",
+    dataAuditOk: "Sem bloqueio estrutural detectado.",
+    dataAuditReview: "Atenção",
+    dataAuditBlocked: "Bloqueio",
+    dataAuditReady: "OK",
+    auditDuplicateIds: "Há IDs duplicados nos dados carregados.",
+    auditNoRequests: "A investigação ainda não tem pedidos registrados.",
+    auditRequestWithoutComparison: "pedido(s) ainda não têm comparação pedido-resposta.",
+    auditComparisonWithoutRequest: "comparação(ões) não batem com nenhum pedido registrado.",
+    auditClaimWithoutEvidence: "afirmação(ões) ainda não apontam evidência.",
+    auditClaimWeak: "afirmação(ões) têm sustentação insuficiente ou relação indefinida.",
+    auditHighRiskClaim: "afirmação(ões) de alto risco exigem revisão antes de publicação.",
+    auditOverdueRequests: "pedido(s) passaram do prazo/checkpoint.",
+    auditOpenQaBlockers: "bloqueio(s) de QA seguem abertos.",
     readinessTitle: "Prontidão da investigação",
     readinessHeading: "Veja o que já está estruturado e o que ainda precisa de decisão antes dos testes.",
     readinessReady: "Pronto",
@@ -369,6 +408,51 @@ const dictionary = {
     claimsNeedingCare: "Exigem cautela",
     highRiskClaims: "Alto risco",
     noHighRiskClaims: "Nenhuma afirmação de alto risco",
+    reportingMapTitle: "Mapa de apuração",
+    reportingMapHeading: "Conecte hipótese, evidência necessária e caminho provável de fonte.",
+    reportingMapCopy: "Use este mapa para enxergar se uma hipótese já tem prova, fonte e limite antes de virar afirmação.",
+    evidencePath: "Caminho de evidência",
+    sourcePath: "Caminho de fonte",
+    evidenceInventoryTitle: "Inventário de evidências",
+    evidenceInventoryHeading: "Veja todos os blocos mapeados, inclusive os que ainda não entraram no mapa.",
+    evidenceCoverage: "Cobertura",
+    caseTestTitle: "Pré-teste editorial",
+    caseTestHeading: "Roteiro rápido para testar esta investigação antes de mexer nos dados reais.",
+    caseTestReady: "Pronto para testar",
+    caseTestReview: "Revisar antes do teste",
+    fullFlowTestTitle: "Roteiro de teste completo",
+    fullFlowTestHeading: "Execute uma rodada guiada do início à nota metodológica.",
+    testStepOpen: "Abrir estado do caso",
+    testStepPlan: "Traçar uma hipótese",
+    testStepRequests: "Classificar um pedido",
+    testStepClaims: "Decidir uma afirmação",
+    testStepMethod: "Conferir exportação",
+    testExpected: "O que observar",
+    testStepOpenExpected: "A pessoa entende situação, risco e próxima etapa sem explicação externa.",
+    testStepPlanExpected: "A pessoa consegue seguir hipótese, evidência e fonte provável.",
+    testStepRequestsExpected: "A pessoa identifica status do pedido e próxima ação segura.",
+    testStepClaimsExpected: "A pessoa diferencia avançar, ressalvar ou segurar uma afirmação.",
+    testStepMethodExpected: "A pessoa encontra limites, QA e nota exportável.",
+    testContextCheck: "Contexto e jurisdição estão legíveis.",
+    testPlanCheck: "Hipóteses, evidências e fontes aparecem como caminho de apuração.",
+    testRequestCheck: "Pedidos têm status, prazo/checkpoint e próxima ação.",
+    testClaimCheck: "Afirmações têm decisão editorial e vínculo com evidência.",
+    testMethodCheck: "Metodologia exportável e QA estão disponíveis.",
+    requestBoardTitle: "Quadro de pedidos",
+    requestBoardHeading: "Veja o processo por situação, não apenas como lista.",
+    requestStageWaiting: "Aguardando",
+    requestStageProblem: "Atenção",
+    requestStageReceived: "Material recebido",
+    requestStageSeparate: "Fluxo separado",
+    requestStageNext: "Próxima ação",
+    noRequestsInStage: "Nenhum pedido nesta coluna.",
+    claimDecisionTitle: "Decisão editorial",
+    claimDecisionHeading: "Leia cada afirmação como uma decisão: avançar, limitar ou segurar.",
+    decisionAdvance: "Pode avançar",
+    decisionLimit: "Usar com ressalva",
+    decisionHold: "Segurar",
+    decisionEvidence: "Base",
+    decisionWhy: "Por quê",
     claim: "Afirmação",
     evidence: "Evidência",
     evidenceRelation: "Relação",
@@ -436,14 +520,7 @@ const dictionary = {
     translationNotesHeading: "Termos que exigem revisão humana.",
     notes: "Notas",
     glossary: "Glossário",
-    questionsHypotheses: "Perguntas e hipóteses",
-    hypothesesHeading: "Divida a pergunta central em partes testáveis.",
     secondaryQuestions: "Perguntas secundárias",
-    noSecondary: "Ainda não há perguntas secundárias registradas.",
-    relatedEvidence: "Evidência relacionada",
-    evidenceBlocksTitle: "Blocos de evidência",
-    evidenceBlocksHeading: "Que tipos de prova são necessários?",
-    evidenceBlocksCopy: "Blocos ajudam a separar o que precisa ser provado de onde a informação pode ser encontrada.",
     block: "Bloco",
     priorityLabel: "Prioridade",
     sourcesTitle: "Fontes e bases de dados",
@@ -725,7 +802,46 @@ const dictionary = {
     centralQuestion: "Central question",
     quickActions: "Quick actions",
     quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
+    currentArea: "Current area",
+    mobileNavHint: "Use the tabs above to switch steps.",
     executiveSummary: "Executive summary",
+    investigationCompass: "Investigation compass",
+    investigationCompassHeading: "Four quick readings of the same story: proof, transparency, risk and publication.",
+    compassEvidenceTitle: "Proof line",
+    compassEvidenceCopy: "Hypotheses, sources and evidence blocks already mapped.",
+    compassAccessTitle: "Transparency",
+    compassAccessCopy: "Requests, responses, comparisons and follow-ups under control.",
+    compassRiskTitle: "Editorial risk",
+    compassRiskCopy: "Gaps, fragile claims and QA blockers before moving forward.",
+    compassPublishTitle: "Publication",
+    compassPublishCopy: "Strong claims, methodology and decisions ready for review.",
+    compassOpen: "View area",
+    investigationThread: "Investigation thread",
+    threadQuestion: "Question",
+    threadQuestionCopy: "What must be answered with evidence?",
+    threadProof: "Proof",
+    threadProofReady: "mapped items supporting the reporting.",
+    threadGap: "Gap",
+    threadGapReady: "No critical blocker recorded.",
+    threadGapAlert: "points still need editorial care.",
+    threadClaim: "Claim",
+    threadClaimReady: "claims to review before publishing.",
+    threadClaimPending: "No publishable claim mapped yet.",
+    dataAuditTitle: "Case audit",
+    dataAuditHeading: "Before editorial testing, check links, deadlines and structural risks.",
+    dataAuditOk: "No structural blocker detected.",
+    dataAuditReview: "Attention",
+    dataAuditBlocked: "Blocker",
+    dataAuditReady: "OK",
+    auditDuplicateIds: "Loaded data has duplicate IDs.",
+    auditNoRequests: "The investigation has no tracked requests yet.",
+    auditRequestWithoutComparison: "request(s) still lack request-response comparison.",
+    auditComparisonWithoutRequest: "comparison(s) do not match any registered request.",
+    auditClaimWithoutEvidence: "claim(s) still lack linked evidence.",
+    auditClaimWeak: "claim(s) have insufficient support or undefined relation.",
+    auditHighRiskClaim: "high-risk claim(s) need review before publication.",
+    auditOverdueRequests: "request(s) passed the deadline/checkpoint.",
+    auditOpenQaBlockers: "open QA blocker(s) remain.",
     readinessTitle: "Investigation readiness",
     readinessHeading: "See what is already structured and what still needs a decision before testing.",
     readinessReady: "Ready",
@@ -838,6 +954,51 @@ const dictionary = {
     claimsNeedingCare: "Need caution",
     highRiskClaims: "High risk",
     noHighRiskClaims: "No high-risk claim",
+    reportingMapTitle: "Reporting map",
+    reportingMapHeading: "Connect hypothesis, required evidence and likely source path.",
+    reportingMapCopy: "Use this map to see whether a hypothesis already has proof, source and limit before becoming a claim.",
+    evidencePath: "Evidence path",
+    sourcePath: "Source path",
+    evidenceInventoryTitle: "Evidence inventory",
+    evidenceInventoryHeading: "See all mapped blocks, including those not yet shown in the map.",
+    evidenceCoverage: "Coverage",
+    caseTestTitle: "Editorial pre-test",
+    caseTestHeading: "Quick script to test this investigation before editing real data.",
+    caseTestReady: "Ready to test",
+    caseTestReview: "Review before testing",
+    fullFlowTestTitle: "Full-flow test script",
+    fullFlowTestHeading: "Run a guided round from opening status to methodology note.",
+    testStepOpen: "Open case status",
+    testStepPlan: "Trace one hypothesis",
+    testStepRequests: "Classify one request",
+    testStepClaims: "Decide one claim",
+    testStepMethod: "Check export",
+    testExpected: "What to observe",
+    testStepOpenExpected: "The tester understands status, risk and next step without external explanation.",
+    testStepPlanExpected: "The tester can follow hypothesis, evidence and likely source.",
+    testStepRequestsExpected: "The tester identifies request status and safe next action.",
+    testStepClaimsExpected: "The tester distinguishes advance, caveat or hold for a claim.",
+    testStepMethodExpected: "The tester finds limits, QA and an exportable note.",
+    testContextCheck: "Context and jurisdiction are readable.",
+    testPlanCheck: "Hypotheses, evidence and sources appear as a reporting path.",
+    testRequestCheck: "Requests have status, deadline/checkpoint and next action.",
+    testClaimCheck: "Claims have editorial decision and linked evidence.",
+    testMethodCheck: "Exportable methodology and QA are available.",
+    requestBoardTitle: "Request board",
+    requestBoardHeading: "See the process by situation, not only as a list.",
+    requestStageWaiting: "Waiting",
+    requestStageProblem: "Attention",
+    requestStageReceived: "Material received",
+    requestStageSeparate: "Separate track",
+    requestStageNext: "Next action",
+    noRequestsInStage: "No request in this column.",
+    claimDecisionTitle: "Editorial decision",
+    claimDecisionHeading: "Read each claim as a decision: advance, limit or hold.",
+    decisionAdvance: "Can advance",
+    decisionLimit: "Use with caveat",
+    decisionHold: "Hold",
+    decisionEvidence: "Basis",
+    decisionWhy: "Why",
     claim: "Claim",
     evidence: "Evidence",
     evidenceRelation: "Relation",
@@ -905,14 +1066,7 @@ const dictionary = {
     translationNotesHeading: "Terms that need human review.",
     notes: "Notes",
     glossary: "Glossary",
-    questionsHypotheses: "Questions and hypotheses",
-    hypothesesHeading: "Break the central question into testable parts.",
     secondaryQuestions: "Secondary questions",
-    noSecondary: "No secondary questions recorded yet.",
-    relatedEvidence: "Related evidence",
-    evidenceBlocksTitle: "Evidence blocks",
-    evidenceBlocksHeading: "What types of proof are needed?",
-    evidenceBlocksCopy: "Blocks help separate what must be proven from where the information might be found.",
     block: "Block",
     priorityLabel: "Priority",
     sourcesTitle: "Sources and databases",
@@ -1197,7 +1351,46 @@ dictionary.es = {
   centralQuestion: "Pregunta central",
   quickActions: "Acciones rapidas",
   quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
+  currentArea: "Área actual",
+  mobileNavHint: "Use las pestañas arriba para cambiar de etapa.",
   executiveSummary: "Resumen ejecutivo",
+  investigationCompass: "Brújula de la investigación",
+  investigationCompassHeading: "Cuatro lecturas rápidas del mismo caso: prueba, transparencia, riesgo y publicación.",
+  compassEvidenceTitle: "Línea de prueba",
+  compassEvidenceCopy: "Hipótesis, fuentes y bloques de evidencia ya mapeados.",
+  compassAccessTitle: "Transparencia",
+  compassAccessCopy: "Solicitudes, respuestas, comparaciones y follow-ups bajo control.",
+  compassRiskTitle: "Riesgo editorial",
+  compassRiskCopy: "Vacíos, afirmaciones frágiles y bloqueos de QA antes de avanzar.",
+  compassPublishTitle: "Publicación",
+  compassPublishCopy: "Afirmaciones fuertes, metodología y decisiones listas para revisión.",
+  compassOpen: "Ver área",
+  investigationThread: "Hilo de la investigación",
+  threadQuestion: "Pregunta",
+  threadQuestionCopy: "¿Qué debe responderse con evidencia?",
+  threadProof: "Prueba",
+  threadProofReady: "ítems mapeados para sostener la reportería.",
+  threadGap: "Vacío",
+  threadGapReady: "Sin bloqueo crítico registrado.",
+  threadGapAlert: "puntos aún piden cuidado editorial.",
+  threadClaim: "Afirmación",
+  threadClaimReady: "afirmaciones para revisar antes de publicar.",
+  threadClaimPending: "Aún no hay afirmación publicable mapeada.",
+  dataAuditTitle: "Auditoría del caso",
+  dataAuditHeading: "Antes de la prueba editorial, revise vínculos, plazos y riesgos estructurales.",
+  dataAuditOk: "Sin bloqueo estructural detectado.",
+  dataAuditReview: "Atención",
+  dataAuditBlocked: "Bloqueo",
+  dataAuditReady: "OK",
+  auditDuplicateIds: "Hay IDs duplicados en los datos cargados.",
+  auditNoRequests: "La investigación todavía no tiene solicitudes registradas.",
+  auditRequestWithoutComparison: "solicitud(es) todavía no tienen comparación solicitud-respuesta.",
+  auditComparisonWithoutRequest: "comparación(es) no coinciden con ninguna solicitud registrada.",
+  auditClaimWithoutEvidence: "afirmación(es) todavía no apuntan a evidencia.",
+  auditClaimWeak: "afirmación(es) tienen soporte insuficiente o relación indefinida.",
+  auditHighRiskClaim: "afirmación(es) de alto riesgo exigen revisión antes de publicación.",
+  auditOverdueRequests: "solicitud(es) pasaron del plazo/checkpoint.",
+  auditOpenQaBlockers: "bloqueo(s) de QA siguen abiertos.",
   readinessTitle: "Preparación de la investigación",
   readinessHeading: "Vea qué ya está estructurado y qué todavía necesita decisión antes de las pruebas.",
   readinessReady: "Listo",
@@ -1302,6 +1495,51 @@ dictionary.es = {
   claimsNeedingCare: "Exigen cautela",
   highRiskClaims: "Alto riesgo",
   noHighRiskClaims: "Ninguna afirmación de alto riesgo",
+  reportingMapTitle: "Mapa de reportería",
+  reportingMapHeading: "Conecte hipótesis, evidencia necesaria y camino probable de fuente.",
+  reportingMapCopy: "Use este mapa para ver si una hipótesis ya tiene prueba, fuente y límite antes de virar afirmación.",
+  evidencePath: "Camino de evidencia",
+  sourcePath: "Camino de fuente",
+  evidenceInventoryTitle: "Inventario de evidencias",
+  evidenceInventoryHeading: "Vea todos los bloques mapeados, incluso los que todavía no entraron en el mapa.",
+  evidenceCoverage: "Cobertura",
+  caseTestTitle: "Pre-test editorial",
+  caseTestHeading: "Guion rápido para probar esta investigación antes de editar datos reales.",
+  caseTestReady: "Listo para probar",
+  caseTestReview: "Revisar antes de probar",
+  fullFlowTestTitle: "Guion de prueba completa",
+  fullFlowTestHeading: "Ejecute una ronda guiada desde el estado del caso hasta la nota metodológica.",
+  testStepOpen: "Abrir estado del caso",
+  testStepPlan: "Trazar una hipótesis",
+  testStepRequests: "Clasificar una solicitud",
+  testStepClaims: "Decidir una afirmación",
+  testStepMethod: "Revisar exportación",
+  testExpected: "Qué observar",
+  testStepOpenExpected: "La persona entiende estado, riesgo y próxima etapa sin explicación externa.",
+  testStepPlanExpected: "La persona puede seguir hipótesis, evidencia y fuente probable.",
+  testStepRequestsExpected: "La persona identifica estado de solicitud y próxima acción segura.",
+  testStepClaimsExpected: "La persona diferencia avanzar, usar salvedad o retener una afirmación.",
+  testStepMethodExpected: "La persona encuentra límites, QA y nota exportable.",
+  testContextCheck: "Contexto y jurisdicción están legibles.",
+  testPlanCheck: "Hipótesis, evidencias y fuentes aparecen como camino de reportería.",
+  testRequestCheck: "Solicitudes tienen estado, plazo/checkpoint y próxima acción.",
+  testClaimCheck: "Afirmaciones tienen decisión editorial y vínculo con evidencia.",
+  testMethodCheck: "Metodología exportable y QA están disponibles.",
+  requestBoardTitle: "Tablero de solicitudes",
+  requestBoardHeading: "Vea el proceso por situación, no solo como lista.",
+  requestStageWaiting: "Esperando",
+  requestStageProblem: "Atención",
+  requestStageReceived: "Material recibido",
+  requestStageSeparate: "Flujo separado",
+  requestStageNext: "Próxima acción",
+  noRequestsInStage: "Ninguna solicitud en esta columna.",
+  claimDecisionTitle: "Decisión editorial",
+  claimDecisionHeading: "Lea cada afirmación como una decisión: avanzar, limitar o retener.",
+  decisionAdvance: "Puede avanzar",
+  decisionLimit: "Usar con salvedad",
+  decisionHold: "Retener",
+  decisionEvidence: "Base",
+  decisionWhy: "Por qué",
   claim: "Afirmacion",
   evidence: "Evidência",
   evidenceRelation: "Relacion",
@@ -1355,14 +1593,7 @@ dictionary.es = {
     "Traduzca libremente los rótulos de interfaz, pero localice leyes, plazos, organismos y tipos de fuente solo cuando la jurisdiccion sea conocida y revisada por la repórtera.",
   translationNotes: "Notas de traduccion",
   translationNotesHeading: "Terminos que requieren revision humana.",
-  questionsHypotheses: "Preguntas e hipotesis",
-  hypothesesHeading: "Divida la pregunta central en partes comprobables.",
   secondaryQuestions: "Preguntas secundárias",
-  noSecondary: "Aun no hay preguntas secundárias registradas.",
-  relatedEvidence: "Evidência relacionada",
-  evidenceBlocksTitle: "Bloques de evidência",
-  evidenceBlocksHeading: "Que tipos de prueba son necesarios?",
-  evidenceBlocksCopy: "Los bloques ayudan a separar lo que debe probarse de donde puede encontrarse la informacion.",
   prototypeLimits: "Limites del protótipo",
   prototypeLimitsTitle: "Que esta probado ahora y que aun no debe prometerse",
   currentBehavior: "Comportamiento actual",
@@ -2120,8 +2351,15 @@ function escapeHtml(value = "") {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeText(value = "") {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function statusClass(value = "") {
-  const normalized = value.toLowerCase();
+  const normalized = normalizeText(value);
   if (normalized.includes("critica") || normalized.includes("high") || normalized.includes("alto")) return "danger";
   if (normalized.includes("blocked") || normalized.includes("bloqueado")) return "danger";
   if (normalized.includes("sem resposta") || normalized.includes("without attachment")) return "danger";
@@ -2941,6 +3179,7 @@ function renderInvestigation() {
         <nav class="tabs">${nav}</nav>
       </aside>
       <section class="content">
+        ${renderMobileTabContext()}
         ${renderTab(item)}
       </section>
     </main>
@@ -2981,6 +3220,38 @@ function renderTabGuide() {
   `;
 }
 
+function renderMobileTabContext() {
+  const labels = {
+    overview: t("overview"),
+    context: t("context"),
+    plan: t("planTab"),
+    requests: t("requestsWorkspace"),
+    editorial: t("editorialWorkspace"),
+    claims: t("claims"),
+    qa: "QA",
+    methodology: t("methodology"),
+  };
+  const guideByTab = {
+    overview: t("tabGuideOverview"),
+    context: t("tabGuideContext"),
+    plan: t("tabGuidePlan"),
+    requests: t("tabGuideRequests"),
+    editorial: t("tabGuideEditorial"),
+    claims: t("tabGuideClaims"),
+    qa: t("tabGuideQa"),
+    methodology: t("tabGuideMethodology"),
+  };
+
+  return `
+    <section class="mobile-tab-context">
+      <p class="eyebrow">${t("currentArea")}</p>
+      <h2>${labels[state.currentTab] || labels.overview}</h2>
+      <p>${guideByTab[state.currentTab] || guideByTab.overview}</p>
+      <small>${t("mobileNavHint")}</small>
+    </section>
+  `;
+}
+
 function renderContextWorkspace(item) {
   return `
     ${renderJurisdiction(item)}
@@ -2991,8 +3262,8 @@ function renderContextWorkspace(item) {
 function renderPlanningWorkspace(item) {
   return `
     ${renderPlanAddForms()}
-    ${renderHypotheses(item)}
-    ${renderEvidenceBlocks(item)}
+    ${renderReportingMap(item)}
+    ${renderEvidenceInventory(item)}
     ${renderSources(item)}
   `;
 }
@@ -3073,7 +3344,7 @@ function renderRequestsWorkspace(item) {
   return `
     ${renderRequestAddForm()}
     ${renderRequestsCommandCenter(item)}
-    ${renderRequests(item)}
+    ${renderRequestBoard(item)}
     ${renderResponses(item)}
     ${renderDeadlines(item)}
     ${renderRequestComparison(item)}
@@ -3197,6 +3468,70 @@ function renderRequestAddForm() {
   });
 }
 
+function requestBoardStage(request) {
+  const status = normalizeText(request.status || "");
+  const timing = getRequestTiming(request);
+
+  if (status.includes("fluxo separado") || status.includes("separate track")) return "separate";
+  if (status.includes("recebida") || status.includes("received") || status.includes("entregue")) return "received";
+  if (timing.tone === "danger" || status.includes("parcial") || status.includes("partial") || status.includes("recurso")) {
+    return "problem";
+  }
+  return "waiting";
+}
+
+function renderRequestBoard(item) {
+  const stages = [
+    { id: "waiting", title: t("requestStageWaiting"), tone: "neutral" },
+    { id: "problem", title: t("requestStageProblem"), tone: "warning" },
+    { id: "received", title: t("requestStageReceived"), tone: "success" },
+    { id: "separate", title: t("requestStageSeparate"), tone: "neutral" },
+  ];
+
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("requestBoardTitle")}</p>
+      <h2>${t("requestBoardHeading")}</h2>
+    </section>
+    <div class="request-board">
+      ${stages
+        .map((stage) => {
+          const requests = item.requests.filter((request) => requestBoardStage(request) === stage.id);
+          return `
+            <section class="request-lane ${stage.tone}">
+              <div class="lane-header">
+                <h3>${stage.title}</h3>
+                <span class="pill ${stage.tone}">${requests.length}</span>
+              </div>
+              <div class="lane-stack">
+                ${
+                  requests
+                    .map((request) => {
+                      const timing = getRequestTiming(request);
+                      return `
+                        <article class="request-ticket">
+                          <p class="eyebrow">${request.agency}</p>
+                          <h4>${request.title}</h4>
+                          <span class="pill ${timing.tone}">${timing.label}</span>
+                          <dl class="mini-detail-list">
+                            <div><dt>${t("protocol")}</dt><dd>${request.protocol}</dd></div>
+                            <div><dt>${t("due")}</dt><dd>${request.currentCheckpoint?.date || request.dueDate}</dd></div>
+                          </dl>
+                          <p><strong>${t("requestStageNext")}:</strong> ${suggestDeadlineAction(request, timing)}</p>
+                        </article>
+                      `;
+                    })
+                    .join("") || `<p class="muted lane-empty">${t("noRequestsInStage")}</p>`
+                }
+              </div>
+            </section>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
 function renderEditorialWorkspace(item) {
   return `
     ${renderEditorialQueue(item)}
@@ -3213,7 +3548,10 @@ function renderOverview(item) {
       <p>${item.description}</p>
     </section>
     ${renderExecutiveSummary(item)}
+    ${renderInvestigationCompass(item)}
+    ${renderDataAuditPanel(item)}
     ${renderReadinessPanel(item)}
+    ${renderCaseTestPanel(item)}
     <section class="metrics-grid">
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
@@ -3260,6 +3598,209 @@ function renderOverview(item) {
         <h3>${t("editorialSafetyRule")}</h3>
         <p>${t("editorialSafetyCopy")}</p>
       </article>
+    </section>
+  `;
+}
+
+function renderInvestigationCompass(item) {
+  const openRisks = countOpenGaps(item) + countClaimsNeedingCare(item) + countQaBlockers(item);
+  const requestWork = item.requests.length + item.requestComparisons.length + countRequestFollowUps(item);
+  const publishWork = countStrongSupportedClaims(item) + (item.methodologyNote ? 1 : 0);
+  const proofWork = item.hypotheses.length + item.sources.length + item.evidenceBlocks.length;
+  const compassItems = [
+    {
+      tab: "plan",
+      title: t("compassEvidenceTitle"),
+      value: proofWork,
+      copy: t("compassEvidenceCopy"),
+      tone: item.evidenceBlocks.length ? "success" : "warning",
+    },
+    {
+      tab: "requests",
+      title: t("compassAccessTitle"),
+      value: requestWork,
+      copy: t("compassAccessCopy"),
+      tone: countLateRequests(item) ? "danger" : item.requests.length ? "warning" : "neutral",
+    },
+    {
+      tab: "editorial",
+      title: t("compassRiskTitle"),
+      value: openRisks,
+      copy: t("compassRiskCopy"),
+      tone: openRisks ? "danger" : "success",
+    },
+    {
+      tab: "claims",
+      title: t("compassPublishTitle"),
+      value: publishWork,
+      copy: t("compassPublishCopy"),
+      tone: publishWork ? "success" : "warning",
+    },
+  ];
+
+  return `
+    <section class="investigation-compass">
+      <div class="compass-core">
+        <p class="eyebrow">${t("investigationCompass")}</p>
+        <h3>${t("investigationCompassHeading")}</h3>
+        <span>${item.topic}</span>
+      </div>
+      <div class="compass-orbit">
+        ${compassItems
+          .map(
+            (compassItem) => `
+              <button class="compass-card ${compassItem.tone}" data-action="tab" data-tab="${compassItem.tab}">
+                <span class="compass-value">${compassItem.value}</span>
+                <strong>${compassItem.title}</strong>
+                <small>${compassItem.copy}</small>
+                <em>${t("compassOpen")}</em>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+      <div class="investigation-spine" aria-label="${t("investigationThread")}">
+        ${renderSpineNode(t("threadQuestion"), t("threadQuestionCopy"), "current")}
+        ${renderSpineNode(t("threadProof"), `${proofWork} ${t("threadProofReady")}`, proofWork ? "ready" : "pending")}
+        ${renderSpineNode(t("threadGap"), openRisks ? `${openRisks} ${t("threadGapAlert")}` : t("threadGapReady"), openRisks ? "alert" : "ready")}
+        ${renderSpineNode(t("threadClaim"), item.claims.length ? `${item.claims.length} ${t("threadClaimReady")}` : t("threadClaimPending"), item.claims.length ? "ready" : "pending")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSpineNode(label, copy, tone) {
+  return `
+    <article class="spine-node ${tone}">
+      <strong>${label}</strong>
+      <span>${copy}</span>
+    </article>
+  `;
+}
+
+function getDataAuditItems(item) {
+  const ids = investigations.map((investigation) => investigation.id);
+  const duplicateIds = ids.length - new Set(ids).size;
+  const requestTitles = new Set((item.requests || []).map((request) => request.title));
+  const comparisons = item.requestComparisons || [];
+  const comparisonsWithoutRequest = comparisons.filter((comparison) => !requestTitles.has(comparison.requestTitle)).length;
+  const requestsWithoutComparison = (item.requests || []).filter(
+    (request) => !comparisons.some((comparison) => comparison.requestTitle === request.title),
+  ).length;
+  const claimsWithoutEvidence = (item.claims || []).filter((claim) => !(claim.evidence || "").trim()).length;
+  const weakClaims = (item.claims || []).filter((claim) => {
+    const relationTone = statusClass(claim.relation);
+    const strengthTone = statusClass(claim.strength);
+    return relationTone !== "success" || strengthTone === "danger" || strengthTone === "warning";
+  }).length;
+  const highRiskClaims = countHighRiskClaims(item);
+  const overdueRequests = countLateRequests(item);
+  const qaBlockers = countQaBlockers(item);
+
+  return [
+    { count: duplicateIds, label: t("auditDuplicateIds"), tone: "danger" },
+    { count: item.requests.length ? 0 : 1, label: t("auditNoRequests"), tone: "warning" },
+    { count: requestsWithoutComparison, label: t("auditRequestWithoutComparison"), tone: "warning" },
+    { count: comparisonsWithoutRequest, label: t("auditComparisonWithoutRequest"), tone: "danger" },
+    { count: claimsWithoutEvidence, label: t("auditClaimWithoutEvidence"), tone: "danger" },
+    { count: weakClaims, label: t("auditClaimWeak"), tone: "warning" },
+    { count: highRiskClaims, label: t("auditHighRiskClaim"), tone: "danger" },
+    { count: overdueRequests, label: t("auditOverdueRequests"), tone: "danger" },
+    { count: qaBlockers, label: t("auditOpenQaBlockers"), tone: "danger" },
+  ].filter((auditItem) => auditItem.count > 0);
+}
+
+function renderDataAuditPanel(item) {
+  const auditItems = getDataAuditItems(item);
+  const dangerCount = auditItems.filter((auditItem) => auditItem.tone === "danger").length;
+  const panelTone = dangerCount ? "danger" : auditItems.length ? "warning" : "success";
+  const statusLabel = dangerCount ? t("dataAuditBlocked") : auditItems.length ? t("dataAuditReview") : t("dataAuditReady");
+
+  return `
+    <section class="data-audit-panel ${panelTone}">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("dataAuditTitle")}</p>
+          <h3>${t("dataAuditHeading")}</h3>
+        </div>
+        <span class="pill ${panelTone}">${statusLabel}</span>
+      </div>
+      ${
+        auditItems.length
+          ? `<div class="audit-grid">
+              ${auditItems
+                .map(
+                  (auditItem) => `
+                    <article class="audit-item ${auditItem.tone}">
+                      <strong>${auditItem.count}</strong>
+                      <span>${auditItem.label}</span>
+                    </article>
+                  `,
+                )
+                .join("")}
+            </div>`
+          : `<p class="muted">${t("dataAuditOk")}</p>`
+      }
+    </section>
+  `;
+}
+
+function getCaseTestChecks(item) {
+  return [
+    {
+      label: t("testContextCheck"),
+      ready: Boolean(item.accessLaw?.framework && item.country && item.jurisdiction),
+      target: "context",
+    },
+    {
+      label: t("testPlanCheck"),
+      ready: item.hypotheses.length > 0 && item.evidenceBlocks.length > 0 && item.sources.length > 0,
+      target: "plan",
+    },
+    {
+      label: t("testRequestCheck"),
+      ready: item.requests.length > 0 && item.requests.every((request) => request.status && (request.dueDate || request.currentCheckpoint)),
+      target: "requests",
+    },
+    {
+      label: t("testClaimCheck"),
+      ready: item.claims.length > 0 && item.claims.every((claim) => claim.evidence && claim.relation && claim.risk),
+      target: "claims",
+    },
+    {
+      label: t("testMethodCheck"),
+      ready: Boolean(item.qaChecklist?.length || qaModel.acceptanceCriteria?.length),
+      target: "methodology",
+    },
+  ];
+}
+
+function renderCaseTestPanel(item) {
+  const checks = getCaseTestChecks(item);
+  const readyCount = checks.filter((check) => check.ready).length;
+  const allReady = readyCount === checks.length;
+
+  return `
+    <section class="case-test-panel ${allReady ? "success" : "warning"}">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("caseTestTitle")}</p>
+          <h3>${t("caseTestHeading")}</h3>
+        </div>
+        <span class="pill ${allReady ? "success" : "warning"}">${readyCount}/${checks.length} ${allReady ? t("caseTestReady") : t("caseTestReview")}</span>
+      </div>
+      <div class="case-test-grid">
+        ${checks
+          .map(
+            (check) => `
+              <button class="case-test-check ${check.ready ? "success" : "warning"}" data-action="tab" data-tab="${check.target}">
+                <span class="check-dot">${check.ready ? "✓" : "!"}</span>
+                <strong>${check.label}</strong>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }
@@ -3541,68 +4082,86 @@ function renderLanguagePlan(item) {
   `;
 }
 
-function renderHypotheses(item) {
-  const secondaryQuestions = (item.secondaryQuestions || [])
-    .map((question) => `<li>${question}</li>`)
-    .join("");
+function renderReportingMap(item) {
+  const evidenceBlocks = item.evidenceBlocks || [];
+  const sources = item.sources || [];
+  const rows = (item.hypotheses || []).map((hypothesis, index) => {
+    const evidence = evidenceBlocks[index] || evidenceBlocks.find((block) => hypothesis.evidence?.includes(block.type)) || evidenceBlocks[0];
+    const source =
+      sources.find((entry) => hypothesis.evidence?.toLowerCase().includes(entry.name.toLowerCase())) ||
+      sources.find((entry) => evidence?.type && entry.use?.toLowerCase().includes(evidence.type.toLowerCase())) ||
+      sources[index % Math.max(sources.length, 1)];
+
+    return { hypothesis, evidence, source };
+  });
 
   return `
     <section class="content-header">
-      <p class="eyebrow">${t("questionsHypotheses")}</p>
-      <h2>${t("hypothesesHeading")}</h2>
+      <p class="eyebrow">${t("reportingMapTitle")}</p>
+      <h2>${t("reportingMapHeading")}</h2>
+      <p>${t("reportingMapCopy")}</p>
     </section>
-    <section class="two-column question-map">
-      <article class="panel">
-        <p class="eyebrow">${t("centralQuestion")}</p>
-        <h3>${item.centralQuestion}</h3>
-      </article>
-      <article class="panel accent">
-        <p class="eyebrow">${t("secondaryQuestions")}</p>
-        <ul class="review-list">${secondaryQuestions || `<li>${t("noSecondary")}</li>`}</ul>
-      </article>
-    </section>
-    <div class="stack">
-      ${item.hypotheses
+    <div class="reporting-map">
+      ${rows
         .map(
-          (hypothesis) => `
-            <article class="row-card">
-              <div>
+          ({ hypothesis, evidence, source }, index) => `
+            <article class="reporting-path">
+              <div class="path-index">${index + 1}</div>
+              <section class="path-card hypothesis-card">
+                <p class="eyebrow">${t("hypotheses")}</p>
                 <h3>${hypothesis.text}</h3>
-                <p>${t("relatedEvidence")}: ${hypothesis.evidence}</p>
-              </div>
-              <span class="pill ${statusClass(hypothesis.status)}">${hypothesis.status}</span>
+                <span class="pill ${statusClass(hypothesis.status)}">${hypothesis.status}</span>
+              </section>
+              <section class="path-card">
+                <p class="eyebrow">${t("evidencePath")}</p>
+                <h3>${evidence?.type || hypothesis.evidence || t("notSet")}</h3>
+                <p>${hypothesis.evidence}</p>
+                <div class="pill-row">
+                  <span class="pill ${statusClass(evidence?.priority || "")}">${evidence?.priority || t("priorityPrefix")}</span>
+                  <span class="pill ${statusClass(evidence?.status || "")}">${evidence?.status || t("reviewRecommended")}</span>
+                </div>
+              </section>
+              <section class="path-card source-path">
+                <p class="eyebrow">${t("sourcePath")}</p>
+                <h3>${source?.name || t("notSet")}</h3>
+                <p>${source?.use || t("reviewLog")}</p>
+                <p class="muted">${t("limits")}: ${source?.limits || t("notSet")}</p>
+              </section>
             </article>
           `,
         )
-        .join("")}
+        .join("") || `<section class="empty-state"><h3>${t("reportingMapTitle")}</h3><p>${t("workflowPlanCopy")}</p></section>`}
     </div>
   `;
 }
 
-function renderEvidenceBlocks(item) {
+function renderEvidenceInventory(item) {
+  const linkedEvidence = new Set((item.hypotheses || []).map((hypothesis) => hypothesis.evidence).filter(Boolean));
+
   return `
-    <section class="content-header">
-      <p class="eyebrow">${t("evidenceBlocksTitle")}</p>
-      <h2>${t("evidenceBlocksHeading")}</h2>
-      <p>${t("evidenceBlocksCopy")}</p>
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("evidenceInventoryTitle")}</p>
+      <h2>${t("evidenceInventoryHeading")}</h2>
     </section>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>${t("block")}</th><th>${t("priorityLabel")}</th><th>${t("status")}</th></tr></thead>
-        <tbody>
-          ${item.evidenceBlocks
-            .map(
-              (block) => `
-                <tr>
-                  <td>${block.type}</td>
-                  <td>${block.priority}</td>
-                  <td><span class="pill ${statusClass(block.status)}">${block.status}</span></td>
-                </tr>
-              `,
-            )
-            .join("")}
-        </tbody>
-      </table>
+    <div class="evidence-inventory">
+      ${(item.evidenceBlocks || [])
+        .map((block) => {
+          const isLinked = [...linkedEvidence].some((evidence) => evidence.toLowerCase().includes(block.type.toLowerCase()));
+          return `
+            <article class="evidence-chip-card">
+              <div>
+                <p class="eyebrow">${t("block")}</p>
+                <h3>${block.type}</h3>
+              </div>
+              <div class="pill-row">
+                <span class="pill ${statusClass(block.priority)}">${block.priority}</span>
+                <span class="pill ${statusClass(block.status)}">${block.status}</span>
+                <span class="pill ${isLinked ? "success" : "warning"}">${t("evidenceCoverage")}: ${isLinked ? t("readinessReady") : t("readinessReview")}</span>
+              </div>
+            </article>
+          `;
+        })
+        .join("") || `<section class="empty-state compact-empty"><p>${t("workflowPlanCopy")}</p></section>`}
     </div>
   `;
 }
@@ -3625,49 +4184,6 @@ function renderSources(item) {
               <p><strong>${source.type}</strong></p>
               <p>${source.use}</p>
               <p class="muted">${t("limits")}: ${source.limits}</p>
-            </article>
-          `,
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function renderRequests(item) {
-  return `
-    <section class="content-header">
-      <p class="eyebrow">${t("requestsEyebrow")}</p>
-      <h2>${t("requestsTitle")}</h2>
-    </section>
-    <div class="stack">
-      ${item.requests
-        .map(
-          (request) => `
-            <article class="panel">
-              <div class="card-footer top">
-                <div>
-                  <h3>${request.title}</h3>
-                  <p>${request.agency} / ${request.channel}</p>
-                </div>
-                <span class="pill ${statusClass(request.status)}">${request.status}</span>
-              </div>
-              <dl class="detail-list grid">
-                <div><dt>${t("protocol")}</dt><dd>${request.protocol}</dd></div>
-                <div><dt>${t("sent")}</dt><dd>${request.sentDate}</dd></div>
-                <div><dt>${t("due")}</dt><dd>${request.dueDate}</dd></div>
-                ${
-                  request.currentCheckpoint
-                    ? `<div><dt>${t("currentCheckpoint")}</dt><dd>${request.currentCheckpoint.date} / ${request.currentCheckpoint.label}</dd></div>`
-                    : ""
-                }
-              </dl>
-              <p><strong>${t("requested")}:</strong> ${request.requestedItems}</p>
-              <p class="muted"><strong>${t("response")}:</strong> ${request.responseSummary}</p>
-              ${
-                request.currentCheckpoint
-                  ? `<p class="muted"><strong>${t("ifNothingArrives")}:</strong> ${request.currentCheckpoint.action}</p>`
-                  : ""
-              }
             </article>
           `,
         )
@@ -4321,33 +4837,93 @@ function renderClaims(item) {
   return `
     ${renderClaimAddForm()}
     ${renderClaimsDashboard(item)}
+    ${renderClaimDecisionBoard(item)}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
     </section>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>${t("claim")}</th><th>${t("type")}</th><th>${t("evidence")}</th><th>${t("evidenceRelation")}</th><th>${t("strength")}</th><th>${t("risk")}</th><th>${t("status")}</th></tr>
-        </thead>
-        <tbody>
-          ${item.claims
-            .map(
-              (claim) => `
-                <tr>
-                  <td>${claim.text}</td>
-                  <td>${claim.type}</td>
-                  <td>${claim.evidence}</td>
-                  <td><span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span></td>
-                  <td><span class="pill ${statusClass(claim.strength)}">${claim.strength}</span></td>
-                  <td><span class="pill ${statusClass(claim.risk)}">${claim.risk}</span></td>
-                  <td>${claim.status}</td>
-                </tr>
-              `,
-            )
-            .join("")}
-        </tbody>
-      </table>
+    <div class="claim-matrix-cards">
+      ${item.claims
+        .map(
+          (claim) => `
+            <article class="claim-mini-card">
+              <h3>${claim.text}</h3>
+              <div class="pill-row">
+                <span class="pill neutral">${claim.type}</span>
+                <span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span>
+                <span class="pill ${statusClass(claim.strength)}">${claim.strength}</span>
+                <span class="pill ${statusClass(claim.risk)}">${claim.risk}</span>
+              </div>
+              <p class="muted">${claim.evidence}</p>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function claimDecisionMeta(claim) {
+  const relationTone = statusClass(claim.relation);
+  const strengthTone = statusClass(claim.strength);
+  const riskTone = statusClass(claim.risk);
+
+  if (riskTone === "danger" || relationTone === "danger" || strengthTone === "danger") {
+    return {
+      label: t("decisionHold"),
+      tone: "danger",
+      why: t("workflowClaimsCopy"),
+    };
+  }
+
+  if (relationTone === "success" && strengthTone === "success" && riskTone !== "warning") {
+    return {
+      label: t("decisionAdvance"),
+      tone: "success",
+      why: t("publishRule"),
+    };
+  }
+
+  return {
+    label: t("decisionLimit"),
+    tone: "warning",
+    why: t("editorialSafetyCopy"),
+  };
+}
+
+function renderClaimDecisionBoard(item) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("claimDecisionTitle")}</p>
+      <h2>${t("claimDecisionHeading")}</h2>
+    </section>
+    <div class="claim-decision-grid">
+      ${item.claims
+        .map((claim) => {
+          const decision = claimDecisionMeta(claim);
+          return `
+            <article class="claim-decision-card ${decision.tone}">
+              <div class="card-footer top">
+                <div>
+                  <p class="eyebrow">${claim.type}</p>
+                  <h3>${claim.text}</h3>
+                </div>
+                <span class="pill ${decision.tone}">${decision.label}</span>
+              </div>
+              <dl class="detail-list">
+                <div><dt>${t("decisionEvidence")}</dt><dd>${claim.evidence}</dd></div>
+                <div><dt>${t("evidenceRelation")}</dt><dd><span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span></dd></div>
+                <div><dt>${t("decisionWhy")}</dt><dd>${decision.why}</dd></div>
+              </dl>
+              <div class="pill-row">
+                <span class="pill ${statusClass(claim.strength)}">${claim.strength}</span>
+                <span class="pill ${statusClass(claim.risk)}">${claim.risk}</span>
+                <span class="pill ${statusClass(claim.status)}">${claim.status}</span>
+              </div>
+            </article>
+          `;
+        })
+        .join("") || `<section class="empty-state"><h3>${t("claimDecisionTitle")}</h3><p>${t("workflowClaimsCopy")}</p></section>`}
     </div>
   `;
 }
@@ -4649,6 +5225,7 @@ function renderQaChecklist(item) {
         )
         .join("")}
     </div>
+    ${renderFullFlowTestScript()}
     ${renderQaModel()}
     ${
       rules.length
@@ -4670,6 +5247,56 @@ function renderQaChecklist(item) {
           </div>`
         : ""
     }
+  `;
+}
+
+function renderFullFlowTestScript() {
+  const steps = [
+    {
+      target: "overview",
+      title: t("testStepOpen"),
+      expected: t("testStepOpenExpected"),
+    },
+    {
+      target: "plan",
+      title: t("testStepPlan"),
+      expected: t("testStepPlanExpected"),
+    },
+    {
+      target: "requests",
+      title: t("testStepRequests"),
+      expected: t("testStepRequestsExpected"),
+    },
+    {
+      target: "claims",
+      title: t("testStepClaims"),
+      expected: t("testStepClaimsExpected"),
+    },
+    {
+      target: "methodology",
+      title: t("testStepMethod"),
+      expected: t("testStepMethodExpected"),
+    },
+  ];
+
+  return `
+    <section class="content-header process-header">
+      <p class="eyebrow">${t("fullFlowTestTitle")}</p>
+      <h2>${t("fullFlowTestHeading")}</h2>
+    </section>
+    <div class="full-flow-test">
+      ${steps
+        .map(
+          (step, index) => `
+            <button class="test-step-card" data-action="tab" data-tab="${step.target}">
+              <span class="workflow-index">${index + 1}</span>
+              <strong>${step.title}</strong>
+              <small>${t("testExpected")}: ${step.expected}</small>
+            </button>
+          `,
+        )
+        .join("")}
+    </div>
   `;
 }
 

@@ -31,6 +31,15 @@ without backend, login, external integrations or AI.
 - QA checklist with blockers and editorial risk.
 - QA v0.2 model with operational glossary, closed status lists, evidence-relation rules, functional coverage and testable acceptance criteria.
 - Method safeguards that prevent missing data, silence or forwarding from becoming unsupported claims.
+- Investigation compass with a visual thread from question to proof, gaps and publishable claims.
+- Case audit panel that flags duplicate IDs, missing request-response links, weak claims, overdue requests and QA blockers.
+- Editorial pre-test panel for checking whether a case is ready for a full workflow test.
+- Full-flow QA test script linking overview, plan, requests, claims and methodology checks.
+- Reporting map that connects hypotheses, evidence needs and likely source paths.
+- Evidence inventory that keeps unmapped evidence blocks visible during planning.
+- Request board that groups LAI/FOIA/public-record requests by process status.
+- Editorial claim decision cards for advance, caveat or hold decisions before publication.
+- Mobile investigation context card so the current workflow area stays visible when the sidebar guide is hidden.
 - Claim-to-evidence matrix with "supports / contradicts / limits" relation tracking.
 - Markdown methodological note preview/copy flow, including sources, source types and limits.
 - Dashboard testing guide with tasks, feedback questions and acceptance criteria.
