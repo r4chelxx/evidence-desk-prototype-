@@ -1,5 +1,6 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa37";
-import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa37';
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
+import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa39';
+import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261014-qa39';
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -86,6 +87,7 @@ const state = {
   view: savedUiState.view || "dashboard",
   currentId: savedCurrentId,
   currentTab: savedUiState.currentTab || "overview",
+  laiSelections: savedUiState.laiSelections || {},
   locale: savedUiState.locale || "pt",
   filters: {
     status: "all",
@@ -2093,6 +2095,7 @@ function saveUiState() {
       currentTab: state.currentTab,
       locale: state.locale,
       filters: state.filters,
+      laiSelections: state.laiSelections,
     })
   );
 }
@@ -3708,12 +3711,104 @@ function saveLaiDeadline(card) {
   renderInvestigation();
 }
 
+const LAI_DRAFT_KEY = 'evidence-desk-lai-drafts-v1';
+const LAI_DRAFT_FIELDS = ['date', 'scenario', 'response', 'attachments', 'notes', 'result'];
+
+function readLaiDrafts() {
+  try {
+    const value = JSON.parse(readLocalStorage(LAI_DRAFT_KEY) || '{}');
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  } catch { return {}; }
+}
+
+function captureLaiDraft(card) {
+  const drafts = readLaiDrafts();
+  const draft = {};
+  LAI_DRAFT_FIELDS.forEach(field => { draft[field] = card.querySelector(`[data-lai-${field}]`).value; });
+  draft.candidate = card.laiCandidate || null;
+  draft.importedFiles = card.importedFiles || [];
+  draft.importedAttachmentsText = card.importedAttachmentsText || '';
+  drafts[`${state.currentId}:${card.dataset.laiRequest}`] = draft;
+  try {
+    window.localStorage.setItem(LAI_DRAFT_KEY, JSON.stringify(drafts));
+    card.querySelector('[data-lai-draft-notice]').textContent = 'Rascunho salvo neste navegador. Ainda não foi registrado no histórico.';
+  } catch {
+    card.querySelector('[data-lai-draft-notice]').textContent = 'Não foi possível salvar o rascunho no navegador. Copie os textos antes de sair.';
+  }
+}
+
+function clearLaiDraft(card) {
+  const drafts = readLaiDrafts();
+  delete drafts[`${state.currentId}:${card.dataset.laiRequest}`];
+  writeLocalStorage(LAI_DRAFT_KEY, JSON.stringify(drafts));
+}
+
+function restoreLaiDraft(card) {
+  const draft = readLaiDrafts()[`${state.currentId}:${card.dataset.laiRequest}`];
+  if (!draft || typeof draft !== 'object') return;
+  LAI_DRAFT_FIELDS.forEach(field => {
+    if (typeof draft[field] === 'string') card.querySelector(`[data-lai-${field}]`).value = draft[field];
+  });
+  card.importedFiles = Array.isArray(draft.importedFiles) ? draft.importedFiles : [];
+  card.importedAttachmentsText = draft.importedAttachmentsText || '';
+  const candidate = draft.candidate;
+  const request = getCurrentInvestigation().requests[Number(card.dataset.laiRequest)];
+  if (draft.scenario === 'response' && candidate?.request === request.requestedItems && candidate.response === draft.response?.trim() &&
+      candidate.attachments === draft.attachments?.trim() && Array.isArray(candidate.analysis?.items) &&
+      candidate.analysis.items.every(entry => entry && ['requested', 'responseExcerpt', 'reason'].every(key => typeof entry[key] === 'string')) &&
+      ['summary', 'nextStep', 'draft'].every(key => typeof candidate.analysis[key] === 'string') &&
+      Array.isArray(candidate.analysis?.limitations) && candidate.analysis.limitations.every(entry => typeof entry === 'string')) {
+    card.laiCandidate = candidate;
+    card.querySelector('[data-lai-analysis]').innerHTML = renderLaiAnalysis(candidate.analysis);
+  }
+  card.querySelector('[data-lai-draft-notice]').textContent = 'Rascunho recuperado deste navegador. Confira antes de registrar no histórico.';
+  if (draft.response || draft.notes || draft.attachments) card.querySelector('[data-lai-response]').closest('details').open = true;
+}
+
+async function configureLaiConnection() {
+  const notice = document.querySelector('[data-lai-connection-notice]');
+  const passwordField = document.querySelector('[data-lai-service-password]');
+  const button = document.querySelector('[data-action="connect-lai-service"]');
+  button.disabled = true;
+  notice.textContent = 'Conectando…';
+  try {
+    configureService(document.querySelector('[data-lai-service-url]').value);
+    const response = await serviceFetch('status', { signal: AbortSignal.timeout(4000) });
+    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new Error('SERVICE_UNAVAILABLE');
+    const status = await response.json();
+    if (status.authRequired) await connectService(passwordField.value);
+    notice.textContent = 'Serviço conectado. A disponibilidade da IA e dos PDFs aparece acima.';
+  } catch {
+    notice.textContent = 'Não foi possível conectar. Confira a URL, a senha e a configuração do serviço.';
+  } finally {
+    passwordField.value = '';
+    button.disabled = false;
+    await checkLaiService();
+  }
+}
+
 function renderLaiAssistant(item) {
+  const preferred = String(state.laiSelections[item.id] ?? '0');
+  const selection = preferred === 'all' || item.requests?.[Number(preferred)] ? preferred : '0';
   return `<section class="lai-assistant">
     <p class="eyebrow">${t("laiAssistantTitle")}</p>
     <h3>Pedido → resposta → próxima ação</h3>
     <p role="note" data-lai-service-status>Verificando disponibilidade da análise por IA…</p>
-    <div class="lai-assistant-grid">${(item.requests || []).map((request, index) => {
+    <details class="lai-connection"><summary>Conectar o serviço de análise</summary>
+      <p>Configuração para o piloto. Use a URL do backend hospedado e a senha de acesso fornecida na configuração. A chave de IA permanece no servidor.</p>
+      <label>Endereço do serviço<input type="url" data-lai-service-url value="${escapeHtml(getServiceUrl())}" placeholder="https://seu-servico.example"></label>
+      <label>Senha de acesso<input type="password" data-lai-service-password autocomplete="off"></label>
+      <p>A senha e a sessão não são salvas no navegador. A sessão dura até uma hora.</p>
+      <button type="button" class="button secondary" data-action="connect-lai-service">Conectar</button>
+      <button type="button" class="button secondary" data-action="disconnect-lai-service">Encerrar sessão neste navegador</button>
+      <p data-lai-connection-notice role="status"></p>
+    </details>
+    <label class="lai-picker">Pedido em acompanhamento<select data-lai-picker>
+      ${(item.requests || []).map((request, index) => `<option value="${index}" ${selection === String(index) ? 'selected' : ''}>${escapeHtml(request.title)} · ${escapeHtml(request.protocol)}</option>`).join('')}
+      <option value="all" ${selection === 'all' ? 'selected' : ''}>Ver todos os pedidos</option>
+    </select></label>
+    <div class="lai-assistant-grid" data-focused="${selection !== 'all'}">${(item.requests || []).map((request, index) => {
+      if (selection !== 'all' && String(index) !== selection) return '';
       const reviews = (item.laiReviews || []).filter(entry => entry.requestIndex === index).toSorted((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
       const review = reviews.at(-1);
       return `<article class="lai-review-card" data-lai-request="${index}">
@@ -3732,7 +3827,7 @@ function renderLaiAssistant(item) {
           </select></label>
           <label>Resposta integral ou descrição da ocorrência<textarea data-lai-response rows="5"></textarea></label>
           <label>Importar anexos<input type="file" data-lai-files multiple accept=".pdf,.txt,.csv,.tsv,.json,.md"></label>
-          <p>Textos são lidos neste navegador. PDFs precisam do extrator local; até 5 MB por arquivo. Não há OCR. Confira o texto extraído antes de analisar.</p>
+          <p>Textos são lidos neste navegador. PDFs precisam do serviço de extração; até 5 MB por arquivo. Não há OCR. Confira o texto extraído antes de analisar.</p>
           <p data-lai-file-notice role="status"></p>
           <label>Conteúdo dos anexos (texto transcrito)<textarea data-lai-attachments rows="4" placeholder="Cole o conteúdo consultado. Links e arquivos não transcritos não serão analisados."></textarea></label>
           <p>Ao analisar, o pedido, a resposta e os textos dos anexos serão enviados ao serviço de IA. Confira os dados antes de enviar.</p>
@@ -3745,6 +3840,7 @@ function renderLaiAssistant(item) {
             <option value="complete">Todos os itens e anexos foram conferidos</option>
           </select></label>
           <p data-lai-notice role="status"></p>
+          <p data-lai-draft-notice role="status"></p>
           <button type="button" class="button secondary" data-action="save-lai-review">Salvar no histórico do pedido</button>
         </details>
       </article>`;
@@ -3785,6 +3881,7 @@ function saveLaiReview(card) {
   }
   item.transparencyLog = [...(item.transparencyLog || []), { date, actor: request.agency, event: `${request.title} (${request.protocol}): ${response}`, status: label, nextStep, origin: 'lai-review', requestIndex }];
   touchInvestigation(item);
+  clearLaiDraft(card);
   renderInvestigation();
 }
 
@@ -3807,12 +3904,13 @@ async function importLaiFiles(card, field) {
         if (/\.pdf$/i.test(file.name)) {
           let binary = '';
           for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
-          const res = await fetch('/api/lai/extract', {
+          const res = await serviceFetch('extract', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ base64: btoa(binary), fileName: file.name }), signal: AbortSignal.timeout(15000),
           });
           if (!res.headers.get('content-type')?.includes('application/json')) throw new Error('PDF exige o serviço local de extração');
           const result = await res.json();
+          if (res.status === 401) await checkLaiService();
           if (!res.ok) throw new Error(result.error || 'PDF não pôde ser lido');
           text = result.text;
           metadata = { fileName: file.name, sha256: result.sha256, pages: result.pages, warning: result.warning, size: file.size };
@@ -3837,6 +3935,7 @@ async function importLaiFiles(card, field) {
       target.dispatchEvent(new Event('input', { bubbles: true }));
       card.importedFiles = [...(card.importedFiles || []), ...imported.map(entry => entry.metadata)];
       card.importedAttachmentsText = target.value;
+      captureLaiDraft(card);
     }
     notice.textContent = `${imported.length} arquivo(s) importado(s). ${imported.some(entry => entry.metadata.pages) ? 'Confira páginas, tabelas e imagens no original; não há OCR. ' : ''}${failures.length ? `Não importados: ${failures.join('; ')}` : 'Confira o texto antes de analisar. Os arquivos originais não são armazenados.'}`;
   } finally { field.disabled = false; field.value = ''; }
@@ -3847,20 +3946,33 @@ async function checkLaiService() {
   if (!notice) return;
   let available = false;
   let pdfExtraction = false;
+  let authRequired = false;
+  const checkedUrl = getServiceUrl();
   try {
-    const response = await fetch('/api/lai/status', { signal: AbortSignal.timeout(4000) });
+    const response = await serviceFetch('status', { signal: AbortSignal.timeout(4000) });
     if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
       const status = await response.json();
       available = status.available === true;
       pdfExtraction = status.pdfExtraction === true;
+      authRequired = status.authRequired === true;
     }
   } catch { /* Static hosting remains usable without the analysis service. */ }
-  if (!notice.isConnected) return;
-  notice.textContent = available
+  if (!notice.isConnected || checkedUrl !== getServiceUrl()) return;
+  notice.textContent = authRequired ? 'Entre no serviço configurado para habilitar a análise e os PDFs.' : available
     ? 'IA disponível para comparar os textos. Revise os trechos e confirme a conclusão antes de salvar.'
     : 'IA indisponível nesta hospedagem. Você pode registrar e conferir a resposta manualmente.';
   notice.textContent += pdfExtraction ? ' Extração de PDF disponível.' : ' Importação de texto disponível; extração de PDF indisponível.';
   document.querySelectorAll('[data-action="analyze-lai"]').forEach(button => { button.disabled = !available; });
+}
+
+function renderLaiAnalysis(analysis) {
+  const labels = { answered: 'Atendido no texto', missing: 'Não localizado', unclear: 'Inconclusivo' };
+  return `
+      <h4>Comparação sugerida pela IA — confira os trechos</h4><p>${escapeHtml(analysis.summary)}</p>
+      ${analysis.items.map(entry => `<article class="lai-analysis-item"><strong>${escapeHtml(entry.requested)}</strong><p>${labels[entry.status] || 'Inconclusivo'}</p>${entry.responseExcerpt ? `<blockquote>${escapeHtml(entry.responseExcerpt)}</blockquote>` : ''}<p>${escapeHtml(entry.reason)}</p></article>`).join('')}
+      <p><strong>Próximo passo:</strong> ${escapeHtml(analysis.nextStep)}</p>
+      <ul>${analysis.limitations.map(limit => `<li>${escapeHtml(limit)}</li>`).join('')}</ul>
+      ${analysis.draft ? `<label>Texto-base para revisar e usar<textarea rows="6" readonly>${escapeHtml(analysis.draft)}</textarea></label>` : ''}`;
 }
 
 async function analyzeLaiCard(card, button) {
@@ -3875,12 +3987,15 @@ async function analyzeLaiCard(card, button) {
   const request = item.requests[Number(card.dataset.laiRequest)].requestedItems;
   button.disabled = true;
   notice.textContent = 'Comparando os itens solicitados com os textos recebidos…';
+  let sessionExpired = false;
   try {
-    const res = await fetch('/api/lai/analyze', {
+    const res = await serviceFetch('analyze', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ request, response, attachments }), signal: AbortSignal.timeout(65000),
     });
     const data = await res.json();
+    if (res.status === 401) { sessionExpired = true; await checkLaiService(); throw new Error('SESSION_EXPIRED'); }
+    if (res.status === 429) throw new Error('RATE_LIMIT');
     if (!res.ok || !data.analysis) throw new Error(data.error || 'Análise indisponível.');
     if (!card.isConnected) return;
     if (response !== card.querySelector('[data-lai-response]').value.trim() || attachments !== card.querySelector('[data-lai-attachments]').value.trim()) {
@@ -3888,23 +4003,22 @@ async function analyzeLaiCard(card, button) {
       return;
     }
     const analysis = data.analysis;
-    card.laiCandidate = { response, attachments, analysis };
+    card.laiCandidate = { request, response, attachments, analysis };
     const labels = { answered: 'Atendido no texto', missing: 'Não localizado', unclear: 'Inconclusivo' };
-    card.querySelector('[data-lai-analysis]').innerHTML = `
-      <h4>Comparação sugerida pela IA — confira os trechos</h4><p>${escapeHtml(analysis.summary)}</p>
-      ${analysis.items.map(entry => `<article class="lai-analysis-item"><strong>${escapeHtml(entry.requested)}</strong><p>${labels[entry.status] || 'Inconclusivo'}</p>${entry.responseExcerpt ? `<blockquote>${escapeHtml(entry.responseExcerpt)}</blockquote>` : ''}<p>${escapeHtml(entry.reason)}</p></article>`).join('')}
-      <p><strong>Próximo passo:</strong> ${escapeHtml(analysis.nextStep)}</p>
-      <ul>${analysis.limitations.map(limit => `<li>${escapeHtml(limit)}</li>`).join('')}</ul>
-      ${analysis.draft ? `<label>Texto-base para revisar e usar<textarea rows="6" readonly>${escapeHtml(analysis.draft)}</textarea></label>` : ''}`;
+    card.querySelector('[data-lai-analysis]').innerHTML = renderLaiAnalysis(analysis);
     const generatedNotes = analysis.items.map(entry => `${entry.requested}: ${labels[entry.status]}. ${entry.reason}`).join('\n');
     card.laiCandidate.generatedNotes = generatedNotes;
     card.querySelector('[data-lai-notes]').value = generatedNotes;
     // The model never confirms completeness on the reporter's behalf.
     card.querySelector('[data-lai-result]').value = 'unknown';
+    captureLaiDraft(card);
     notice.textContent = 'Análise pronta. Confira os itens e selecione sua conclusão para salvar no histórico.';
   } catch (error) {
-    if (card.isConnected) notice.textContent = error.name === 'TimeoutError' ? 'A análise demorou demais. Seus textos continuam aqui; tente novamente.' : 'Não foi possível analisar. Seus textos continuam aqui; confira a conexão com o serviço e tente novamente.';
-  } finally { if (button.isConnected) button.disabled = false; }
+    if (card.isConnected) notice.textContent = error.message === 'SESSION_EXPIRED'
+      ? 'A sessão expirou. Entre novamente em “Conectar o serviço de análise”. Seu rascunho foi preservado.'
+      : error.message === 'RATE_LIMIT' ? 'O limite do serviço foi atingido. Seu rascunho foi preservado; tente mais tarde.'
+      : error.name === 'TimeoutError' ? 'A análise demorou demais. Seus textos continuam aqui; tente novamente.' : 'Não foi possível analisar. Seus textos continuam aqui; confira a conexão com o serviço e tente novamente.';
+  } finally { if (button.isConnected) button.disabled = sessionExpired; }
 }
 
 function renderRequestsCommandCenter(item) {
@@ -6765,7 +6879,7 @@ function bindActions() {
   document.querySelectorAll("[data-action='analyze-lai']").forEach(button => {
     button.addEventListener('click', () => analyzeLaiCard(button.closest('[data-lai-request]'), button));
   });
-  document.querySelectorAll('[data-lai-response], [data-lai-attachments]').forEach(field => {
+  document.querySelectorAll('[data-lai-response], [data-lai-attachments], [data-lai-scenario]').forEach(field => {
     field.addEventListener('input', () => {
       const card = field.closest('[data-lai-request]');
       if (!card.laiCandidate) return;
@@ -6776,6 +6890,23 @@ function bindActions() {
       card.querySelector('[data-lai-analysis]').textContent = 'Os textos mudaram. Analise novamente para atualizar a comparação.';
     });
   });
+  document.querySelectorAll('[data-lai-request]').forEach(card => {
+    restoreLaiDraft(card);
+    LAI_DRAFT_FIELDS.forEach(name => card.querySelector(`[data-lai-${name}]`).addEventListener('input', () => captureLaiDraft(card)));
+  });
+  document.querySelectorAll('[data-lai-picker]').forEach(picker => {
+    picker.addEventListener('change', () => {
+      state.laiSelections[state.currentId] = picker.value;
+      saveUiState();
+      renderInvestigation();
+    });
+  });
+  document.querySelectorAll('[data-action="connect-lai-service"]').forEach(button => button.addEventListener('click', configureLaiConnection));
+  document.querySelectorAll('[data-action="disconnect-lai-service"]').forEach(button => button.addEventListener('click', () => {
+    disconnectService();
+    document.querySelector('[data-lai-connection-notice]').textContent = 'Sessão encerrada neste navegador.';
+    checkLaiService();
+  }));
   checkLaiService();
 
   document.querySelectorAll("[data-action='add-request']").forEach((button) => {

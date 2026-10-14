@@ -642,6 +642,23 @@ button {
   margin-top: 1rem;
 }
 
+.lai-assistant-grid[data-focused="true"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lai-picker,
+.lai-connection label {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 1rem;
+}
+
+.lai-picker select,
+.lai-connection input {
+  width: 100%;
+  min-width: 0;
+}
+
 .lai-review-card {
   align-content: start;
   background: var(--paper);
@@ -2918,4 +2935,19 @@ tr:last-child td {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+@media (max-width: 560px) {
+  .lai-picker select,
+  .lai-review-card input,
+  .lai-review-card select,
+  .lai-review-card textarea,
+  .lai-connection input {
+    font-size: 16px;
+  }
+
+  .lai-connection .button {
+    width: 100%;
+    margin-block: 0.25rem;
+  }
 }

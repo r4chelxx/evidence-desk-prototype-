@@ -41,15 +41,24 @@ checked 2026-10-14. Seed case facts are unchanged.
 Configure `OPENAI_API_KEY` and `OPENAI_MODEL` in the server environment, then run
 `node server.mjs` and open `http://127.0.0.1:4173`. Never put a key in frontend code
 or Git. Without these variables, the form remains available for manual review.
-The adapter binds only to loopback, serves an explicit file allowlist, rejects
+In local mode the adapter binds only to loopback, serves an explicit file allowlist, rejects
 foreign origins, limits input size and does not log document text or provider
 errors. It requests `store: false`; this is not a guarantee of zero provider
 retention. Documents are sent only when the reporter presses the analysis button.
 
-This adapter is for local evaluation. A hosted release requires an authenticated
-backend, access controls and usage limits. Do not expose this local adapter through
-a public tunnel. The current GitHub Pages demo cannot execute a server or hold an
-API key. No provider call has been verified against a live account yet.
+The optional hosted pilot now includes authenticated one-hour sessions, exact
+origin checks and per-process usage/concurrency limits. It can connect to Pages
+without exposing the provider key or using cross-site cookies. See
+[DEPLOY_BACKEND.md](DEPLOY_BACKEND.md) for the container and environment settings.
+It has not been provisioned and no live-provider call has been verified. The Pages
+demo still works without it. Multi-user accounts and shared persistence are not
+implemented. Do not expose local mode through a public tunnel.
+
+The LAI workspace focuses on one selected request by default, with an option to
+see all requests. Draft response text, attachments, review notes and pending AI
+analysis are recovered across request/tab changes and page reloads. Drafts are
+saved locally and do not become transparency events until the reporter records
+the review. Service passwords and session tokens are never saved with drafts.
 
 Run contract and failure-handling checks with `node --test tests/*.test.mjs`.
 
