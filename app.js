@@ -295,6 +295,13 @@ const dictionary = {
     storySectionBlocker: "O que ainda trava",
     storyNoDraft:
       "A ferramenta ainda está montando uma leitura editorial desta pauta a partir de hipóteses, pedidos, lacunas e claims.",
+    mobileFocusTitle: "Modo foco",
+    mobileFocusHeading: "O que fazer agora",
+    mobileNextDecision: "Próxima decisão",
+    mobilePublicationBlocker: "Trava principal",
+    mobileOpenStory: "Ver matéria",
+    mobileContinueReporting: "Continuar apuração",
+    mobileReviewClaims: "Revisar afirmações",
     executiveSummary: "Resumo executivo",
     investigationCompass: "Bússola da investigação",
     investigationCompassHeading: "Quatro leituras rápidas do mesmo caso: prova, transparência, risco e publicação.",
@@ -861,6 +868,13 @@ const dictionary = {
     storySectionBlocker: "What still blocks it",
     storyNoDraft:
       "The tool is still building an editorial reading of this story from hypotheses, requests, gaps and claims.",
+    mobileFocusTitle: "Focus mode",
+    mobileFocusHeading: "What to do now",
+    mobileNextDecision: "Next decision",
+    mobilePublicationBlocker: "Main blocker",
+    mobileOpenStory: "View story",
+    mobileContinueReporting: "Continue reporting",
+    mobileReviewClaims: "Review claims",
     executiveSummary: "Executive summary",
     investigationCompass: "Investigation compass",
     investigationCompassHeading: "Four quick readings of the same story: proof, transparency, risk and publication.",
@@ -1430,6 +1444,13 @@ dictionary.es = {
   storySectionBlocker: "Qué todavía bloquea",
   storyNoDraft:
     "La herramienta todavía está montando una lectura editorial de esta pauta a partir de hipótesis, solicitudes, vacíos y afirmaciones.",
+  mobileFocusTitle: "Modo foco",
+  mobileFocusHeading: "Qué hacer ahora",
+  mobileNextDecision: "Próxima decisión",
+  mobilePublicationBlocker: "Traba principal",
+  mobileOpenStory: "Ver historia",
+  mobileContinueReporting: "Continuar reporteo",
+  mobileReviewClaims: "Revisar afirmaciones",
   executiveSummary: "Resumen ejecutivo",
   investigationCompass: "Brújula de la investigación",
   investigationCompassHeading: "Cuatro lecturas rápidas del mismo caso: prueba, transparencia, riesgo y publicación.",
@@ -3258,6 +3279,7 @@ function renderInvestigation() {
       <section class="content">
         ${renderDesktopTestRail(item, tabs)}
         ${renderMobileTabContext()}
+        ${renderMobileFocusCard(item)}
         ${renderTab(item)}
       </section>
     </main>
@@ -3357,6 +3379,40 @@ function renderMobileTabContext() {
       <h2>${labels[state.currentTab] || labels.overview}</h2>
       <p>${guideByTab[state.currentTab] || guideByTab.overview}</p>
       <small>${t("mobileNavHint")}</small>
+    </section>
+  `;
+}
+
+function renderMobileFocusCard(item) {
+  const draft = getStoryDraft(item);
+  const queue = getEditorialQueue(item);
+  const nextItem = queue.deadlineItems[0] || queue.reviewItems[0] || queue.actionItems[0];
+  const firstBlocker = draft.sections?.find((section) => statusClass(section.status) !== "success") || draft.sections?.[0];
+  const blocker = firstBlocker?.blocker || item.gaps?.[0]?.description || t("noImmediateAction");
+
+  return `
+    <section class="mobile-focus-card">
+      <p class="eyebrow">${t("mobileFocusTitle")}</p>
+      <h2>${t("mobileFocusHeading")}</h2>
+      <dl class="mobile-focus-list">
+        <div>
+          <dt>${t("workingThesis")}</dt>
+          <dd>${draft.workingThesis}</dd>
+        </div>
+        <div>
+          <dt>${t("mobileNextDecision")}</dt>
+          <dd>${nextItem?.title || draft.editorQuestion}</dd>
+        </div>
+        <div>
+          <dt>${t("mobilePublicationBlocker")}</dt>
+          <dd>${blocker}</dd>
+        </div>
+      </dl>
+      <div class="mobile-focus-actions">
+        <button class="button secondary active-secondary" data-action="tab" data-tab="overview">${t("mobileOpenStory")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("mobileContinueReporting")}</button>
+        <button class="button" data-action="tab" data-tab="claims">${t("mobileReviewClaims")}</button>
+      </div>
     </section>
   `;
 }
