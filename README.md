@@ -8,6 +8,31 @@ The prototype tests whether a journalist can move from:
 
 without backend, login, external integrations or AI.
 
+The Pages demo remains static. An optional local Node 24 adapter now connects the
+structured LAI form to OpenAI Responses with a strict JSON schema. It is **not
+configured or active on Pages**. It compares pasted request/response/attachment
+text, proposes per-item findings and a follow-up draft, and preserves the analysis
+when the reporter saves the review. Binary attachments, OCR and automatic legal
+deadline calculation are not implemented. A model assessment is not proof that all
+requested items were identified; the reporter must review coverage and excerpts.
+
+## Run the optional AI adapter
+
+Configure `OPENAI_API_KEY` and `OPENAI_MODEL` in the server environment, then run
+`node server.mjs` and open `http://127.0.0.1:4173`. Never put a key in frontend code
+or Git. Without these variables, the form remains available for manual review.
+The adapter binds only to loopback, serves an explicit file allowlist, rejects
+foreign origins, limits input size and does not log document text or provider
+errors. It requests `store: false`; this is not a guarantee of zero provider
+retention. Documents are sent only when the reporter presses the analysis button.
+
+This adapter is for local evaluation. A hosted release requires an authenticated
+backend, access controls and usage limits. Do not expose this local adapter through
+a public tunnel. The current GitHub Pages demo cannot execute a server or hold an
+API key. No provider call has been verified against a live account yet.
+
+Run contract and failure-handling checks with `node --test tests/*.test.mjs`.
+
 ## Current prototype scope
 
 - Investigation dashboard with Brazil and U.S. test cases, filters and empty-state handling.

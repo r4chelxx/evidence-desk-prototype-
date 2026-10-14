@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa35";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa36";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -3610,12 +3610,18 @@ function renderRequestsWorkspace(item) {
     ${renderRequestAddForm()}
     ${renderRequestsCommandCenter(item)}
     ${renderLaiAssistant(item)}
+    <details class="panel"><summary>Visão geral dos pedidos e prazos</summary>
     ${renderRequestBoard(item)}
     ${renderResponses(item)}
     ${renderDeadlines(item)}
+    </details>
+    <details class="panel"><summary>Comparações anteriores e registros complementares</summary>
     ${renderRequestComparison(item)}
-    ${renderTransparencyLog(item)}
     ${renderFollowUps(item)}
+    </details>
+    <details class="panel"><summary>Diário de transparência desta reportagem</summary>
+    ${renderTransparencyLog(item)}
+    </details>
   `;
 }
 
@@ -3634,7 +3640,7 @@ function renderLaiAssistant(item) {
   return `<section class="lai-assistant">
     <p class="eyebrow">${t("laiAssistantTitle")}</p>
     <h3>Pedido → resposta → próxima ação</h3>
-    <p role="note">IA documental ainda não conectada. Esta versão registra uma conferência feita pela repórter; não interpreta documentos automaticamente.</p>
+    <p role="note" data-lai-service-status>Verificando disponibilidade da análise por IA…</p>
     <div class="lai-assistant-grid">${(item.requests || []).map((request, index) => {
       const review = (item.laiReviews || []).filter(entry => entry.requestIndex === index).at(-1);
       return `<article class="lai-review-card" data-lai-request="${index}">
@@ -3642,7 +3648,7 @@ function renderLaiAssistant(item) {
         <p>${escapeHtml(request.agency)} · ${escapeHtml(request.protocol)}</p>
         <details><summary>Ver pedido original</summary><p>${escapeHtml(request.requestedItems)}</p></details>
         <p><strong>Prazo registrado:</strong> ${escapeHtml(request.currentCheckpoint?.date || request.dueDate || "Não informado")}. Confirme a regra e a instância no protocolo.</p>
-        ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.response)}</p><p>${escapeHtml(review.notes)}</p></details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
+        ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.response)}</p><p>${escapeHtml(review.notes)}</p>${review.analysis ? `<p>Conferência assistida por IA, salva pela repórter.</p><p>${escapeHtml(review.analysis.summary)}</p>${review.analysis.draft ? `<label>Texto-base salvo<textarea rows="6" readonly>${escapeHtml(review.analysis.draft)}</textarea></label>` : ''}` : ''}</details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
         <details><summary>Registrar resposta ou ocorrência</summary>
           <label>Data da ocorrência<input type="date" data-lai-date value="${todayIsoDate()}"></label>
           <label>O que aconteceu?<select data-lai-scenario>
@@ -3652,6 +3658,10 @@ function renderLaiAssistant(item) {
             <option value="inaccessible">Link ou anexo inacessível</option>
           </select></label>
           <label>Resposta integral ou descrição da ocorrência<textarea data-lai-response rows="5"></textarea></label>
+          <label>Conteúdo dos anexos (texto transcrito)<textarea data-lai-attachments rows="4" placeholder="Cole o conteúdo consultado. Links e arquivos não transcritos não serão analisados."></textarea></label>
+          <p>Ao analisar, o pedido, a resposta e os textos dos anexos serão enviados ao serviço de IA. Confira os dados antes de enviar.</p>
+          <button type="button" class="button secondary" data-action="analyze-lai" disabled>Analisar pedido × resposta com IA</button>
+          <div data-lai-analysis aria-live="polite"></div>
           <label>Conferência item a item<textarea data-lai-notes rows="4" placeholder="Compare cada item do pedido: entregue, ausente ou inconclusivo. Registre os arquivos consultados."></textarea></label>
           <label>Resultado da sua conferência<select data-lai-result>
             <option value="unknown">Ainda não consigo avaliar</option>
@@ -3687,12 +3697,77 @@ function saveLaiReview(card) {
     partial: ['Resposta parcial — conferência da repórter', 'Prepare uma complementação enumerando os itens ausentes. Confira se o caso exige recurso e qual é o prazo no protocolo.'],
     complete: ['Itens conferidos pela repórter', 'Encaminhe os documentos relevantes ao acervo de evidências e avalie o que sustentam na apuração.']
   };
-  const [label, nextStep] = outcomes[scenario === 'response' ? result : scenario];
-  const review = { requestIndex, requestTitle: request.title, date, scenario, result: scenario === 'response' ? result : 'unknown', response, notes, label, nextStep, origin: 'reporter', createdAt: new Date().toISOString() };
+  const [label, fallbackNextStep] = outcomes[scenario === 'response' ? result : scenario];
+  const candidate = card.laiCandidate;
+  const validCandidate = scenario === 'response' && candidate?.response === response && candidate?.attachments === card.querySelector('[data-lai-attachments]').value.trim();
+  const analysis = validCandidate ? candidate.analysis : null;
+  const nextStep = analysis?.nextStep || fallbackNextStep;
+  const review = { requestIndex, requestTitle: request.title, date, scenario, result: scenario === 'response' ? result : 'unknown', response, notes, label, nextStep, origin: analysis ? 'ai-assisted-reporter-review' : 'reporter', analysis, attachments: card.querySelector('[data-lai-attachments]').value.trim(), createdAt: new Date().toISOString() };
   item.laiReviews = [...(item.laiReviews || []), review];
   item.transparencyLog = [...(item.transparencyLog || []), { date, actor: request.agency, event: `${request.title} (${request.protocol}): ${response}`, status: label, nextStep, origin: 'lai-review', requestIndex }];
   touchInvestigation(item);
   renderInvestigation();
+}
+
+async function checkLaiService() {
+  const notice = document.querySelector('[data-lai-service-status]');
+  if (!notice) return;
+  let available = false;
+  try {
+    const response = await fetch('/api/lai/status', { signal: AbortSignal.timeout(4000) });
+    if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+      available = (await response.json()).available === true;
+    }
+  } catch { /* Static hosting remains usable without the analysis service. */ }
+  if (!notice.isConnected) return;
+  notice.textContent = available
+    ? 'IA disponível para comparar os textos. Revise os trechos e confirme a conclusão antes de salvar.'
+    : 'IA indisponível nesta hospedagem. Você pode registrar e conferir a resposta manualmente.';
+  document.querySelectorAll('[data-action="analyze-lai"]').forEach(button => { button.disabled = !available; });
+}
+
+async function analyzeLaiCard(card, button) {
+  const notice = card.querySelector('[data-lai-notice]');
+  const response = card.querySelector('[data-lai-response]').value.trim();
+  const attachments = card.querySelector('[data-lai-attachments]').value.trim();
+  if (!response || card.querySelector('[data-lai-scenario]').value !== 'response') {
+    notice.textContent = 'Selecione “Recebi uma resposta” e cole o texto recebido para comparar.';
+    return;
+  }
+  const item = getCurrentInvestigation();
+  const request = item.requests[Number(card.dataset.laiRequest)].requestedItems;
+  button.disabled = true;
+  notice.textContent = 'Comparando os itens solicitados com os textos recebidos…';
+  try {
+    const res = await fetch('/api/lai/analyze', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request, response, attachments }), signal: AbortSignal.timeout(65000),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.analysis) throw new Error(data.error || 'Análise indisponível.');
+    if (!card.isConnected) return;
+    if (response !== card.querySelector('[data-lai-response]').value.trim() || attachments !== card.querySelector('[data-lai-attachments]').value.trim()) {
+      notice.textContent = 'Os textos mudaram durante a análise. Analise novamente a versão atual.';
+      return;
+    }
+    const analysis = data.analysis;
+    card.laiCandidate = { response, attachments, analysis };
+    const labels = { answered: 'Atendido no texto', missing: 'Não localizado', unclear: 'Inconclusivo' };
+    card.querySelector('[data-lai-analysis]').innerHTML = `
+      <h4>Comparação sugerida pela IA — confira os trechos</h4><p>${escapeHtml(analysis.summary)}</p>
+      ${analysis.items.map(entry => `<article class="lai-analysis-item"><strong>${escapeHtml(entry.requested)}</strong><p>${labels[entry.status] || 'Inconclusivo'}</p>${entry.responseExcerpt ? `<blockquote>${escapeHtml(entry.responseExcerpt)}</blockquote>` : ''}<p>${escapeHtml(entry.reason)}</p></article>`).join('')}
+      <p><strong>Próximo passo:</strong> ${escapeHtml(analysis.nextStep)}</p>
+      <ul>${analysis.limitations.map(limit => `<li>${escapeHtml(limit)}</li>`).join('')}</ul>
+      ${analysis.draft ? `<label>Texto-base para revisar e usar<textarea rows="6" readonly>${escapeHtml(analysis.draft)}</textarea></label>` : ''}`;
+    const generatedNotes = analysis.items.map(entry => `${entry.requested}: ${labels[entry.status]}. ${entry.reason}`).join('\n');
+    card.laiCandidate.generatedNotes = generatedNotes;
+    card.querySelector('[data-lai-notes]').value = generatedNotes;
+    // The model never confirms completeness on the reporter's behalf.
+    card.querySelector('[data-lai-result]').value = 'unknown';
+    notice.textContent = 'Análise pronta. Confira os itens e selecione sua conclusão para salvar no histórico.';
+  } catch (error) {
+    if (card.isConnected) notice.textContent = error.name === 'TimeoutError' ? 'A análise demorou demais. Seus textos continuam aqui; tente novamente.' : 'Não foi possível analisar. Seus textos continuam aqui; confira a conexão com o serviço e tente novamente.';
+  } finally { if (button.isConnected) button.disabled = false; }
 }
 
 function renderRequestsCommandCenter(item) {
@@ -6539,6 +6614,22 @@ function bindActions() {
   document.querySelectorAll("[data-action='save-lai-review']").forEach((button) => {
     button.addEventListener("click", () => saveLaiReview(button.closest('[data-lai-request]')));
   });
+
+  document.querySelectorAll("[data-action='analyze-lai']").forEach(button => {
+    button.addEventListener('click', () => analyzeLaiCard(button.closest('[data-lai-request]'), button));
+  });
+  document.querySelectorAll('[data-lai-response], [data-lai-attachments]').forEach(field => {
+    field.addEventListener('input', () => {
+      const card = field.closest('[data-lai-request]');
+      if (!card.laiCandidate) return;
+      const notes = card.querySelector('[data-lai-notes]');
+      if (notes.value === card.laiCandidate.generatedNotes) notes.value = '';
+      delete card.laiCandidate;
+      card.querySelector('[data-lai-result]').value = 'unknown';
+      card.querySelector('[data-lai-analysis]').textContent = 'Os textos mudaram. Analise novamente para atualizar a comparação.';
+    });
+  });
+  checkLaiService();
 
   document.querySelectorAll("[data-action='add-request']").forEach((button) => {
     button.addEventListener("click", () => {

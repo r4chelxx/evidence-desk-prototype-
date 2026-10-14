@@ -2869,3 +2869,40 @@ tr:last-child td {
     min-width: 680px;
   }
 }
+.lai-review-card label {
+  display: grid;
+  gap: 0.4rem;
+  margin-block: 0.9rem;
+}
+
+.lai-review-card input,
+.lai-review-card select,
+.lai-review-card textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.lai-review-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lai-analysis-item {
+  margin-block: 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border, #d8d8d8);
+  border-radius: 0.5rem;
+}
+
+.lai-analysis-item blockquote {
+  margin-inline: 0;
+  padding-left: 0.8rem;
+  border-left: 3px solid #999;
+  white-space: pre-wrap;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
