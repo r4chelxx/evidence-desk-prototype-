@@ -2,14 +2,17 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { analyzeRequest } from './server/lai-analysis.mjs';
+import { hasPdfExtractor, extractPdf } from './server/pdf-extraction.mjs';
 
 const root = new URL('./', import.meta.url);
 const port = Number(process.env.EVIDENCE_DESK_PORT || 4173);
 const configured = Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_MODEL);
+const pdfExtraction = await hasPdfExtractor();
 const staticFiles = new Map([
   ['/', ['index.html', 'text/html']], ['/index.html', ['index.html', 'text/html']],
   ['/app.js', ['app.js', 'text/javascript']], ['/data.js', ['data.js', 'text/javascript']],
   ['/styles.css', ['styles.css', 'text/css']],
+  ['/lai-deadlines.mjs', ['lai-deadlines.mjs', 'text/javascript']],
 ]);
 
 function send(res, status, data) {
@@ -26,7 +29,27 @@ export const server = http.createServer(async (req, res) => {
     return send(res, 403, { error: 'Origem inválida.' });
   }
   const path = new URL(req.url, `http://${host}`).pathname;
-  if (path === '/api/lai/status' && req.method === 'GET') return send(res, 200, { available: configured });
+  if (path === '/api/lai/status' && req.method === 'GET') return send(res, 200, { available: configured, pdfExtraction });
+  if (path === '/api/lai/extract' && req.method === 'POST') {
+    if (!pdfExtraction) return send(res, 503, { error: 'Extração de PDF indisponível. Cole o texto ou importe um arquivo de texto.' });
+    if (!(req.headers['content-type'] || '').startsWith('application/json')) return send(res, 415, { error: 'Envie JSON.' });
+    try {
+      const chunks = []; let size = 0;
+      for await (const chunk of req) {
+        size += chunk.length;
+        if (size > 7100000) return send(res, 413, { error: 'PDF acima do limite de 5 MB.' });
+        chunks.push(chunk);
+      }
+      return send(res, 200, await extractPdf(JSON.parse(Buffer.concat(chunks).toString('utf8'))));
+    } catch (error) {
+      const messages = {
+        PDF_NO_TEXT: 'Não foi encontrado texto selecionável. Este PDF pode precisar de OCR; nenhuma análise de completude foi feita.',
+        PDF_TOO_LARGE: 'O PDF excede o limite de 100 páginas ou 40 mil caracteres. Divida o documento; nenhum trecho foi importado.',
+        PDF_TIMEOUT: 'A extração demorou demais. Tente um arquivo menor.',
+      };
+      return send(res, 422, { error: messages[error.message] || 'Não foi possível ler o PDF. Confira se está válido e sem proteção.' });
+    }
+  }
   if (path === '/api/lai/analyze' && req.method === 'POST') {
     if (!configured) return send(res, 503, { error: 'Análise por IA indisponível: serviço não configurado.' });
     if (!(req.headers['content-type'] || '').startsWith('application/json')) return send(res, 415, { error: 'Envie JSON.' });

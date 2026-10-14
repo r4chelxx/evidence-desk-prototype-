@@ -1,4 +1,5 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa36";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa37";
+import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa37';
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -2122,7 +2123,8 @@ function resetLocalInvestigations() {
 }
 
 function todayIsoDate() {
-  return new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 function createEmptyInvestigation(draft) {
@@ -2311,6 +2313,11 @@ function addRequestToCurrent() {
       responseSummary: state.requestDraft.responseSummary.trim() || t("noReceivedMaterial"),
     },
   ];
+  item.transparencyLog = [...(item.transparencyLog || []), {
+    date: todayIsoDate(), actor: 'Repórter', requestIndex: item.requests.length - 1,
+    origin: 'request-registration', event: `Pedido cadastrado na ferramenta: ${title}. Órgão: ${agency}. Data de envio informada: ${item.requests.at(-1).sentDate}.`,
+    status: 'Registro da repórter', nextStep: 'Conferir o protocolo e configurar o acompanhamento. O cadastro não protocola o pedido no órgão.',
+  }];
   touchInvestigation(item);
   resetRequestDraft();
   state.requestNotice = t("requestAdded");
@@ -2716,13 +2723,19 @@ function countQueueItems(investigation) {
 }
 
 function getRequestTiming(request) {
-  const activeDate = request.currentCheckpoint?.date || request.dueDate;
-  const dueDate = new Date(`${activeDate}T00:00:00`);
-  const today = new Date();
-  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const days = Math.ceil((dueDate - todayDate) / 86400000);
-  const status = request.status.toLowerCase();
-  const isCheckpoint = Boolean(request.currentCheckpoint);
+  const deadline = getDeadlineInfo(request, todayIsoDate());
+  const days = deadline.days;
+  const review = request.operationalReview;
+  const status = review ? '' : (request.status || '').toLowerCase();
+  const isCheckpoint = deadline.kind === 'checkpoint';
+  if (review?.scenario === 'response') {
+    if (review.result === 'complete') return { label: 'Itens conferidos pela repórter', days, tone: 'success' };
+    if (review.result === 'partial') return { label: t('partialResponse'), days, tone: 'warning' };
+    return { label: 'Resposta recebida — conferência pendente', days, tone: 'warning' };
+  }
+  if (review?.scenario === 'denied' || review?.scenario === 'inaccessible') {
+    return { label: review.scenario === 'denied' ? 'Acesso negado — avaliar recurso' : 'Material inacessível', days, tone: 'warning' };
+  }
 
   if (status.includes("fluxo separado") || status.includes("separate track")) {
     return { label: t("separateTrack"), days, tone: "neutral" };
@@ -2735,6 +2748,11 @@ function getRequestTiming(request) {
   if (status.includes("entregue") || status.includes("recebida") || status.includes("received")) {
     return { label: t("responseReceived"), days, tone: "success" };
   }
+
+  if (days === null) return { label: 'Prazo não informado', days: null, tone: 'neutral' };
+  if (deadline.kind === 'reference') return {
+    label: `Referência ${deadline.date} — confirmar no protocolo`, days, tone: 'warning',
+  };
 
   if (days >= 0) {
     const key = isCheckpoint
@@ -2773,7 +2791,12 @@ function countRequestFollowUps(investigation) {
 }
 
 function countReviewedResponses(investigation) {
-  return investigation.requestComparisons.filter((comparison) => comparison.received || comparison.editorialDecision).length;
+  const titles = new Set((investigation.requestComparisons || []).filter(comparison => comparison.received || comparison.editorialDecision).map(comparison => comparison.requestTitle));
+  (investigation.requests || []).forEach(request => {
+    if (request.operationalReview?.scenario === 'response' && request.operationalReview.result !== 'unknown') titles.add(request.title);
+    else if (request.operationalReview) titles.delete(request.title);
+  });
+  return titles.size;
 }
 
 function uniqueOptions(field) {
@@ -3625,15 +3648,64 @@ function renderRequestsWorkspace(item) {
   `;
 }
 
-function laiReviewStatus(comparison) {
-  const text = normalizeText(`${comparison.deadlineStatus} ${comparison.editorialDecision} ${comparison.missing}`);
-  if (text.includes("nao usar") || text.includes("não usar") || text.includes("problema") || text.includes("sem anexo")) {
-    return { label: t("laiBlocked"), tone: "danger" };
+function renderLaiDeadline(request) {
+  const config = request.deadlineConfig || {};
+  const info = getDeadlineInfo(request, todayIsoDate());
+  const label = info.kind === 'checkpoint' ? 'Etapa atual registrada' : info.kind === 'registered' ? 'Prazo registrado' : info.kind === 'reference' ? 'Data de referência, a confirmar' : 'Prazo não informado';
+  return `<section class="lai-deadline">
+    <p><strong>${label}:</strong> ${escapeHtml(info.date || '—')}</p>
+    ${info.discrepancy ? '<p class="notice">A data registrada difere da referência calculada. Confira o protocolo; o registro foi preservado.</p>' : ''}
+    <details><summary>Configurar prazo e consultar a regra</summary>
+      <label>Regra de acompanhamento<select data-lai-rule>
+        <option value="manual" ${config.rule !== 'br-lai-reference' ? 'selected' : ''}>Usar a data do protocolo</option>
+        <option value="br-lai-reference" ${config.rule === 'br-lai-reference' ? 'selected' : ''}>LAI brasileira — calcular referência</option>
+      </select></label>
+      <label>Data de recebimento pelo órgão<input type="date" data-lai-received-date value="${escapeHtml(config.receivedDate || '')}"></label>
+      <label>Prazo confirmado no protocolo<input type="date" data-lai-confirmed-date value="${escapeHtml(config.confirmedDueDate || (parseDate(request.dueDate) ? request.dueDate : ''))}"></label>
+      <label><input type="checkbox" data-lai-extension ${config.extension ? 'checked' : ''}> O órgão comunicou prorrogação com justificativa</label>
+      <label>Justificativa da prorrogação<textarea data-lai-extension-reason rows="2">${escapeHtml(config.extensionReason || '')}</textarea></label>
+      <label>Data da comunicação de prorrogação<input type="date" data-lai-extension-date value="${escapeHtml(config.extensionNotifiedDate || '')}"></label>
+      ${info.reference ? `<p>Referência original: ${escapeHtml(info.originalReference)}${info.extensionDocumented ? ` · com prorrogação documentada: ${escapeHtml(info.reference)}` : ''}.</p>` : ''}
+      <p>${escapeHtml(LAI_REFERENCE.explanation)}</p>
+      <p>A referência soma dias corridos a partir do dia seguinte ao recebimento. Feriados, expediente, suspensões e regras específicas não são ajustados. Confirme a data no canal competente; o cálculo não decide se cabe recurso.</p>
+      <a href="${LAI_REFERENCE.source}" target="_blank" rel="noopener noreferrer">Consultar art. 11 da Lei 12.527/2011</a>
+      <p>Recursos e reclamações dependem da esfera, do poder e da instância. A regra brasileira não é aplicada automaticamente a pedidos FOIA.</p>
+      <p data-lai-deadline-notice role="status"></p>
+      <button type="button" class="button secondary" data-action="save-lai-deadline">Salvar acompanhamento</button>
+    </details></section>`;
+}
+
+function saveLaiDeadline(card) {
+  const item = getCurrentInvestigation();
+  const index = Number(card.dataset.laiRequest);
+  const request = item.requests[index];
+  const config = {
+    rule: card.querySelector('[data-lai-rule]').value,
+    receivedDate: card.querySelector('[data-lai-received-date]').value,
+    confirmedDueDate: card.querySelector('[data-lai-confirmed-date]').value,
+    extension: card.querySelector('[data-lai-extension]').checked,
+    extensionReason: card.querySelector('[data-lai-extension-reason]').value.trim(),
+    extensionNotifiedDate: card.querySelector('[data-lai-extension-date]').value,
+  };
+  const invalid = (config.rule === 'br-lai-reference' && !parseDate(config.receivedDate)) ||
+    (config.confirmedDueDate && !parseDate(config.confirmedDueDate)) ||
+    (config.extension && (!config.extensionReason || !parseDate(config.extensionNotifiedDate)));
+  if (invalid) {
+    card.querySelector('[data-lai-deadline-notice]').textContent = 'Informe o recebimento para calcular a referência e a justificativa/data para registrar a prorrogação.';
+    return;
   }
-  if (text.includes("parcial") || text.includes("ressalva") || text.includes("limite") || text.includes("missing")) {
-    return { label: t("laiPartial"), tone: "warning" };
-  }
-  return { label: t("reviewRecommended"), tone: "neutral" };
+  if (JSON.stringify(request.deadlineConfig) === JSON.stringify(config)) return;
+  request.deadlineConfig = config;
+  if (config.confirmedDueDate) request.dueDate = config.confirmedDueDate;
+  const info = getDeadlineInfo(request, todayIsoDate());
+  item.transparencyLog = [...(item.transparencyLog || []), {
+    date: todayIsoDate(), actor: 'Repórter', requestIndex: index, origin: 'deadline-config',
+    event: `Acompanhamento atualizado: ${request.title}. Prazo registrado: ${config.confirmedDueDate || (parseDate(request.dueDate) ? request.dueDate : 'não informado')}. Referência calculada: ${info.reference || 'não calculada'}.`,
+    status: 'Conferir no protocolo', nextStep: 'Verificar regras e calendário do órgão antes de agir sobre o prazo.',
+    deadlineConfig: { ...config },
+  }];
+  touchInvestigation(item);
+  renderInvestigation();
 }
 
 function renderLaiAssistant(item) {
@@ -3642,13 +3714,14 @@ function renderLaiAssistant(item) {
     <h3>Pedido → resposta → próxima ação</h3>
     <p role="note" data-lai-service-status>Verificando disponibilidade da análise por IA…</p>
     <div class="lai-assistant-grid">${(item.requests || []).map((request, index) => {
-      const review = (item.laiReviews || []).filter(entry => entry.requestIndex === index).at(-1);
+      const reviews = (item.laiReviews || []).filter(entry => entry.requestIndex === index).toSorted((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
+      const review = reviews.at(-1);
       return `<article class="lai-review-card" data-lai-request="${index}">
         <h3>${escapeHtml(request.title)}</h3>
         <p>${escapeHtml(request.agency)} · ${escapeHtml(request.protocol)}</p>
         <details><summary>Ver pedido original</summary><p>${escapeHtml(request.requestedItems)}</p></details>
-        <p><strong>Prazo registrado:</strong> ${escapeHtml(request.currentCheckpoint?.date || request.dueDate || "Não informado")}. Confirme a regra e a instância no protocolo.</p>
-        ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.response)}</p><p>${escapeHtml(review.notes)}</p>${review.analysis ? `<p>Conferência assistida por IA, salva pela repórter.</p><p>${escapeHtml(review.analysis.summary)}</p>${review.analysis.draft ? `<label>Texto-base salvo<textarea rows="6" readonly>${escapeHtml(review.analysis.draft)}</textarea></label>` : ''}` : ''}</details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
+        ${renderLaiDeadline(request)}
+        ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.date)}</p><p>${escapeHtml(review.response)}</p>${review.attachments ? `<details><summary>Anexos usados nesta conferência</summary><textarea rows="6" readonly>${escapeHtml(review.attachments)}</textarea>${(review.importedFiles || []).map(file => `<p>${escapeHtml(file.fileName)} · SHA-256: ${escapeHtml(file.sha256)}</p>`).join('')}${review.importedTextEdited ? '<p>O texto foi editado após a importação. O checksum identifica o arquivo original.</p>' : ''}</details>` : ''}<p>${escapeHtml(review.notes)}</p>${review.analysis ? `<p>Conferência assistida por IA, salva pela repórter.</p><p>${escapeHtml(review.analysis.summary)}</p>${review.analysis.draft ? `<label>Texto-base salvo<textarea rows="6" readonly>${escapeHtml(review.analysis.draft)}</textarea></label>` : ''}` : ''}</details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
         <details><summary>Registrar resposta ou ocorrência</summary>
           <label>Data da ocorrência<input type="date" data-lai-date value="${todayIsoDate()}"></label>
           <label>O que aconteceu?<select data-lai-scenario>
@@ -3658,6 +3731,9 @@ function renderLaiAssistant(item) {
             <option value="inaccessible">Link ou anexo inacessível</option>
           </select></label>
           <label>Resposta integral ou descrição da ocorrência<textarea data-lai-response rows="5"></textarea></label>
+          <label>Importar anexos<input type="file" data-lai-files multiple accept=".pdf,.txt,.csv,.tsv,.json,.md"></label>
+          <p>Textos são lidos neste navegador. PDFs precisam do extrator local; até 5 MB por arquivo. Não há OCR. Confira o texto extraído antes de analisar.</p>
+          <p data-lai-file-notice role="status"></p>
           <label>Conteúdo dos anexos (texto transcrito)<textarea data-lai-attachments rows="4" placeholder="Cole o conteúdo consultado. Links e arquivos não transcritos não serão analisados."></textarea></label>
           <p>Ao analisar, o pedido, a resposta e os textos dos anexos serão enviados ao serviço de IA. Confira os dados antes de enviar.</p>
           <button type="button" class="button secondary" data-action="analyze-lai" disabled>Analisar pedido × resposta com IA</button>
@@ -3685,7 +3761,7 @@ function saveLaiReview(card) {
   const date = card.querySelector('[data-lai-date]').value;
   const scenario = card.querySelector('[data-lai-scenario]').value;
   const result = card.querySelector('[data-lai-result]').value;
-  if (!response || !date || (scenario === 'response' && result !== 'unknown' && !notes)) {
+  if (!response || !parseDate(date) || (scenario === 'response' && result !== 'unknown' && !notes)) {
     card.querySelector('[data-lai-notice]').textContent = 'Informe a data, a ocorrência e a conferência que sustenta o resultado.';
     return;
   }
@@ -3702,27 +3778,88 @@ function saveLaiReview(card) {
   const validCandidate = scenario === 'response' && candidate?.response === response && candidate?.attachments === card.querySelector('[data-lai-attachments]').value.trim();
   const analysis = validCandidate ? candidate.analysis : null;
   const nextStep = analysis?.nextStep || fallbackNextStep;
-  const review = { requestIndex, requestTitle: request.title, date, scenario, result: scenario === 'response' ? result : 'unknown', response, notes, label, nextStep, origin: analysis ? 'ai-assisted-reporter-review' : 'reporter', analysis, attachments: card.querySelector('[data-lai-attachments]').value.trim(), createdAt: new Date().toISOString() };
+  const review = { requestIndex, requestTitle: request.title, date, scenario, result: scenario === 'response' ? result : 'unknown', response, notes, label, nextStep, origin: analysis ? 'ai-assisted-reporter-review' : 'reporter', analysis, attachments: card.querySelector('[data-lai-attachments]').value.trim(), importedFiles: card.importedFiles || [], importedTextEdited: Boolean(card.importedFiles?.length && card.importedAttachmentsText !== card.querySelector('[data-lai-attachments]').value), createdAt: new Date().toISOString() };
   item.laiReviews = [...(item.laiReviews || []), review];
+  if (!request.operationalReview?.date || date >= request.operationalReview.date) {
+    request.operationalReview = { date, scenario, result: review.result };
+  }
   item.transparencyLog = [...(item.transparencyLog || []), { date, actor: request.agency, event: `${request.title} (${request.protocol}): ${response}`, status: label, nextStep, origin: 'lai-review', requestIndex }];
   touchInvestigation(item);
   renderInvestigation();
+}
+
+async function importLaiFiles(card, field) {
+  const notice = card.querySelector('[data-lai-file-notice]');
+  const target = card.querySelector('[data-lai-attachments]');
+  const initialText = target.value;
+  const files = [...field.files];
+  if (!files.length) return;
+  if (files.length > 10) { notice.textContent = 'Importe até 10 arquivos por vez.'; field.value = ''; return; }
+  notice.textContent = 'Lendo anexos…';
+  field.disabled = true;
+  const imported = [], failures = [];
+  try {
+    for (const file of files) {
+      try {
+        if (file.size > 5 * 1024 * 1024) throw new Error('acima de 5 MB');
+        let text, metadata;
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        if (/\.pdf$/i.test(file.name)) {
+          let binary = '';
+          for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+          const res = await fetch('/api/lai/extract', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base64: btoa(binary), fileName: file.name }), signal: AbortSignal.timeout(15000),
+          });
+          if (!res.headers.get('content-type')?.includes('application/json')) throw new Error('PDF exige o serviço local de extração');
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || 'PDF não pôde ser lido');
+          text = result.text;
+          metadata = { fileName: file.name, sha256: result.sha256, pages: result.pages, warning: result.warning, size: file.size };
+        } else {
+          if (!/\.(txt|csv|tsv|json|md)$/i.test(file.name)) throw new Error('formato não suportado');
+          text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+          if (!text.trim() || text.includes('\u0000')) throw new Error('arquivo sem texto UTF-8 válido');
+          const digest = await crypto.subtle.digest('SHA-256', bytes);
+          metadata = { fileName: file.name, sha256: [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join(''), size: file.size };
+        }
+        const block = `[Arquivo: ${file.name}]\n${text}`;
+        if ([initialText, ...imported.map(entry => entry.block), block].join('\n\n').length > 40000) throw new Error('ultrapassa o limite total de 40 mil caracteres; divida o material');
+        imported.push({ block, metadata });
+      } catch (error) {
+        failures.push(`${file.name}: ${error.name === 'TypeError' || error.name === 'TimeoutError' ? 'extração indisponível; tente novamente' : error.message}`);
+      }
+    }
+    if (!card.isConnected) return;
+    if (target.value !== initialText) { notice.textContent = 'O texto dos anexos mudou durante a leitura. Nada foi substituído; importe novamente.'; return; }
+    if (imported.length) {
+      target.value = [initialText, ...imported.map(entry => entry.block)].filter(Boolean).join('\n\n');
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      card.importedFiles = [...(card.importedFiles || []), ...imported.map(entry => entry.metadata)];
+      card.importedAttachmentsText = target.value;
+    }
+    notice.textContent = `${imported.length} arquivo(s) importado(s). ${imported.some(entry => entry.metadata.pages) ? 'Confira páginas, tabelas e imagens no original; não há OCR. ' : ''}${failures.length ? `Não importados: ${failures.join('; ')}` : 'Confira o texto antes de analisar. Os arquivos originais não são armazenados.'}`;
+  } finally { field.disabled = false; field.value = ''; }
 }
 
 async function checkLaiService() {
   const notice = document.querySelector('[data-lai-service-status]');
   if (!notice) return;
   let available = false;
+  let pdfExtraction = false;
   try {
     const response = await fetch('/api/lai/status', { signal: AbortSignal.timeout(4000) });
     if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-      available = (await response.json()).available === true;
+      const status = await response.json();
+      available = status.available === true;
+      pdfExtraction = status.pdfExtraction === true;
     }
   } catch { /* Static hosting remains usable without the analysis service. */ }
   if (!notice.isConnected) return;
   notice.textContent = available
     ? 'IA disponível para comparar os textos. Revise os trechos e confirme a conclusão antes de salvar.'
     : 'IA indisponível nesta hospedagem. Você pode registrar e conferir a resposta manualmente.';
+  notice.textContent += pdfExtraction ? ' Extração de PDF disponível.' : ' Importação de texto disponível; extração de PDF indisponível.';
   document.querySelectorAll('[data-action="analyze-lai"]').forEach(button => { button.disabled = !available; });
 }
 
@@ -3886,6 +4023,10 @@ function renderRequestAddForm() {
 }
 
 function requestBoardStage(request) {
+  const review = request.operationalReview;
+  if (review?.scenario === 'response') return review.result === 'complete' ? 'received' : 'problem';
+  if (review?.scenario === 'denied' || review?.scenario === 'inaccessible') return 'problem';
+  if (review?.scenario === 'silence') return getRequestTiming(request).tone === 'danger' ? 'problem' : 'waiting';
   const status = normalizeText(request.status || "");
   const timing = getRequestTiming(request);
 
@@ -6613,6 +6754,12 @@ function bindActions() {
 
   document.querySelectorAll("[data-action='save-lai-review']").forEach((button) => {
     button.addEventListener("click", () => saveLaiReview(button.closest('[data-lai-request]')));
+  });
+  document.querySelectorAll('[data-lai-files]').forEach(field => {
+    field.addEventListener('change', () => importLaiFiles(field.closest('[data-lai-request]'), field));
+  });
+  document.querySelectorAll('[data-action="save-lai-deadline"]').forEach(button => {
+    button.addEventListener('click', () => saveLaiDeadline(button.closest('[data-lai-request]')));
   });
 
   document.querySelectorAll("[data-action='analyze-lai']").forEach(button => {

@@ -12,9 +12,29 @@ The Pages demo remains static. An optional local Node 24 adapter now connects th
 structured LAI form to OpenAI Responses with a strict JSON schema. It is **not
 configured or active on Pages**. It compares pasted request/response/attachment
 text, proposes per-item findings and a follow-up draft, and preserves the analysis
-when the reporter saves the review. Binary attachments, OCR and automatic legal
-deadline calculation are not implemented. A model assessment is not proof that all
+when the reporter saves the review. OCR and jurisdiction-specific deadline
+calendars are not implemented. A model assessment is not proof that all
 requested items were identified; the reporter must review coverage and excerpts.
+
+An attachment importer reads UTF-8 TXT, CSV, TSV, JSON and Markdown in the browser.
+The local adapter can extract selectable PDF text with Poppler's `pdftotext` (install
+`poppler-utils` on Debian/Ubuntu or `poppler` with Homebrew). No API key is required
+for extraction. PDF bytes go only to the local extractor; the resulting text goes
+to OpenAI only after the analysis button is pressed. Limits are 5 MB per file,
+100 PDF pages and 40,000 characters in the combined attachment text. Protected,
+unreadable and textless PDFs produce an explicit error. No OCR, XLSX or DOCX yet.
+Original files are not stored; saved reviews preserve the imported text, filenames
+and original SHA-256 checksums, with an indicator if the reporter edited that text.
+
+The deadline panel distinguishes registered deadlines, active checkpoints and
+arithmetic reference dates. Selecting the Brazilian LAI reference and entering the
+agency's receipt date calculates +20 calendar days; +10 is shown only when the
+reporter records extension justification and its communication date. This is not
+a verified legal due date: holidays, closures, suspensions and local counting rules
+are not inferred. Dates already recorded in protocols take precedence. FOIA and
+appeal deadlines are never inferred from this Brazilian rule. Source: [Law
+12.527/2011, art. 11](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm),
+checked 2026-10-14. Seed case facts are unchanged.
 
 ## Run the optional AI adapter
 

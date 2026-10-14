@@ -2883,6 +2883,17 @@ tr:last-child td {
   box-sizing: border-box;
 }
 
+.lai-review-card input[type="checkbox"] {
+  width: auto;
+  justify-self: start;
+}
+
+.lai-deadline {
+  border-block: 1px solid var(--line);
+  margin-block: 1rem;
+  padding-block: 0.75rem;
+}
+
 .lai-review-card {
   min-width: 0;
   overflow-wrap: anywhere;
