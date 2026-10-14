@@ -38,7 +38,8 @@ without backend, login, external integrations or AI.
 - Reporting map that connects hypotheses, evidence needs and likely source paths.
 - Evidence inventory that keeps unmapped evidence blocks visible during planning.
 - Request board that groups LAI/FOIA/public-record requests by process status.
-- LAI/FOIA assistant view that analyzes request-response completeness, next steps and the transparency history without treating procedural logs as publishable claims.
+- Structured per-request LAI review: reporter records a response or occurrence, checks completeness and saves a linked transparency event. Scenario guidance is predefined; documentary AI is not connected.
+- Procedural claims use explicit role metadata; mentioning LAI or a protocol does not automatically exclude a substantive finding.
 - Editorial claim decision cards for advance, caveat or hold decisions before publication.
 - Desktop test rail inside each investigation so reviewers can move through the flow, QA and methodology without losing context.
 - Story-in-progress panel that translates pitch, evidence, blockers and publishable angle into a clearer path toward the final story.

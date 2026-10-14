@@ -1,4 +1,4 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa34";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa35";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -445,7 +445,7 @@ const dictionary = {
     processGuide: "Guia de processo",
     processGuideTitle: "Fluxo atento à jurisdição, ainda controlado pela repórter.",
     laiAssistantTitle: "Assistente LAI",
-    laiAssistantHeading: "A ferramenta lê pedido e resposta como fluxo operacional.",
+    laiAssistantHeading: "Acompanhe cada pedido e confira a resposta recebida.",
     laiAssistantCopy:
       "Registre o que foi pedido, o que chegou e o que faltou. A ferramenta organiza completude, diário, próximos passos, prazos, canais e ressalvas para a repórter agir fora da plataforma quando necessário.",
     laiComplete: "Resposta aproveitável",
@@ -453,7 +453,7 @@ const dictionary = {
     laiBlocked: "Não usar ainda",
     laiNextAction: "Próxima ação sugerida",
     laiCompleteness: "Completude",
-    transparencyLogTitle: "Histórico automático de transparência",
+    transparencyLogTitle: "Histórico de transparência da reportagem",
     transparencyLogHeading: "O diário nasce da análise de pedidos e respostas, não como aba editorial separada.",
     transparencyLogCopy: "Use este histórico para separar pedido, encaminhamento, resposta parcial, recurso e entrega real de documentos.",
     noTransparencyTitle: "Ainda não há diário de transparência.",
@@ -1057,7 +1057,7 @@ const dictionary = {
     laiBlocked: "Do not use yet",
     laiNextAction: "Suggested next action",
     laiCompleteness: "Completeness",
-    transparencyLogTitle: "Automatic transparency history",
+    transparencyLogTitle: "Story transparency history",
     transparencyLogHeading: "The diary comes from request-response analysis, not as a separate editorial tab.",
     transparencyLogCopy: "Use this history to separate request, forwarding, partial response, appeal and actual document delivery.",
     noTransparencyTitle: "No transparency log yet.",
@@ -1659,7 +1659,7 @@ dictionary.es = {
   laiBlocked: "No usar todavía",
   laiNextAction: "Próxima acción sugerida",
   laiCompleteness: "Completitud",
-  transparencyLogTitle: "Historial automático de transparencia",
+  transparencyLogTitle: "Historial de transparencia del reportaje",
   transparencyLogHeading: "El diario nace del análisis solicitud-respuesta, no como pestaña editorial separada.",
   transparencyLogCopy: "Use este historial para separar solicitud, encaminamiento, respuesta parcial, recurso y entrega real de documentos.",
   nextStep: "Próximo paso",
@@ -3627,48 +3627,72 @@ function laiReviewStatus(comparison) {
   if (text.includes("parcial") || text.includes("ressalva") || text.includes("limite") || text.includes("missing")) {
     return { label: t("laiPartial"), tone: "warning" };
   }
-  return { label: t("laiComplete"), tone: "success" };
+  return { label: t("reviewRecommended"), tone: "neutral" };
 }
 
 function renderLaiAssistant(item) {
-  const comparisons = item.requestComparisons || [];
-  const cards = comparisons.map((comparison) => ({ ...comparison, review: laiReviewStatus(comparison) }));
+  return `<section class="lai-assistant">
+    <p class="eyebrow">${t("laiAssistantTitle")}</p>
+    <h3>Pedido → resposta → próxima ação</h3>
+    <p role="note">IA documental ainda não conectada. Esta versão registra uma conferência feita pela repórter; não interpreta documentos automaticamente.</p>
+    <div class="lai-assistant-grid">${(item.requests || []).map((request, index) => {
+      const review = (item.laiReviews || []).filter(entry => entry.requestIndex === index).at(-1);
+      return `<article class="lai-review-card" data-lai-request="${index}">
+        <h3>${escapeHtml(request.title)}</h3>
+        <p>${escapeHtml(request.agency)} · ${escapeHtml(request.protocol)}</p>
+        <details><summary>Ver pedido original</summary><p>${escapeHtml(request.requestedItems)}</p></details>
+        <p><strong>Prazo registrado:</strong> ${escapeHtml(request.currentCheckpoint?.date || request.dueDate || "Não informado")}. Confirme a regra e a instância no protocolo.</p>
+        ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.response)}</p><p>${escapeHtml(review.notes)}</p></details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
+        <details><summary>Registrar resposta ou ocorrência</summary>
+          <label>Data da ocorrência<input type="date" data-lai-date value="${todayIsoDate()}"></label>
+          <label>O que aconteceu?<select data-lai-scenario>
+            <option value="response">Recebi uma resposta</option>
+            <option value="silence">Ainda não houve resposta</option>
+            <option value="denied">Acesso negado</option>
+            <option value="inaccessible">Link ou anexo inacessível</option>
+          </select></label>
+          <label>Resposta integral ou descrição da ocorrência<textarea data-lai-response rows="5"></textarea></label>
+          <label>Conferência item a item<textarea data-lai-notes rows="4" placeholder="Compare cada item do pedido: entregue, ausente ou inconclusivo. Registre os arquivos consultados."></textarea></label>
+          <label>Resultado da sua conferência<select data-lai-result>
+            <option value="unknown">Ainda não consigo avaliar</option>
+            <option value="partial">Faltam itens solicitados</option>
+            <option value="complete">Todos os itens e anexos foram conferidos</option>
+          </select></label>
+          <p data-lai-notice role="status"></p>
+          <button type="button" class="button secondary" data-action="save-lai-review">Salvar no histórico do pedido</button>
+        </details>
+      </article>`;
+    }).join("") || '<p>Registre seu primeiro pedido para começar.</p>'}</div>
+  </section>`;
+}
 
-  return `
-    <section class="lai-assistant">
-      <div class="section-header compact-header">
-        <div>
-          <p class="eyebrow">${t("laiAssistantTitle")}</p>
-          <h3>${t("laiAssistantHeading")}</h3>
-          <p>${t("laiAssistantCopy")}</p>
-        </div>
-      </div>
-      <div class="lai-assistant-grid">
-        ${
-          cards
-            .map(
-              (card) => `
-                <article class="lai-review-card ${card.review.tone}">
-                  <div class="card-footer top">
-                    <div>
-                      <p class="eyebrow">${t("laiCompleteness")}</p>
-                      <h3>${card.requestTitle}</h3>
-                    </div>
-                    <span class="pill ${card.review.tone}">${card.review.label}</span>
-                  </div>
-                  <dl class="mini-detail-list">
-                    <div><dt>${t("received")}</dt><dd>${card.received}</dd></div>
-                    <div><dt>${t("missingUnclear")}</dt><dd>${card.missing}</dd></div>
-                    <div><dt>${t("laiNextAction")}</dt><dd>${card.nextStep}</dd></div>
-                  </dl>
-                </article>
-              `,
-            )
-            .join("") || `<section class="empty-state"><h3>${t("laiAssistantTitle")}</h3><p>${t("laiAssistantCopy")}</p></section>`
-        }
-      </div>
-    </section>
-  `;
+function saveLaiReview(card) {
+  const item = getCurrentInvestigation();
+  const requestIndex = Number(card.dataset.laiRequest);
+  const request = item.requests[requestIndex];
+  const response = card.querySelector('[data-lai-response]').value.trim();
+  const notes = card.querySelector('[data-lai-notes]').value.trim();
+  const date = card.querySelector('[data-lai-date]').value;
+  const scenario = card.querySelector('[data-lai-scenario]').value;
+  const result = card.querySelector('[data-lai-result]').value;
+  if (!response || !date || (scenario === 'response' && result !== 'unknown' && !notes)) {
+    card.querySelector('[data-lai-notice]').textContent = 'Informe a data, a ocorrência e a conferência que sustenta o resultado.';
+    return;
+  }
+  const outcomes = {
+    silence: ['Sem resposta', 'Confira o prazo aplicável e eventuais prorrogações no protocolo. Se estiver vencido, prepare a cobrança ou reclamação no canal competente.'],
+    denied: ['Acesso negado', 'Registre a justificativa e a base legal informadas pelo órgão. Confira a instância e o prazo de recurso no canal oficial antes de preparar a contestação.'],
+    inaccessible: ['Material inacessível', 'Peça reenvio dos arquivos ou acesso sem restrição; guarde o endereço, a mensagem de erro e a data da tentativa.'],
+    unknown: ['Conferência pendente', 'Compare cada item solicitado e abra os anexos antes de concluir sobre a completude.'],
+    partial: ['Resposta parcial — conferência da repórter', 'Prepare uma complementação enumerando os itens ausentes. Confira se o caso exige recurso e qual é o prazo no protocolo.'],
+    complete: ['Itens conferidos pela repórter', 'Encaminhe os documentos relevantes ao acervo de evidências e avalie o que sustentam na apuração.']
+  };
+  const [label, nextStep] = outcomes[scenario === 'response' ? result : scenario];
+  const review = { requestIndex, requestTitle: request.title, date, scenario, result: scenario === 'response' ? result : 'unknown', response, notes, label, nextStep, origin: 'reporter', createdAt: new Date().toISOString() };
+  item.laiReviews = [...(item.laiReviews || []), review];
+  item.transparencyLog = [...(item.transparencyLog || []), { date, actor: request.agency, event: `${request.title} (${request.protocol}): ${response}`, status: label, nextStep, origin: 'lai-review', requestIndex }];
+  touchInvestigation(item);
+  renderInvestigation();
 }
 
 function renderRequestsCommandCenter(item) {
@@ -4027,21 +4051,7 @@ function getStoryClaimDecision(claim) {
 }
 
 function isProceduralClaim(claim) {
-  const text = normalizeText(`${claim.text} ${claim.type} ${claim.evidence}`);
-  const proceduralTerms = [
-    "lai",
-    "foia",
-    "diario",
-    "transparencia",
-    "anexo",
-    "link",
-    "protocolo",
-    "recurso",
-    "ouvidoria",
-    "prazo",
-    "encaminhamento",
-  ];
-  return proceduralTerms.some((term) => text.includes(term));
+  return claim.role === "procedural" || claim.kind === "process";
 }
 
 function getPublicationBlockers(item) {
@@ -6524,6 +6534,10 @@ function bindActions() {
       addSourceToCurrent();
       renderInvestigation();
     });
+  });
+
+  document.querySelectorAll("[data-action='save-lai-review']").forEach((button) => {
+    button.addEventListener("click", () => saveLaiReview(button.closest('[data-lai-request]')));
   });
 
   document.querySelectorAll("[data-action='add-request']").forEach((button) => {
