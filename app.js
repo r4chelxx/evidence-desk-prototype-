@@ -266,6 +266,18 @@ const dictionary = {
     openMethodologyNote: "Abrir metodologia",
     desktopHint:
       "Percorra da visão geral à metodologia e observe se cada decisão aponta para evidência, pedido ou lacuna.",
+    storyBuilderTitle: "Matéria em construção",
+    storyBuilderHeading: "Da pauta ao texto publicável",
+    storyBuilderCopy:
+      "Esta área mostra o que a investigação já consegue dizer, o que ainda é hipótese e o que bloqueia a publicação.",
+    workingThesis: "Tese provisória",
+    publishableAngle: "Caminho de publicação",
+    editorQuestion: "Pergunta editorial",
+    storySectionRole: "Papel na matéria",
+    storySectionEvidence: "Base usada",
+    storySectionBlocker: "O que ainda trava",
+    storyNoDraft:
+      "A ferramenta ainda está montando uma leitura editorial desta pauta a partir de hipóteses, pedidos, lacunas e claims.",
     executiveSummary: "Resumo executivo",
     investigationCompass: "Bússola da investigação",
     investigationCompassHeading: "Quatro leituras rápidas do mesmo caso: prova, transparência, risco e publicação.",
@@ -820,6 +832,18 @@ const dictionary = {
     openMethodologyNote: "Open methodology",
     desktopHint:
       "Move from overview to methodology and check whether each decision points to evidence, request or gap.",
+    storyBuilderTitle: "Story in progress",
+    storyBuilderHeading: "From pitch to publishable story",
+    storyBuilderCopy:
+      "This area shows what the investigation can say now, what remains a hypothesis and what blocks publication.",
+    workingThesis: "Working thesis",
+    publishableAngle: "Publication path",
+    editorQuestion: "Editorial question",
+    storySectionRole: "Role in the story",
+    storySectionEvidence: "Evidence used",
+    storySectionBlocker: "What still blocks it",
+    storyNoDraft:
+      "The tool is still building an editorial reading of this story from hypotheses, requests, gaps and claims.",
     executiveSummary: "Executive summary",
     investigationCompass: "Investigation compass",
     investigationCompassHeading: "Four quick readings of the same story: proof, transparency, risk and publication.",
@@ -1377,6 +1401,18 @@ dictionary.es = {
   openMethodologyNote: "Abrir metodología",
   desktopHint:
     "Recorra desde la vista general hasta la metodología y observe si cada decisión apunta a evidencia, solicitud o vacío.",
+  storyBuilderTitle: "Historia en construcción",
+  storyBuilderHeading: "De la pauta al texto publicable",
+  storyBuilderCopy:
+    "Esta área muestra qué puede decir la investigación ahora, qué sigue como hipótesis y qué bloquea la publicación.",
+  workingThesis: "Tesis provisional",
+  publishableAngle: "Camino de publicación",
+  editorQuestion: "Pregunta editorial",
+  storySectionRole: "Papel en la historia",
+  storySectionEvidence: "Base usada",
+  storySectionBlocker: "Qué todavía bloquea",
+  storyNoDraft:
+    "La herramienta todavía está montando una lectura editorial de esta pauta a partir de hipótesis, solicitudes, vacíos y afirmaciones.",
   executiveSummary: "Resumen ejecutivo",
   investigationCompass: "Brújula de la investigación",
   investigationCompassHeading: "Cuatro lecturas rápidas del mismo caso: prueba, transparencia, riesgo y publicación.",
@@ -3603,6 +3639,7 @@ function renderOverview(item) {
       <h2>${item.centralQuestion}</h2>
       <p>${item.description}</p>
     </section>
+    ${renderStoryBuilder(item)}
     ${renderExecutiveSummary(item)}
     ${renderInvestigationCompass(item)}
     ${renderDataAuditPanel(item)}
@@ -3654,6 +3691,85 @@ function renderOverview(item) {
         <h3>${t("editorialSafetyRule")}</h3>
         <p>${t("editorialSafetyCopy")}</p>
       </article>
+    </section>
+  `;
+}
+
+function getStoryDraft(item) {
+  if (item.storyDraft) return item.storyDraft;
+
+  const firstClaim = item.claims?.[0];
+  const firstGap = item.gaps?.[0];
+  const firstHypothesis = item.hypotheses?.[0];
+
+  return {
+    status: t("reviewRecommended"),
+    workingThesis: firstHypothesis?.text || item.centralQuestion,
+    publishableAngle: firstClaim?.text || t("storyNoDraft"),
+    editorQuestion: t("storyNoDraft"),
+    sections: [
+      {
+        title: t("centralQuestion"),
+        role: t("storySectionRole"),
+        evidence: item.centralQuestion,
+        status: item.status,
+        blocker: firstGap?.description || t("noImmediateAction"),
+      },
+      {
+        title: t("claims"),
+        role: t("publishableAngle"),
+        evidence: firstClaim?.evidence || t("reviewRecommended"),
+        status: firstClaim?.status || t("reviewRecommended"),
+        blocker: firstClaim?.relation || t("reviewRecommended"),
+      },
+    ],
+  };
+}
+
+function renderStoryBuilder(item) {
+  const draft = getStoryDraft(item);
+
+  return `
+    <section class="story-builder">
+      <div class="story-builder-main">
+        <p class="eyebrow">${t("storyBuilderTitle")}</p>
+        <h2>${t("storyBuilderHeading")}</h2>
+        <p>${t("storyBuilderCopy")}</p>
+        <dl class="story-brief">
+          <div>
+            <dt>${t("workingThesis")}</dt>
+            <dd>${draft.workingThesis}</dd>
+          </div>
+          <div>
+            <dt>${t("publishableAngle")}</dt>
+            <dd>${draft.publishableAngle}</dd>
+          </div>
+          <div>
+            <dt>${t("editorQuestion")}</dt>
+            <dd>${draft.editorQuestion}</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="story-stage-list">
+        ${(draft.sections || [])
+          .map(
+            (section, index) => `
+              <article class="story-stage-card ${statusClass(section.status)}">
+                <div class="story-stage-index">${index + 1}</div>
+                <div>
+                  <p class="eyebrow">${section.role || t("storySectionRole")}</p>
+                  <h3>${section.title}</h3>
+                  <span class="pill ${statusClass(section.status)}">${section.status}</span>
+                  <dl class="mini-detail-list">
+                    <div><dt>${t("storySectionEvidence")}</dt><dd>${section.evidence}</dd></div>
+                    <div><dt>${t("storySectionBlocker")}</dt><dd>${section.blocker}</dd></div>
+                  </dl>
+                </div>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
     </section>
   `;
 }

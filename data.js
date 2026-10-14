@@ -829,6 +829,45 @@ export const investigations = [
       "O que os dados revelam sobre violência obstétrica e mortalidade materna na Bahia?",
     description:
       "Investigação documental e baseada em dados sobre padroes territoriais, hospitais, mortalidade materna, denúncias, desigualdades e responsabilização institucional, sem entrevistas com vitimas nesta fase.",
+    storyDraft: {
+      status: "Apuração em estruturação",
+      workingThesis:
+        "A investigação ainda não está pronta para uma tese conclusiva sobre violência obstétrica na Bahia. O material atual sustenta uma linha metodológica forte sobre limites de transparência, respostas parciais e lacunas que impedem comparar maternidades, territórios e responsabilização de forma segura.",
+      publishableAngle:
+        "Publicar primeiro como investigação sobre acesso, qualidade dos dados e obstáculos documentais, enquanto as hipóteses substantivas sobre hospitais, mortes evitáveis e desigualdade racial seguem dependentes de bases completas.",
+      editorQuestion:
+        "Que afirmações já podem entrar no texto sem transformar silêncio, anexo ausente ou encaminhamento administrativo em conclusão?",
+      sections: [
+        {
+          title: "A pergunta de reportagem",
+          role: "Pauta",
+          evidence: "Pergunta central, recorte 2020-2026 e lista de fontes/pedidos.",
+          status: "Definida",
+          blocker: "A pergunta precisa permanecer ampla até as bases por maternidade e manifestações serem acessíveis.",
+        },
+        {
+          title: "O que já pode ser contado",
+          role: "Base publicável",
+          evidence: "Resposta parcial da SESAB, certidão MPBA/CESAU e diário de transparência.",
+          status: "Com ressalva",
+          blocker: "Usar como texto sobre limites, escopo e transparência, não como ranking ou conclusão sobre unidades.",
+        },
+        {
+          title: "O que ainda segura a matéria principal",
+          role: "Bloqueio editorial",
+          evidence: "Anexos ausentes, links inválidos, ausência de base completa da Ouvidoria SUS e dados por maternidade.",
+          status: "Bloqueado",
+          blocker: "Sem esses materiais, claims sobre concentração por maternidade, evitabilidade e desigualdade seguem em hipótese.",
+        },
+        {
+          title: "Saída provável da próxima versão",
+          role: "Publicação",
+          evidence: "Nota metodológica, claims com ressalva e quadro de pedidos pendentes.",
+          status: "Rascunho",
+          blocker: "Revisar linguagem para separar achado de transparência, limitação metodológica e evidência substantiva.",
+        },
+      ],
+    },
     processGuide: [
       {
         stage: "Pedido enviado",
@@ -1152,31 +1191,31 @@ export const investigations = [
     ],
     claims: [
       {
-        text: "Parte dos dados recebidos não permite identificar tipo de parto de forma consistente.",
-        type: "Factual",
-        evidence: "Planilha parcial VO-LAI-01",
+        text: "Os dados recebidos até agora permitem discutir limites de transparência e qualidade, mas ainda não sustentam comparação por maternidade em toda a Bahia.",
+        type: "Metodológica",
+        evidence: "Planilha parcial VO-LAI-01, pedidos YL5LHVVX/C5NTY0ER ainda sem entrega verificável e diário de transparência.",
         relation: "Limita",
         strength: "Média",
         risk: "Medio",
-        status: "Sustentada parcialmente",
+        status: "Usar com ressalva",
       },
       {
-        text: "Quatro pedidos de informação estavam atrasados em setembro de 2026.",
-        type: "Numerica",
-        evidence: "Diário de transparência e protocolos",
+        text: "A certidão do MPBA/CESAU documenta 23 representações nas Promotorias de Justiça de Saúde da Capital, mas não permite tratar o dado como retrato estadual do MPBA.",
+        type: "Factual com escopo",
+        evidence: "Oficio 41/CESAU e certidão com 23 registros entre 01/01/2020 e 20/09/2026.",
         relation: "Sustenta",
         strength: "Forte",
         risk: "Baixo",
-        status: "Precisa de rechecagem temporal",
+        status: "Sustentada",
       },
       {
-        text: "Não há uma base oficial única que meça violência obstétrica diretamente na Bahia.",
-        type: "Metodológica",
-        evidence: "Arquitetura da pauta e pedidos a SESAB, Ouvidoria SUS, MP-BA, DPE-BA e CEPOIF",
+        text: "Respostas que mencionam anexos ou links inacessíveis ainda não podem ser usadas como evidência substantiva sobre violência obstétrica.",
+        type: "Regra metodológica",
+        evidence: "Comparações dos pedidos YL5LHVVX e C5NTY0ER, recurso 202620001408821 e prints/registro de acesso pendentes.",
         relation: "Limita",
-        strength: "Média",
-        risk: "Medio",
-        status: "Precisa de formulação cautelosa",
+        strength: "Forte",
+        risk: "Baixo",
+        status: "Sustentada com limite",
       },
     ],
   },
