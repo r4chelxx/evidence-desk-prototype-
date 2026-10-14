@@ -1640,6 +1640,114 @@ label small {
   margin-top: 0.65rem;
 }
 
+.story-publication-package,
+.story-outline,
+.story-claims-deck,
+.publication-blockers,
+.story-methodology-bridge {
+  margin-bottom: 1rem;
+}
+
+.story-package-grid,
+.story-outline-grid,
+.story-claim-grid,
+.publication-blocker-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.story-package-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.story-outline-grid,
+.story-claim-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.story-outline-card,
+.story-claim-card,
+.publication-blocker {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  min-width: 0;
+  padding: 0.9rem;
+}
+
+.story-outline-card {
+  align-items: start;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 36px minmax(0, 1fr);
+}
+
+.story-outline-card.warning,
+.story-claim-card.warning,
+.publication-blocker.warning {
+  border-color: rgba(154, 101, 0, 0.48);
+}
+
+.story-outline-card.danger,
+.story-claim-card.danger,
+.publication-blocker.danger {
+  border-color: rgba(170, 52, 52, 0.52);
+}
+
+.story-outline-card.success,
+.story-claim-card.success,
+.publication-blocker.success {
+  border-color: rgba(47, 125, 87, 0.52);
+}
+
+.story-outline-card h4,
+.story-claim-card h4 {
+  font-size: 1rem;
+  line-height: 1.25;
+  margin: 0.25rem 0 0.45rem;
+}
+
+.story-outline-card p,
+.story-outline-card small,
+.story-claim-card dd,
+.publication-blocker small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.story-outline-card small {
+  display: block;
+}
+
+.story-claim-card {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.publication-blocker {
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 0.45rem;
+  text-align: left;
+}
+
+.publication-blocker:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.story-methodology-bridge {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.story-methodology-bridge h3 {
+  margin: 0.2rem 0 0;
+}
+
 .tabs {
   display: grid;
   gap: 0.85rem;
@@ -2543,6 +2651,17 @@ tr:last-child td {
 
   .story-builder {
     grid-template-columns: 1fr;
+  }
+
+  .story-package-grid,
+  .story-outline-grid,
+  .story-claim-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .story-methodology-bridge {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .compass-core h3 {

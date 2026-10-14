@@ -41,6 +41,7 @@ without backend, login, external integrations or AI.
 - Editorial claim decision cards for advance, caveat or hold decisions before publication.
 - Desktop test rail inside each investigation so reviewers can move through the flow, QA and methodology without losing context.
 - Story-in-progress panel that translates pitch, evidence, blockers and publishable angle into a clearer path toward the final story.
+- Dedicated Story/Matéria workspace that groups narrative blocks, claims for publication, caveats and blockers before the methodology export.
 - Mobile investigation context card so the current workflow area stays visible when the sidebar guide is hidden.
 - Claim-to-evidence matrix with "supports / contradicts / limits" relation tracking.
 - Markdown methodological note preview/copy flow, including sources, source types and limits.

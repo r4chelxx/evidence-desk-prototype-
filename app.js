@@ -261,6 +261,7 @@ const dictionary = {
     requestComparison: "Comparação de pedidos",
     gaps: "Lacunas",
     claims: "Afirmações",
+    storyTab: "Matéria",
     qaChecklist: "Checklist QA",
     methodology: "Metodologia",
     evidenceBlocksMetric: "blocos de evidência",
@@ -295,6 +296,26 @@ const dictionary = {
     storySectionBlocker: "O que ainda trava",
     storyNoDraft:
       "A ferramenta ainda está montando uma leitura editorial desta pauta a partir de hipóteses, pedidos, lacunas e claims.",
+    storyWorkspaceTitle: "Mesa da matéria",
+    storyWorkspaceHeading: "Monte a publicação a partir do que já está provado.",
+    storyWorkspaceCopy:
+      "Use esta etapa para separar texto publicável, ressalvas necessárias e lacunas que ainda impedem conclusões.",
+    storyPackageTitle: "Pacote de publicação",
+    storyPackageHeading: "O que entra, o que entra com ressalva e o que fica fora por enquanto.",
+    storyOutlineTitle: "Estrutura narrativa",
+    storyOutlineHeading: "Transforme apuração em blocos de texto revisáveis.",
+    publishableClaimsTitle: "Afirmações para o texto",
+    publishableClaimsHeading: "Decida como cada afirmação deve aparecer na matéria.",
+    storyClaimReady: "Pode entrar no texto",
+    storyClaimCaveat: "Usar com ressalva",
+    storyClaimHold: "Segurar por enquanto",
+    publicationBlockersTitle: "Travas de publicação",
+    publicationBlockersHeading: "Pontos que ainda impedem uma versão final segura.",
+    noPublicationBlockers: "Nenhuma trava crítica registrada para a publicação.",
+    methodologyBridgeTitle: "Fechar método",
+    methodologyBridgeCopy: "Depois de decidir o que entra no texto, exporte a nota metodológica com limites, pedidos e evidências.",
+    openStoryWorkspace: "Abrir matéria",
+    openClaimsBoard: "Abrir afirmações",
     mobileFocusTitle: "Modo foco",
     mobileFocusHeading: "O que fazer agora",
     mobileNextDecision: "Próxima decisão",
@@ -650,7 +671,7 @@ const dictionary = {
     navGroupStart: "Comece",
     navGroupInvestigate: "Apure",
     navGroupDecide: "Decida",
-    navGroupExport: "Exporte",
+    navGroupExport: "Publique",
     tabGuideTitle: "Como usar esta área",
     tabGuideOverview: "Use a visão geral para entender o estado da pauta e decidir onde entrar primeiro.",
     tabGuideContext: "Confirme território, idioma e regra de acesso antes de confiar em prazos, bases ou fontes.",
@@ -658,6 +679,7 @@ const dictionary = {
     tabGuideRequests: "Registre pedidos feitos fora da plataforma, compare respostas e acompanhe próximos passos.",
     tabGuideEditorial: "Converta lacunas, prazos e riscos em ações humanas controladas.",
     tabGuideClaims: "Só avance afirmações quando relação, força, risco e evidência estiverem explícitos.",
+    tabGuideStory: "Monte a matéria com tese provisória, blocos narrativos, afirmações aproveitáveis e travas finais.",
     tabGuideQa: "Use o checklist para encontrar bloqueios antes de demo, publicação ou automação.",
     tabGuideMethodology: "Exporte uma nota transparente sobre evidências, limites, pedidos e decisões.",
     addToPlan: "Adicionar ao plano",
@@ -834,6 +856,7 @@ const dictionary = {
     requestComparison: "Request comparison",
     gaps: "Gaps",
     claims: "Claims",
+    storyTab: "Story",
     qaChecklist: "QA checklist",
     methodology: "Methodology",
     evidenceBlocksMetric: "evidence blocks",
@@ -868,6 +891,26 @@ const dictionary = {
     storySectionBlocker: "What still blocks it",
     storyNoDraft:
       "The tool is still building an editorial reading of this story from hypotheses, requests, gaps and claims.",
+    storyWorkspaceTitle: "Story desk",
+    storyWorkspaceHeading: "Build the publication from what is already proved.",
+    storyWorkspaceCopy:
+      "Use this step to separate publishable text, necessary caveats and gaps that still block conclusions.",
+    storyPackageTitle: "Publication package",
+    storyPackageHeading: "What goes in, what goes in with caveat and what stays out for now.",
+    storyOutlineTitle: "Narrative structure",
+    storyOutlineHeading: "Turn reporting into reviewable story blocks.",
+    publishableClaimsTitle: "Claims for the story",
+    publishableClaimsHeading: "Decide how each claim should appear in the article.",
+    storyClaimReady: "Can enter the story",
+    storyClaimCaveat: "Use with caveat",
+    storyClaimHold: "Hold for now",
+    publicationBlockersTitle: "Publication blockers",
+    publicationBlockersHeading: "Issues still preventing a safe final version.",
+    noPublicationBlockers: "No critical publication blocker recorded.",
+    methodologyBridgeTitle: "Close the method",
+    methodologyBridgeCopy: "After deciding what enters the story, export the methodology note with limits, requests and evidence.",
+    openStoryWorkspace: "Open story",
+    openClaimsBoard: "Open claims",
     mobileFocusTitle: "Focus mode",
     mobileFocusHeading: "What to do now",
     mobileNextDecision: "Next decision",
@@ -1227,7 +1270,7 @@ const dictionary = {
     navGroupStart: "Start",
     navGroupInvestigate: "Report",
     navGroupDecide: "Decide",
-    navGroupExport: "Export",
+    navGroupExport: "Publish",
     tabGuideTitle: "How to use this area",
     tabGuideOverview: "Use the overview to understand the story status and choose where to enter first.",
     tabGuideContext: "Confirm territory, language and access rules before trusting deadlines, datasets or sources.",
@@ -1235,6 +1278,7 @@ const dictionary = {
     tabGuideRequests: "Log requests made outside the platform, compare responses and track next steps.",
     tabGuideEditorial: "Turn gaps, deadlines and risks into controlled human actions.",
     tabGuideClaims: "Move claims forward only when relation, strength, risk and evidence are explicit.",
+    tabGuideStory: "Build the story with working thesis, narrative blocks, usable claims and final blockers.",
     tabGuideQa: "Use the checklist to catch blockers before demo, publication or automation.",
     tabGuideMethodology: "Export a transparent note about evidence, limits, requests and decisions.",
     addToPlan: "Add to plan",
@@ -1411,6 +1455,7 @@ dictionary.es = {
   requestComparison: "Comparacion de solicitudes",
   gaps: "Vacios",
   claims: "Afirmaciones",
+  storyTab: "Historia",
   methodology: "Metodologia",
   evidenceBlocksMetric: "bloques de evidência",
   lateRequests: "solicitudes atrasadas",
@@ -1444,6 +1489,26 @@ dictionary.es = {
   storySectionBlocker: "Qué todavía bloquea",
   storyNoDraft:
     "La herramienta todavía está montando una lectura editorial de esta pauta a partir de hipótesis, solicitudes, vacíos y afirmaciones.",
+  storyWorkspaceTitle: "Mesa de la historia",
+  storyWorkspaceHeading: "Monte la publicación desde lo que ya está probado.",
+  storyWorkspaceCopy:
+    "Use esta etapa para separar texto publicable, salvedades necesarias y vacíos que todavía bloquean conclusiones.",
+  storyPackageTitle: "Paquete de publicación",
+  storyPackageHeading: "Qué entra, qué entra con salvedad y qué queda afuera por ahora.",
+  storyOutlineTitle: "Estructura narrativa",
+  storyOutlineHeading: "Convierta la reportería en bloques de texto revisables.",
+  publishableClaimsTitle: "Afirmaciones para el texto",
+  publishableClaimsHeading: "Decida cómo debe aparecer cada afirmación en la nota.",
+  storyClaimReady: "Puede entrar en el texto",
+  storyClaimCaveat: "Usar con salvedad",
+  storyClaimHold: "Retener por ahora",
+  publicationBlockersTitle: "Trabas de publicación",
+  publicationBlockersHeading: "Puntos que todavía impiden una versión final segura.",
+  noPublicationBlockers: "No hay traba crítica registrada para la publicación.",
+  methodologyBridgeTitle: "Cerrar método",
+  methodologyBridgeCopy: "Después de decidir qué entra en el texto, exporte la nota metodológica con límites, solicitudes y evidencias.",
+  openStoryWorkspace: "Abrir historia",
+  openClaimsBoard: "Abrir afirmaciones",
   mobileFocusTitle: "Modo foco",
   mobileFocusHeading: "Qué hacer ahora",
   mobileNextDecision: "Próxima decisión",
@@ -1752,7 +1817,7 @@ dictionary.es = {
   navGroupStart: "Empiece",
   navGroupInvestigate: "Investigue",
   navGroupDecide: "Decida",
-  navGroupExport: "Exporte",
+  navGroupExport: "Publique",
   tabGuideTitle: "Como usar esta área",
   tabGuideOverview: "Use la vista general para entender el estado de la pauta y decidir por donde empezar.",
   tabGuideContext: "Confirme território, idioma y reglas de acceso antes de confiar en plazos, bases o fuentes.",
@@ -1760,6 +1825,7 @@ dictionary.es = {
   tabGuideRequests: "Registre solicitudes hechas fuera de la plataforma, compare respuestas y acompanhe próximos pasos.",
   tabGuideEditorial: "Convierta vacios, plazos y riesgos en acciones humanas controladas.",
   tabGuideClaims: "Avance afirmaciones solo cuando relación, fuerza, riesgo y evidência estén explícitos.",
+  tabGuideStory: "Monte la historia con tesis provisional, bloques narrativos, afirmaciones utilizables y trabas finales.",
   tabGuideQa: "Use el checklist para encontrar bloqueos antes de demo, publicación o automatización.",
   tabGuideMethodology: "Exporte una nota transparente sobre evidências, limites, solicitudes y decisiones.",
   addToPlan: "Agregar al plan",
@@ -3231,12 +3297,15 @@ function renderInvestigation() {
       tabs: [
         ["editorial", t("editorialWorkspace")],
         ["claims", t("claims")],
-        ["qa", "QA"],
       ],
     },
     {
       label: t("navGroupExport"),
-      tabs: [["methodology", t("methodology")]],
+      tabs: [
+        ["story", t("storyTab")],
+        ["methodology", t("methodology")],
+        ["qa", "QA"],
+      ],
     },
   ];
   const tabs = tabGroups.flatMap((group) => group.tabs);
@@ -3294,6 +3363,7 @@ function renderTab(item) {
     requests: renderRequestsWorkspace,
     editorial: renderEditorialWorkspace,
     claims: renderClaims,
+    story: renderStoryWorkspace,
     qa: renderQaChecklist,
     methodology: renderMethodology,
   };
@@ -3308,6 +3378,7 @@ function renderTabGuide() {
     requests: t("tabGuideRequests"),
     editorial: t("tabGuideEditorial"),
     claims: t("tabGuideClaims"),
+    story: t("tabGuideStory"),
     qa: t("tabGuideQa"),
     methodology: t("tabGuideMethodology"),
   };
@@ -3359,6 +3430,7 @@ function renderMobileTabContext() {
     requests: t("requestsWorkspace"),
     editorial: t("editorialWorkspace"),
     claims: t("claims"),
+    story: t("storyTab"),
     qa: "QA",
     methodology: t("methodology"),
   };
@@ -3369,6 +3441,7 @@ function renderMobileTabContext() {
     requests: t("tabGuideRequests"),
     editorial: t("tabGuideEditorial"),
     claims: t("tabGuideClaims"),
+    story: t("tabGuideStory"),
     qa: t("tabGuideQa"),
     methodology: t("tabGuideMethodology"),
   };
@@ -3409,7 +3482,7 @@ function renderMobileFocusCard(item) {
         </div>
       </dl>
       <div class="mobile-focus-actions">
-        <button class="button secondary active-secondary" data-action="tab" data-tab="overview">${t("mobileOpenStory")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("mobileOpenStory")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("mobileContinueReporting")}</button>
         <button class="button" data-action="tab" data-tab="claims">${t("mobileReviewClaims")}</button>
       </div>
@@ -3745,6 +3818,7 @@ function renderOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("reviewResponse")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="editorial">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("openStoryWorkspace")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
         <button class="button" data-action="export-json">${t("exportJson")}</button>
       </div>
@@ -3844,6 +3918,228 @@ function renderStoryBuilder(item) {
           .join("")}
       </div>
     </section>
+  `;
+}
+
+function getStoryClaimDecision(claim) {
+  const relationTone = statusClass(claim.relation);
+  const strengthTone = statusClass(claim.strength);
+  const riskTone = statusClass(claim.risk);
+  const status = normalizeText(claim.status);
+  const relation = normalizeText(claim.relation);
+
+  if (riskTone === "danger" || strengthTone === "danger" || status.includes("needs") || status.includes("precisa")) {
+    return { key: "hold", label: t("storyClaimHold"), tone: "danger" };
+  }
+
+  if (relationTone === "success" && strengthTone === "success" && riskTone === "success" && !status.includes("ressalva")) {
+    return { key: "ready", label: t("storyClaimReady"), tone: "success" };
+  }
+
+  if (relation.includes("limita") || relation.includes("limit") || status.includes("ressalva") || status.includes("caveat")) {
+    return { key: "caveat", label: t("storyClaimCaveat"), tone: "warning" };
+  }
+
+  return { key: "caveat", label: t("storyClaimCaveat"), tone: "warning" };
+}
+
+function getPublicationBlockers(item) {
+  const gapBlockers = (item.gaps || [])
+    .filter((gap) => statusClass(gap.status) !== "success")
+    .map((gap) => ({
+      title: gap.description,
+      detail: gap.action || gap.impact || t("reviewRecommended"),
+      status: gap.status,
+      tone: statusClass(gap.status),
+      target: "editorial",
+    }));
+
+  const claimBlockers = (item.claims || [])
+    .filter((claim) => getStoryClaimDecision(claim).key === "hold")
+    .map((claim) => ({
+      title: claim.text,
+      detail: claim.evidence || t("claimEvidenceLabel"),
+      status: claim.status || claim.risk,
+      tone: "danger",
+      target: "claims",
+    }));
+
+  const qaBlockers = (item.qaChecklist || [])
+    .filter((qaItem) => statusClass(qaItem.status) === "danger")
+    .map((qaItem) => ({
+      title: qaItem.question,
+      detail: qaItem.action || qaItem.risk,
+      status: qaItem.status,
+      tone: "danger",
+      target: "qa",
+    }));
+
+  return [...gapBlockers, ...claimBlockers, ...qaBlockers];
+}
+
+function renderStoryPublicationPackage(item) {
+  const decisions = (item.claims || []).map(getStoryClaimDecision);
+  const ready = decisions.filter((decision) => decision.key === "ready").length;
+  const caveat = decisions.filter((decision) => decision.key === "caveat").length;
+  const hold = decisions.filter((decision) => decision.key === "hold").length;
+  const blockers = getPublicationBlockers(item).length;
+  const cards = [
+    { label: t("storyClaimReady"), value: ready, detail: t("publishableClaimsHeading"), tone: ready ? "success" : "neutral" },
+    { label: t("storyClaimCaveat"), value: caveat, detail: t("storyPackageHeading"), tone: caveat ? "warning" : "success" },
+    { label: t("storyClaimHold"), value: hold, detail: t("publicationBlockersHeading"), tone: hold ? "danger" : "success" },
+    { label: t("publicationBlockersTitle"), value: blockers, detail: t("methodologyBridgeCopy"), tone: blockers ? "danger" : "success" },
+  ];
+
+  return `
+    <section class="story-publication-package">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("storyPackageTitle")}</p>
+          <h3>${t("storyPackageHeading")}</h3>
+        </div>
+      </div>
+      <div class="story-package-grid">
+        ${cards
+          .map(
+            (card) => `
+              <article class="summary-tile compact-summary ${card.tone}">
+                <span>${card.label}</span>
+                <strong>${card.value}</strong>
+                <p>${card.detail}</p>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderStoryOutline(item) {
+  const draft = getStoryDraft(item);
+
+  return `
+    <section class="panel story-outline">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("storyOutlineTitle")}</p>
+          <h3>${t("storyOutlineHeading")}</h3>
+        </div>
+      </div>
+      <div class="story-outline-grid">
+        ${(draft.sections || [])
+          .map(
+            (section, index) => `
+              <article class="story-outline-card ${statusClass(section.status)}">
+                <span class="story-stage-index">${index + 1}</span>
+                <div>
+                  <p class="eyebrow">${section.role || t("storySectionRole")}</p>
+                  <h4>${section.title}</h4>
+                  <p>${section.evidence}</p>
+                  <small>${t("storySectionBlocker")}: ${section.blocker}</small>
+                </div>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderStoryClaimsDeck(item) {
+  return `
+    <section class="panel story-claims-deck">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("publishableClaimsTitle")}</p>
+          <h3>${t("publishableClaimsHeading")}</h3>
+        </div>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("openClaimsBoard")}</button>
+      </div>
+      <div class="story-claim-grid">
+        ${(item.claims || [])
+          .map((claim) => {
+            const decision = getStoryClaimDecision(claim);
+            return `
+              <article class="story-claim-card ${decision.tone}">
+                <span class="pill ${decision.tone}">${decision.label}</span>
+                <h4>${claim.text}</h4>
+                <dl class="mini-detail-list">
+                  <div><dt>${t("storySectionEvidence")}</dt><dd>${claim.evidence}</dd></div>
+                  <div><dt>${t("evidenceRelation")}</dt><dd>${claim.relation}</dd></div>
+                  <div><dt>${t("risk")}</dt><dd>${claim.risk}</dd></div>
+                </dl>
+              </article>
+            `;
+          })
+          .join("") || `<section class="empty-state"><h3>${t("publishableClaimsTitle")}</h3><p>${t("storyNoDraft")}</p></section>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderPublicationBlockers(item) {
+  const blockers = getPublicationBlockers(item);
+
+  return `
+    <section class="panel publication-blockers">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("publicationBlockersTitle")}</p>
+          <h3>${t("publicationBlockersHeading")}</h3>
+        </div>
+      </div>
+      ${
+        blockers.length
+          ? `<div class="publication-blocker-list">
+              ${blockers
+                .map(
+                  (blocker) => `
+                    <button class="publication-blocker ${blocker.tone}" data-action="tab" data-tab="${blocker.target}">
+                      <span class="pill ${blocker.tone}">${blocker.status}</span>
+                      <strong>${blocker.title}</strong>
+                      <small>${blocker.detail}</small>
+                    </button>
+                  `,
+                )
+                .join("")}
+            </div>`
+          : `<p class="success-note">${t("noPublicationBlockers")}</p>`
+      }
+    </section>
+  `;
+}
+
+function renderStoryMethodologyBridge() {
+  return `
+    <section class="panel story-methodology-bridge">
+      <div>
+        <p class="eyebrow">${t("methodologyBridgeTitle")}</p>
+        <h3>${t("methodologyBridgeCopy")}</h3>
+      </div>
+      <div class="quick-action-row">
+        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("requestsWorkspace")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="qa">${t("openQaCheck")}</button>
+        <button class="button" data-action="tab" data-tab="methodology">${t("openMethodologyNote")}</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderStoryWorkspace(item) {
+  return `
+    <section class="content-header">
+      <p class="eyebrow">${t("storyWorkspaceTitle")}</p>
+      <h2>${t("storyWorkspaceHeading")}</h2>
+      <p>${t("storyWorkspaceCopy")}</p>
+    </section>
+    ${renderStoryBuilder(item)}
+    ${renderStoryPublicationPackage(item)}
+    ${renderStoryOutline(item)}
+    ${renderStoryClaimsDeck(item)}
+    ${renderPublicationBlockers(item)}
+    ${renderStoryMethodologyBridge(item)}
   `;
 }
 
