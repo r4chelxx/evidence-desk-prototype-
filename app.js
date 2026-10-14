@@ -258,6 +258,14 @@ const dictionary = {
     quickActionsCopy: "Atalhos para testar o fluxo central previsto no wireframe.",
     currentArea: "Área atual",
     mobileNavHint: "Use as abas acima para mudar de etapa.",
+    desktopTestRail: "Teste no desktop",
+    desktopTestRailHeading: "Use esta barra para navegar o fluxo sem perder o contexto.",
+    tabProgress: "Etapa",
+    nextArea: "Próxima área",
+    openQaCheck: "Abrir QA",
+    openMethodologyNote: "Abrir metodologia",
+    desktopHint:
+      "Percorra da visão geral à metodologia e observe se cada decisão aponta para evidência, pedido ou lacuna.",
     executiveSummary: "Resumo executivo",
     investigationCompass: "Bússola da investigação",
     investigationCompassHeading: "Quatro leituras rápidas do mesmo caso: prova, transparência, risco e publicação.",
@@ -804,6 +812,14 @@ const dictionary = {
     quickActionsCopy: "Shortcuts to test the core workflow described in the wireframe.",
     currentArea: "Current area",
     mobileNavHint: "Use the tabs above to switch steps.",
+    desktopTestRail: "Desktop test",
+    desktopTestRailHeading: "Use this rail to move through the flow without losing context.",
+    tabProgress: "Step",
+    nextArea: "Next area",
+    openQaCheck: "Open QA",
+    openMethodologyNote: "Open methodology",
+    desktopHint:
+      "Move from overview to methodology and check whether each decision points to evidence, request or gap.",
     executiveSummary: "Executive summary",
     investigationCompass: "Investigation compass",
     investigationCompassHeading: "Four quick readings of the same story: proof, transparency, risk and publication.",
@@ -1353,6 +1369,14 @@ dictionary.es = {
   quickActionsCopy: "Atajos para probar el flujo central previsto en el wireframe.",
   currentArea: "Área actual",
   mobileNavHint: "Use las pestañas arriba para cambiar de etapa.",
+  desktopTestRail: "Prueba en desktop",
+  desktopTestRailHeading: "Use esta barra para navegar el flujo sin perder contexto.",
+  tabProgress: "Etapa",
+  nextArea: "Próxima área",
+  openQaCheck: "Abrir QA",
+  openMethodologyNote: "Abrir metodología",
+  desktopHint:
+    "Recorra desde la vista general hasta la metodología y observe si cada decisión apunta a evidencia, solicitud o vacío.",
   executiveSummary: "Resumen ejecutivo",
   investigationCompass: "Brújula de la investigación",
   investigationCompassHeading: "Cuatro lecturas rápidas del mismo caso: prueba, transparencia, riesgo y publicación.",
@@ -3179,6 +3203,7 @@ function renderInvestigation() {
         <nav class="tabs">${nav}</nav>
       </aside>
       <section class="content">
+        ${renderDesktopTestRail(item, tabs)}
         ${renderMobileTabContext()}
         ${renderTab(item)}
       </section>
@@ -3217,6 +3242,37 @@ function renderTabGuide() {
       <p class="eyebrow">${t("tabGuideTitle")}</p>
       <p>${guideByTab[state.currentTab] || guideByTab.overview}</p>
     </aside>
+  `;
+}
+
+function renderDesktopTestRail(item, tabs) {
+  const labels = Object.fromEntries(tabs);
+  const currentIndex = Math.max(
+    0,
+    tabs.findIndex(([id]) => id === state.currentTab),
+  );
+  const nextTab = tabs[currentIndex + 1] || tabs[0];
+  const openRisks = countOpenGaps(item) + countClaimsNeedingCare(item) + countQaBlockers(item);
+
+  return `
+    <section class="desktop-test-rail">
+      <div>
+        <p class="eyebrow">${t("desktopTestRail")}</p>
+        <h2>${labels[state.currentTab] || labels.overview}</h2>
+        <p>${t("desktopTestRailHeading")}</p>
+      </div>
+      <div class="test-rail-meta">
+        <span class="pill neutral">${t("tabProgress")}: ${currentIndex + 1}/${tabs.length}</span>
+        <span class="pill ${openRisks ? "danger" : "success"}">${openRisks} ${t("summaryRisk").toLowerCase()}</span>
+        <span class="pill ${countLateRequests(item) ? "danger" : "success"}">${countLateRequests(item)} ${t("lateRequests")}</span>
+      </div>
+      <div class="test-rail-actions">
+        <button class="button secondary active-secondary" data-action="tab" data-tab="${nextTab[0]}">${t("nextArea")}: ${nextTab[1]}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="qa">${t("openQaCheck")}</button>
+        <button class="button" data-action="tab" data-tab="methodology">${t("openMethodologyNote")}</button>
+      </div>
+      <small>${t("desktopHint")}</small>
+    </section>
   `;
 }
 

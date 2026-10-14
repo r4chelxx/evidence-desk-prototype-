@@ -39,6 +39,7 @@ without backend, login, external integrations or AI.
 - Evidence inventory that keeps unmapped evidence blocks visible during planning.
 - Request board that groups LAI/FOIA/public-record requests by process status.
 - Editorial claim decision cards for advance, caveat or hold decisions before publication.
+- Desktop test rail inside each investigation so reviewers can move through the flow, QA and methodology without losing context.
 - Mobile investigation context card so the current workflow area stays visible when the sidebar guide is hidden.
 - Claim-to-evidence matrix with "supports / contradicts / limits" relation tracking.
 - Markdown methodological note preview/copy flow, including sources, source types and limits.
