@@ -589,6 +589,17 @@ button {
   padding: 1rem;
 }
 
+.lai-assistant {
+  background:
+    linear-gradient(135deg, rgba(242, 106, 46, 0.08), transparent 42%),
+    rgba(255, 253, 247, 0.86);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--orange);
+  border-radius: 0.5rem;
+  margin: 1rem 0 1.35rem;
+  padding: 1rem;
+}
+
 .claim-dashboard {
   background: rgba(255, 253, 247, 0.82);
   border: 1px solid var(--line);
@@ -601,6 +612,17 @@ button {
   margin: 0.2rem 0 0;
 }
 
+.lai-assistant h3 {
+  margin: 0.2rem 0 0;
+}
+
+.lai-assistant .section-header p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0.35rem 0 0;
+  max-width: 880px;
+}
+
 .claim-dashboard h3 {
   margin: 0.2rem 0 0;
 }
@@ -610,6 +632,37 @@ button {
   gap: 0.75rem;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 0.95rem;
+}
+
+.lai-assistant-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.lai-review-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid #cfc7b8;
+  border-radius: 0.5rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 0.9rem;
+}
+
+.lai-review-card.success {
+  border-left-color: var(--green);
+}
+
+.lai-review-card.warning {
+  border-left-color: var(--yellow);
+}
+
+.lai-review-card.danger {
+  border-left-color: var(--red);
 }
 
 .claim-dashboard-grid {
@@ -2408,6 +2461,7 @@ tr:last-child td {
   .executive-summary,
   .investigation-compass,
   .request-command-grid,
+  .lai-assistant-grid,
   .claim-dashboard-grid,
   .readiness-grid,
   .audit-grid,
@@ -2773,6 +2827,7 @@ tr:last-child td {
   .filter-bar,
   .quick-actions,
   .request-command,
+  .lai-assistant,
   .claim-dashboard,
   .data-audit-panel,
   .workflow-map,

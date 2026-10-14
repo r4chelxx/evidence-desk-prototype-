@@ -832,11 +832,11 @@ export const investigations = [
     storyDraft: {
       status: "Apuração em estruturação",
       workingThesis:
-        "A investigação ainda não está pronta para uma tese conclusiva sobre violência obstétrica na Bahia. O material atual sustenta uma linha metodológica forte sobre limites de transparência, respostas parciais e lacunas que impedem comparar maternidades, territórios e responsabilização de forma segura.",
+        "A investigação ainda não está pronta para uma tese conclusiva sobre violência obstétrica na Bahia. O material atual organiza o caminho de apuração e mostra quais pedidos, bases e anexos ainda precisam ser completados antes de comparar maternidades, territórios e responsabilização.",
       publishableAngle:
-        "Publicar primeiro como investigação sobre acesso, qualidade dos dados e obstáculos documentais, enquanto as hipóteses substantivas sobre hospitais, mortes evitáveis e desigualdade racial seguem dependentes de bases completas.",
+        "Manter a matéria principal em apuração. Por enquanto, o produto deve ajudar a repórter a revisar respostas LAI, preservar o histórico de transparência e decidir o próximo pedido/recurso sem transformar pendência administrativa em achado da reportagem.",
       editorQuestion:
-        "Que afirmações já podem entrar no texto sem transformar silêncio, anexo ausente ou encaminhamento administrativo em conclusão?",
+        "O que já é evidência substantiva sobre o tema e o que é apenas status operacional de LAI?",
       sections: [
         {
           title: "A pergunta de reportagem",
@@ -846,11 +846,11 @@ export const investigations = [
           blocker: "A pergunta precisa permanecer ampla até as bases por maternidade e manifestações serem acessíveis.",
         },
         {
-          title: "O que já pode ser contado",
-          role: "Base publicável",
-          evidence: "Resposta parcial da SESAB, certidão MPBA/CESAU e diário de transparência.",
-          status: "Com ressalva",
-          blocker: "Usar como texto sobre limites, escopo e transparência, não como ranking ou conclusão sobre unidades.",
+          title: "O que já existe como material de apuração",
+          role: "Base a revisar",
+          evidence: "Resposta parcial da SESAB, certidão MPBA/CESAU e bases recebidas fora do sistema.",
+          status: "Em revisão",
+          blocker: "Antes de publicar, separar evidência substantiva, limite de base e simples movimentação de LAI.",
         },
         {
           title: "O que ainda segura a matéria principal",
@@ -861,10 +861,10 @@ export const investigations = [
         },
         {
           title: "Saída provável da próxima versão",
-          role: "Publicação",
-          evidence: "Nota metodológica, claims com ressalva e quadro de pedidos pendentes.",
+          role: "Produto de trabalho",
+          evidence: "Painel LAI, análise de completude das respostas, próximos passos e nota metodológica.",
           status: "Rascunho",
-          blocker: "Revisar linguagem para separar achado de transparência, limitação metodológica e evidência substantiva.",
+          blocker: "Não preencher lacunas da investigação com cards de afirmação quando a informação é só operacional.",
         },
       ],
     },
@@ -1189,35 +1189,7 @@ export const investigations = [
         nextStep: "Atualizar somente quando houver retorno específico da manifestação da DPE-BA.",
       },
     ],
-    claims: [
-      {
-        text: "Os dados recebidos até agora permitem discutir limites de transparência e qualidade, mas ainda não sustentam comparação por maternidade em toda a Bahia.",
-        type: "Metodológica",
-        evidence: "Planilha parcial VO-LAI-01, pedidos YL5LHVVX/C5NTY0ER ainda sem entrega verificável e diário de transparência.",
-        relation: "Limita",
-        strength: "Média",
-        risk: "Medio",
-        status: "Usar com ressalva",
-      },
-      {
-        text: "A certidão do MPBA/CESAU documenta 23 representações nas Promotorias de Justiça de Saúde da Capital, mas não permite tratar o dado como retrato estadual do MPBA.",
-        type: "Factual com escopo",
-        evidence: "Oficio 41/CESAU e certidão com 23 registros entre 01/01/2020 e 20/09/2026.",
-        relation: "Sustenta",
-        strength: "Forte",
-        risk: "Baixo",
-        status: "Sustentada",
-      },
-      {
-        text: "Respostas que mencionam anexos ou links inacessíveis ainda não podem ser usadas como evidência substantiva sobre violência obstétrica.",
-        type: "Regra metodológica",
-        evidence: "Comparações dos pedidos YL5LHVVX e C5NTY0ER, recurso 202620001408821 e prints/registro de acesso pendentes.",
-        relation: "Limita",
-        strength: "Forte",
-        risk: "Baixo",
-        status: "Sustentada com limite",
-      },
-    ],
+    claims: [],
   },
   {
     id: "school-tech",

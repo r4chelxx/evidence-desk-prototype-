@@ -1,8 +1,8 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa31";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa34";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
-const SEED_DATA_REVISION = "20261014-story-builder";
+const SEED_DATA_REVISION = "20261014-lai-assistant";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -247,7 +247,7 @@ const dictionary = {
     overview: "Visão geral",
     context: "Contexto",
     planTab: "Plano de apuração",
-    requestsWorkspace: "Pedidos e respostas",
+    requestsWorkspace: "LAI e respostas",
     editorialWorkspace: "Fila e lacunas",
     jurisdiction: "Jurisdição",
     languageTab: "Idioma",
@@ -444,9 +444,18 @@ const dictionary = {
     methodSafeguardsTitle: "Regras que impedem a ferramenta de exagerar evidências.",
     processGuide: "Guia de processo",
     processGuideTitle: "Fluxo atento à jurisdição, ainda controlado pela repórter.",
-    transparencyLogTitle: "Diário de transparência",
-    transparencyLogHeading: "Acompanhe o histórico processual sem tratar movimentação como entrega de evidência.",
-    transparencyLogCopy: "Use este log para separar pedido, encaminhamento, resposta parcial, recurso e entrega real de documentos.",
+    laiAssistantTitle: "Assistente LAI",
+    laiAssistantHeading: "A ferramenta lê pedido e resposta como fluxo operacional.",
+    laiAssistantCopy:
+      "Registre o que foi pedido, o que chegou e o que faltou. A ferramenta organiza completude, diário, próximos passos, prazos, canais e ressalvas para a repórter agir fora da plataforma quando necessário.",
+    laiComplete: "Resposta aproveitável",
+    laiPartial: "Resposta parcial",
+    laiBlocked: "Não usar ainda",
+    laiNextAction: "Próxima ação sugerida",
+    laiCompleteness: "Completude",
+    transparencyLogTitle: "Histórico automático de transparência",
+    transparencyLogHeading: "O diário nasce da análise de pedidos e respostas, não como aba editorial separada.",
+    transparencyLogCopy: "Use este histórico para separar pedido, encaminhamento, resposta parcial, recurso e entrega real de documentos.",
     noTransparencyTitle: "Ainda não há diário de transparência.",
     noTransparencyCopy: "Adicione eventos processuais conforme pedidos avancem por recursos ou revisão.",
     nextStep: "Próximo passo",
@@ -1039,9 +1048,18 @@ const dictionary = {
     methodSafeguardsTitle: "Rules that keep the tool from overstating evidence.",
     processGuide: "Process guide",
     processGuideTitle: "Jurisdiction-aware workflow, still controlled by the reporter.",
-    transparencyLogTitle: "Transparency log",
-    transparencyLogHeading: "Track procedural history without treating movement as evidence delivery.",
-    transparencyLogCopy: "Use this log to separate request, forwarding, partial response, appeal and actual document delivery.",
+    laiAssistantTitle: "Access-request assistant",
+    laiAssistantHeading: "The tool reads request and response as an operational flow.",
+    laiAssistantCopy:
+      "Log what was requested, what arrived and what is missing. The tool organizes completeness, diary, next steps, deadlines, channels and caveats for the reporter to act outside the platform when needed.",
+    laiComplete: "Usable response",
+    laiPartial: "Partial response",
+    laiBlocked: "Do not use yet",
+    laiNextAction: "Suggested next action",
+    laiCompleteness: "Completeness",
+    transparencyLogTitle: "Automatic transparency history",
+    transparencyLogHeading: "The diary comes from request-response analysis, not as a separate editorial tab.",
+    transparencyLogCopy: "Use this history to separate request, forwarding, partial response, appeal and actual document delivery.",
     noTransparencyTitle: "No transparency log yet.",
     noTransparencyCopy: "Add procedural events as requests move through appeals or review.",
     nextStep: "Next step",
@@ -1254,7 +1272,7 @@ const dictionary = {
     errorQuestionMark: "Phrase the central question as a question.",
     context: "Context",
     planTab: "Reporting plan",
-    requestsWorkspace: "Requests and responses",
+    requestsWorkspace: "FOIA/LAI and responses",
     editorialWorkspace: "Queue and gaps",
     startHere: "Start here",
     startHereTitle: "Recommended workflow",
@@ -1632,9 +1650,18 @@ dictionary.es = {
   methodSafeguards: "Salvaguardas metodológicas",
   methodSafeguardsTitle: "Reglas que evitan que la herramienta exagere evidências.",
   processGuideTitle: "Flujo atento a la jurisdiccion, todavia controlado por la repórtera.",
-  transparencyLogTitle: "Diário de transparência",
-  transparencyLogHeading: "Siga el historial procesal sin tratar movimientos como entrega de evidência.",
-  transparencyLogCopy: "Use este registro para separar solicitud, encaminamiento, respuesta parcial, recurso y entrega real de documentos.",
+  laiAssistantTitle: "Asistente LAI",
+  laiAssistantHeading: "La herramienta lee solicitud y respuesta como flujo operacional.",
+  laiAssistantCopy:
+    "Registre lo solicitado, lo recibido y lo faltante. La herramienta organiza completitud, diario, próximos pasos, plazos, canales y salvedades para que la reportera actúe fuera de la plataforma cuando sea necesario.",
+  laiComplete: "Respuesta utilizable",
+  laiPartial: "Respuesta parcial",
+  laiBlocked: "No usar todavía",
+  laiNextAction: "Próxima acción sugerida",
+  laiCompleteness: "Completitud",
+  transparencyLogTitle: "Historial automático de transparencia",
+  transparencyLogHeading: "El diario nace del análisis solicitud-respuesta, no como pestaña editorial separada.",
+  transparencyLogCopy: "Use este historial para separar solicitud, encaminamiento, respuesta parcial, recurso y entrega real de documentos.",
   nextStep: "Próximo paso",
   requestComparisonTitle: "Comparacion de solicitudes",
   requestComparisonHeading: "Compare lo que se pidio, lo que llego y lo que aun exige accion.",
@@ -1801,7 +1828,7 @@ dictionary.es = {
   errorQuestionMark: "Formule la pregunta central como pregunta.",
   context: "Contexto",
   planTab: "Plan de reporteo",
-  requestsWorkspace: "Solicitudes y respuestas",
+  requestsWorkspace: "LAI/FOIA y respuestas",
   editorialWorkspace: "Fila y vacíos",
   startHere: "Empiece aquí",
   startHereTitle: "Flujo de trabajo recomendado",
@@ -3582,12 +3609,65 @@ function renderRequestsWorkspace(item) {
   return `
     ${renderRequestAddForm()}
     ${renderRequestsCommandCenter(item)}
+    ${renderLaiAssistant(item)}
     ${renderRequestBoard(item)}
     ${renderResponses(item)}
     ${renderDeadlines(item)}
     ${renderRequestComparison(item)}
     ${renderTransparencyLog(item)}
     ${renderFollowUps(item)}
+  `;
+}
+
+function laiReviewStatus(comparison) {
+  const text = normalizeText(`${comparison.deadlineStatus} ${comparison.editorialDecision} ${comparison.missing}`);
+  if (text.includes("nao usar") || text.includes("não usar") || text.includes("problema") || text.includes("sem anexo")) {
+    return { label: t("laiBlocked"), tone: "danger" };
+  }
+  if (text.includes("parcial") || text.includes("ressalva") || text.includes("limite") || text.includes("missing")) {
+    return { label: t("laiPartial"), tone: "warning" };
+  }
+  return { label: t("laiComplete"), tone: "success" };
+}
+
+function renderLaiAssistant(item) {
+  const comparisons = item.requestComparisons || [];
+  const cards = comparisons.map((comparison) => ({ ...comparison, review: laiReviewStatus(comparison) }));
+
+  return `
+    <section class="lai-assistant">
+      <div class="section-header compact-header">
+        <div>
+          <p class="eyebrow">${t("laiAssistantTitle")}</p>
+          <h3>${t("laiAssistantHeading")}</h3>
+          <p>${t("laiAssistantCopy")}</p>
+        </div>
+      </div>
+      <div class="lai-assistant-grid">
+        ${
+          cards
+            .map(
+              (card) => `
+                <article class="lai-review-card ${card.review.tone}">
+                  <div class="card-footer top">
+                    <div>
+                      <p class="eyebrow">${t("laiCompleteness")}</p>
+                      <h3>${card.requestTitle}</h3>
+                    </div>
+                    <span class="pill ${card.review.tone}">${card.review.label}</span>
+                  </div>
+                  <dl class="mini-detail-list">
+                    <div><dt>${t("received")}</dt><dd>${card.received}</dd></div>
+                    <div><dt>${t("missingUnclear")}</dt><dd>${card.missing}</dd></div>
+                    <div><dt>${t("laiNextAction")}</dt><dd>${card.nextStep}</dd></div>
+                  </dl>
+                </article>
+              `,
+            )
+            .join("") || `<section class="empty-state"><h3>${t("laiAssistantTitle")}</h3><p>${t("laiAssistantCopy")}</p></section>`
+        }
+      </div>
+    </section>
   `;
 }
 
@@ -3922,6 +4002,9 @@ function renderStoryBuilder(item) {
 }
 
 function getStoryClaimDecision(claim) {
+  if (isProceduralClaim(claim)) {
+    return { key: "hold", label: t("storyClaimHold"), tone: "danger" };
+  }
   const relationTone = statusClass(claim.relation);
   const strengthTone = statusClass(claim.strength);
   const riskTone = statusClass(claim.risk);
@@ -3941,6 +4024,24 @@ function getStoryClaimDecision(claim) {
   }
 
   return { key: "caveat", label: t("storyClaimCaveat"), tone: "warning" };
+}
+
+function isProceduralClaim(claim) {
+  const text = normalizeText(`${claim.text} ${claim.type} ${claim.evidence}`);
+  const proceduralTerms = [
+    "lai",
+    "foia",
+    "diario",
+    "transparencia",
+    "anexo",
+    "link",
+    "protocolo",
+    "recurso",
+    "ouvidoria",
+    "prazo",
+    "encaminhamento",
+  ];
+  return proceduralTerms.some((term) => text.includes(term));
 }
 
 function getPublicationBlockers(item) {
