@@ -1,7 +1,8 @@
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261007-qa26";
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa31";
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
+const SEED_DATA_REVISION = "20261014-story-builder";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -38,7 +39,23 @@ function loadInvestigations() {
     if (!stored) return clone(seedInvestigations);
     const parsed = JSON.parse(stored);
     if (!Array.isArray(parsed) || !parsed.length) return clone(seedInvestigations);
-    return parsed;
+    let changed = false;
+    const seedById = new Map(seedInvestigations.map((item) => [item.id, item]));
+    const merged = parsed.map((item) => {
+      const seed = seedById.get(item.id);
+      if (!seed) return item;
+      if (item.seedRevision === SEED_DATA_REVISION) return item;
+      changed = true;
+      return { ...clone(seed), seedRevision: SEED_DATA_REVISION };
+    });
+    seedInvestigations.forEach((seed) => {
+      if (!merged.some((item) => item.id === seed.id)) {
+        changed = true;
+        merged.push({ ...clone(seed), seedRevision: SEED_DATA_REVISION });
+      }
+    });
+    if (changed) writeLocalStorage(STORAGE_KEY, JSON.stringify(merged));
+    return merged;
   } catch (error) {
     console.warn("Could not load saved investigations", error);
     return clone(seedInvestigations);
