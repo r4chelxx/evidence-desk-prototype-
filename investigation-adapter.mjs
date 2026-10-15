@@ -5,7 +5,7 @@ const arr = value => Array.isArray(value) ? value : [];
 const str = value => String(value ?? "").trim();
 export function adaptLegacyInvestigation(item = {}) {
   const hypotheses = arr(item.hypotheses).map((x,i) => ({ id: str(x.id) || "hypothesis-"+i, text: str(x.text || x.title || x.hypothesis), status: x.status }));
-  const sources = arr(item.sources).map((x,i) => ({ id: str(x.id) || "source-"+i, title: str(x.name || x.title), type: x.type, provenance: x.url || null, verification_status: x.status }));
+  const sources = arr(item.sources).map((x,i) => ({ id: str(x.id) || "source-"+i, title: str(x.name || x.title), type: x.type, provenance: x.url || null, verification_status: x.status, primary_origin_id: str(x.primary_origin_id || x.original_source_id) || null }));
   const claims = arr(item.claims).map((x,i) => ({ id: str(x.id) || "claim-"+i, statement: str(x.statement || x.text || x.claim || x.title), status: x.status }));
   const gaps = arr(item.gaps).map((x,i) => ({ id: str(x.id) || "gap-"+i, description: str(x.description || x.text || x.gap || x.title), status: x.status }));
   // Only explicitly documented source-to-evidence links qualify as verified graph edges.
