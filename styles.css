@@ -2974,3 +2974,13 @@ button:disabled {
 .intelligence-node ul {padding-inline-start:1.2rem;}
 @media(max-width:1000px){.intelligence-map-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:640px){.intelligence-map-grid{grid-template-columns:1fr;}}
+
+/* Capture-first workspace: progressively reveal advanced analytical controls. */
+.capture-first {display:grid;gap:1rem;margin-block:1rem;padding:clamp(1rem,3vw,1.75rem);}
+.capture-first h2 {margin:.25rem 0;}
+.capture-actions {display:flex;flex-wrap:wrap;gap:.65rem;align-items:center;}
+.capture-actions .button {white-space:normal;text-align:center;}
+.advanced-investigation {margin-block:1.25rem;}
+.advanced-investigation > summary {cursor:pointer;list-style-position:inside;padding:1rem;border:1px solid var(--border,#d6dbe2);border-radius:12px;font-weight:600;}
+.advanced-investigation[open] > summary {margin-bottom:1rem;}
+@media(max-width:640px){.capture-actions {display:grid;grid-template-columns:1fr;}.capture-actions .button {width:100%;}.capture-first {padding:1rem;}}
