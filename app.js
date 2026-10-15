@@ -1,4 +1,5 @@
-import { summarizeLegacyInvestigation } from "./investigation-adapter.mjs";
+import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
+import { simulateEvidenceRemoval } from "./investigation-intelligence.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa39';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261014-qa39';
@@ -4249,6 +4250,33 @@ function renderEditorialWorkspace(item) {
   `;
 }
 
+function renderRobustnessSimulator(item) {
+  const adapted = adaptLegacyInvestigation(item);
+  const evidence = adapted.evidence;
+  if (!evidence.length) return '<section class="panel"><h3>Simulador de robustez</h3><p class="muted">Ainda não há evidências com fonte identificada para simular. Anotações e necessidades de prova não contam como evidência.</p></section>';
+  const esc = value => escapeHtml(String(value ?? ''));
+  const options = evidence.map(e => '<option value="' + esc(e.id) + '">' + esc(e.title || e.description || e.id) + '</option>').join('');
+  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Simulação · sem alterar dados</p><h3>Simulador de robustez</h3></div></div><p>Retire provisoriamente uma evidência da análise e veja quais vínculos documentais seriam afetados.</p><label>Evidência a retirar da simulação<select data-robustness-evidence><option value="">Selecione uma evidência</option>' + options + '</select></label><button class="button secondary" type="button" data-action="simulate-robustness">Simular retirada</button><div data-robustness-result aria-live="polite"></div><p class="muted">O cenário não altera documentos nem aprova ou reprova afirmações. Só considera vínculos explícitos.</p></section>';
+}
+
+function bindRobustnessSimulator() {
+  document.querySelectorAll('[data-action="simulate-robustness"]').forEach(button => button.addEventListener('click', () => {
+    const container = document.querySelector('[data-robustness-result]');
+    const id = document.querySelector('[data-robustness-evidence]')?.value;
+    if (!container) return;
+    if (!id) { container.textContent = 'Selecione uma evidência para simular.'; return; }
+    const item = getCurrentInvestigation();
+    const result = simulateEvidenceRemoval(adaptLegacyInvestigation(item), id);
+    if (!result.found) { container.textContent = 'Evidência não encontrada. Nenhum dado foi alterado.'; return; }
+    if (!result.affectedClaims.length) { container.textContent = 'Nenhuma afirmação com vínculo explícito foi afetada neste cenário.'; return; }
+    const esc = value => escapeHtml(String(value ?? ''));
+    const claims = adaptLegacyInvestigation(item).claims;
+    container.innerHTML = '<h4>Afirmações afetadas (' + result.affectedClaims.length + ')</h4><ul>' + result.affectedClaims.map(change => {
+      const claim = claims.find(c => c.id === change.claimId);
+      return '<li><strong>' + esc(claim?.statement || change.claimId) + '</strong><p>Vínculos de apoio: ' + change.before.supporting + ' → ' + change.after.supporting + '. Estado documental: ' + esc(change.before.status) + ' → ' + esc(change.after.status) + '.</p></li>';
+    }).join('') + '</ul>';
+  }));
+}
 function renderClaimGapDependencies(item) {
   const claims = Array.isArray(item.claims) ? item.claims : [];
   const gaps = Array.isArray(item.gaps) ? item.gaps : [];
@@ -5943,6 +5971,7 @@ function renderClaims(item) {
     ${renderClaimAddForm()}
     ${renderClaimsDashboard(item)}
     ${renderClaimDecisionBoard(item)}
+    ${renderRobustnessSimulator(item)}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
@@ -6839,6 +6868,7 @@ function bindActions() {
   bindQuickNoteImport();
   bindNoteClassification();
   bindSilenceTracking();
+  bindRobustnessSimulator();
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
