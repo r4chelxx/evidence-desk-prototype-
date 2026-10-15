@@ -2270,7 +2270,7 @@ function addSourceToCurrent() {
   const item = getCurrentInvestigation();
   const name = state.planDraft.sourceName.trim();
   const use = state.planDraft.sourceUse.trim();
-  if (!name || !use) {
+  if (!name) {
     state.planNotice = t("fillRequiredPlanFields");
     return false;
   }
@@ -2280,7 +2280,7 @@ function addSourceToCurrent() {
       name,
       type: state.planDraft.sourceType.trim() || t("sourcesDatabases"),
       status: state.planDraft.sourceStatus.trim() || t("reviewRecommended"),
-      use,
+      use: use || "Uso ainda não definido",
       limits: state.planDraft.sourceLimits.trim() || t("reviewLog"),
     },
   ];
