@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeInvestigation, appendMethodEvent, detectContradictions } from "../investigation-intelligence.mjs";
+import { analyzeInvestigation, appendMethodEvent, detectContradictions, auditClaims } from "../investigation-intelligence.mjs";
 
 test("graph retains valid edges and exposes unlinked evidence", () => {
  const result = analyzeInvestigation({ sources:[{id:"s"}], evidence:[{id:"e",source_id:"s"},{id:"orphan"}], claims:[{id:"c"}], evidenceRelations:[{evidence_id:"e",claim_id:"c",relation:"supports"},{evidence_id:"missing",claim_id:"c",relation:"supports"}] });
