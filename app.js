@@ -4240,14 +4240,14 @@ function renderIntelligenceOverview(item) {
   }[lang] || [];
   const [title, verified, gaps, claims, actions, missing, next, openPlan, openEditorial, caution] = labels;
   const unresolved = result.graph.nodes.filter(n => n.kind === "gap" && !["resolved","closed"].includes(n.status.toLowerCase()));
-  const reviewClaims = result.claims.filter(c => c.status !== "review-required");
+  const reviewClaims = result.claims.filter(c => c.editorialApproval !== true);
   const escape = value => escapeHtml(String(value ?? ""));
   const gapItems = unresolved.slice(0, 4).map(g => `<li>${escape(g.label || g.id)}</li>`).join("");
   const actionItems = result.proposedActions.slice(0, 4).map(a => `<li><strong>${escape(a.title)}</strong> — ${escape(a.rationale)}</li>`).join("");
   return `<section class="panel intelligence-overview" aria-label="${escape(title)}">
     <div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div><span class="pill neutral">Beta · regras verificáveis</span></div>
     <div class="intelligence-metrics">
-      <div><strong>${result.graph.nodes.filter(n => n.kind === "evidence").length}</strong><span>${escape(verified)}</span></div>
+      <div><strong>${result.graph.nodes.filter(n => n.kind === "evidence" && ["verified", "verificado", "verificada"].includes(String(n.status || "").toLowerCase())).length}</strong><span>${escape(verified)}</span></div>
       <div><strong>${unresolved.length}</strong><span>${escape(gaps)}</span></div>
       <div><strong>${reviewClaims.length}</strong><span>${escape(claims)}</span></div>
       <div><strong>${result.proposedActions.length}</strong><span>${escape(actions)}</span></div>
