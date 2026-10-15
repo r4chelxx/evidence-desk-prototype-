@@ -3644,7 +3644,7 @@ function renderSilenceDetector(item) {
   const disclaimer = lang === 'en' ? 'Only documented gaps are shown. No omission is inferred from the text.' : lang === 'es' ? 'Solo se muestran vacíos documentados. No se infieren omisiones.' : 'Apenas lacunas documentadas são exibidas. Nenhuma omissão é inferida automaticamente.';
   return `<section class="panel silence-detector"><div class="section-header"><div><p class="eyebrow">Evidence Desk · LAI</p><h3>${heading}</h3></div><span class="pill neutral">${issues.length}</span></div><p class="muted">${disclaimer}</p>${issues.length ? `<ul>${issues.slice(0,12).map(issue => {
     const linked = (item.gaps || []).some(gap => gap.originComparisonIndex === issue.index && gap.originRequestTitle === issue.entry.requestTitle && gap.originMissingText === issue.part);
-    return `<li><strong>${escapeHtml(String(issue.entry.requestTitle || 'Pedido sem título'))}</strong><p>${escapeHtml(issue.part)}</p>${issue.entry.nextStep ? `<p class="muted">${escapeHtml(String(issue.entry.nextStep))}</p>` : ''}<button class="button secondary" type="button" data-action="track-silence" data-comparison-index="${issue.index}" data-part-index="${issue.partIndex}" ${linked ? 'disabled' : ''}>${linked ? 'Pendência registrada' : 'Acompanhar esta lacuna'}</button></li>`;
+    return `<li><strong>${escapeHtml(String(issue.entry.requestTitle || 'Pedido sem título'))}</strong><p>${escapeHtml(issue.part)}</p>${issue.entry.nextStep ? `<p class="muted">${escapeHtml(String(issue.entry.nextStep))}</p>` : ''}${(item.claims || []).length && !linked ? `<label class="silence-claim-link">Afirmação potencialmente afetada (opcional)<select data-silence-claim-index="${issue.index}-${issue.partIndex}"><option value="">Não vincular</option>${(item.claims || []).map((claim, claimIndex) => `<option value="${claimIndex}">${escapeHtml(String(claim.statement || claim.text || claim.claim || claim.title || 'Afirmação ' + (claimIndex + 1)))}</option>`).join('')}</select></label>` : ''}<button class="button secondary" type="button" data-action="track-silence" data-comparison-index="${issue.index}" data-part-index="${issue.partIndex}" ${linked ? 'disabled' : ''}>${linked ? 'Pendência registrada' : 'Acompanhar esta lacuna'}</button></li>`;
   }).join('')}</ul>` : '<p class="muted">Ainda não há lacunas documentadas. Compare o pedido com a resposta.</p>'}</section>`;
 }
 
@@ -3661,7 +3661,11 @@ function bindSilenceTracking() {
     const part = parts[partIndex];
     if (!part) return;
     if ((item.gaps || []).some(gap => gap.originComparisonIndex === index && gap.originRequestTitle === comparison.requestTitle && gap.originMissingText === part)) return;
+    const claimSelector = document.querySelector('[data-silence-claim-index="' + index + '-' + partIndex + '"]');
+    const claimIndex = claimSelector?.value === '' || claimSelector?.value == null ? -1 : Number(claimSelector.value);
+    const claim = Number.isInteger(claimIndex) && claimIndex >= 0 ? item.claims?.[claimIndex] : null;
     item.gaps = [...(item.gaps || []), {
+      target_claim_id: claim ? (claim.id || 'claim-' + claimIndex) : null,
       id: 'lai-gap-' + Date.now().toString(36) + '-' + partIndex,
       description: part,
       status: 'Aberta',
