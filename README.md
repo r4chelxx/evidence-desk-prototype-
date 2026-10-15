@@ -38,9 +38,9 @@ checked 2026-10-14. Seed case facts are unchanged.
 
 ## Run the optional AI adapter
 
-Configure `OPENAI_API_KEY` and `OPENAI_MODEL` in the server environment, then run
+Configure `OPENAI_API_KEY` in the server environment (`OPENAI_MODEL` optionally overrides the `gpt-5.6-terra` default), then run
 `node server.mjs` and open `http://127.0.0.1:4173`. Never put a key in frontend code
-or Git. Without these variables, the form remains available for manual review.
+or Git. Without the API key, the form remains available for manual review.
 In local mode the adapter binds only to loopback, serves an explicit file allowlist, rejects
 foreign origins, limits input size and does not log document text or provider
 errors. It requests `store: false`; this is not a guarantee of zero provider
@@ -50,8 +50,10 @@ The optional hosted pilot now includes authenticated one-hour sessions, exact
 origin checks and per-process usage/concurrency limits. It can connect to Pages
 without exposing the provider key or using cross-site cookies. See
 [DEPLOY_BACKEND.md](DEPLOY_BACKEND.md) for the container and environment settings.
-It has not been provisioned and no live-provider call has been verified. The Pages
-demo still works without it. Multi-user accounts and shared persistence are not
+It is deployed at `https://evidence-desk-lai.onrender.com` on the free plan. Health,
+authentication, CORS and live PDF extraction were verified with synthetic material
+on 2026-10-15. OpenAI credentials are not configured; no live-provider call has been
+verified. The Pages demo selects that backend automatically. Multi-user accounts and shared persistence are not
 implemented. Do not expose local mode through a public tunnel.
 
 The LAI workspace focuses on one selected request by default, with an option to

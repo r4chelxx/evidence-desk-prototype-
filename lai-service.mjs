@@ -1,4 +1,5 @@
 const CONFIG_KEY = 'evidence-desk-lai-service-v1';
+export const DEFAULT_SERVICE_URL = 'https://evidence-desk-lai.onrender.com';
 let sessionToken = '';
 
 export function normalizeServiceUrl(value) {
@@ -13,7 +14,11 @@ export function normalizeServiceUrl(value) {
 }
 
 export function getServiceUrl() {
-  try { return normalizeServiceUrl(window.localStorage.getItem(CONFIG_KEY) || ''); } catch { return ''; }
+  try {
+    const configured = window.localStorage.getItem(CONFIG_KEY);
+    if (configured?.trim()) return normalizeServiceUrl(configured);
+    return window.location?.origin === 'https://r4chelxx.github.io' ? DEFAULT_SERVICE_URL : '';
+  } catch { return ''; }
 }
 
 export function configureService(value) {

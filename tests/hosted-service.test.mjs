@@ -45,3 +45,23 @@ test('local mode stays usable without API credentials', async () => {
     assert.equal((await fetch(`${base}/api/lai/status`, { headers: { Origin: 'https://wrong.example' } })).status, 403);
   } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
 });
+
+test('hosted service permits its Render-provided HTTPS origin without permitting unrelated origins', async () => {
+  const previousUrl = process.env.RENDER_EXTERNAL_URL;
+  const previousOrigins = process.env.EVIDENCE_DESK_ALLOWED_ORIGINS;
+  let server;
+  try {
+    process.env.RENDER_EXTERNAL_URL = 'https://self.example.org';
+    process.env.EVIDENCE_DESK_ALLOWED_ORIGINS = 'https://example.org';
+    server = await createServer({ mode: 'hosted', password: 'synthetic-password-only', secret: 'synthetic-session-secret-for-testing-only', pdfExtraction: false });
+    server.listen(0, '127.0.0.1'); await once(server, 'listening');
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const own = await fetch(`${base}/api/lai/status`, { headers: { Origin: 'https://self.example.org' } });
+    assert.equal(own.status, 200); assert.equal((await own.json()).authRequired, true);
+    assert.equal((await fetch(`${base}/api/lai/status`, { headers: { Origin: 'https://untrusted.example.org' } })).status, 403);
+  } finally {
+    if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
+    if (previousUrl === undefined) delete process.env.RENDER_EXTERNAL_URL; else process.env.RENDER_EXTERNAL_URL = previousUrl;
+    if (previousOrigins === undefined) delete process.env.EVIDENCE_DESK_ALLOWED_ORIGINS; else process.env.EVIDENCE_DESK_ALLOWED_ORIGINS = previousOrigins;
+  }
+});

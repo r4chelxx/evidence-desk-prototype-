@@ -2,17 +2,23 @@
 
 O frontend no GitHub Pages já pode se conectar a um serviço remoto. O backend tem
 dois modos: `local`, ligado apenas a 127.0.0.1; e `hosted`, com sessão autenticada,
-origens autorizadas e limites por instância. Nenhum serviço remoto foi provisionado
-e nenhuma chave real está incluída no repositório.
+origens autorizadas e limites por instância. O serviço foi provisionado no plano
+gratuito em https://evidence-desk-lai.onrender.com, no workspace confirmado pela
+usuária. Nenhuma chave real está incluída no repositório.
+
+Em 15/10/2026, o deploy ficou live e a verificação remota passou para saúde HTTP,
+autenticação, bloqueio de origem indevida e extração autenticada de um PDF sintético.
+A IA permaneceu indisponível por ausência de `OPENAI_API_KEY`; não houve chamada
+a um modelo real. O frontend Pages usa essa URL por padrão.
 
 ## Preparação
 
 O arquivo `render.yaml` prepara a criação de um Web Service Docker no Render,
 com plano `free`, endpoint de saúde e geração de senha/segredo no ambiente privado
 da hospedagem. A disponibilidade do plano precisa ser confirmada na conta; não
-substitua por um plano pago sem aprovação. A integração Render ainda precisa ser
-conectada para que o serviço seja criado e o deploy seja validado. Não há serviço
-online só pela presença deste arquivo no Git.
+substitua por um plano pago sem aprovação. Este serviço foi criado diretamente pela
+integração Render, e não por sincronização do Blueprint. Não aplique o Blueprint
+para criar outro serviço por engano; use o serviço existente.
 
 A chave e o modelo são solicitados no painel privado durante a criação inicial
 do Blueprint (`sync: false`). Não coloque valores reais neste arquivo. Em um
@@ -22,9 +28,8 @@ Referência: https://render.com/docs/blueprint-spec.
 Hospede o `Dockerfile` deste repositório em um serviço de contêineres com HTTPS.
 O processo lê a porta em `EVIDENCE_DESK_PORT`, depois `PORT`, e usa 4173 como padrão.
 O endpoint de saúde é `/healthz`. O contêiner usa Node 24 e Poppler para PDFs.
-Docker não está disponível no ambiente de desenvolvimento desta rodada; o build
-da imagem precisa ser conferido na hospedagem. O servidor Node e suas rotas foram
-testados diretamente, incluindo autenticação e CORS.
+O Render construiu a imagem Docker e iniciou o processo na porta 10000. O servidor
+Node e suas rotas foram testados localmente e também no serviço publicado.
 
 Configure as variáveis no painel privado da hospedagem:
 
@@ -35,9 +40,9 @@ Configure as variáveis no painel privado da hospedagem:
 | `EVIDENCE_DESK_LOGIN_PASSWORD` | Senha exclusiva do piloto, com pelo menos 16 caracteres |
 | `EVIDENCE_DESK_SESSION_SECRET` | Segredo aleatório com pelo menos 32 caracteres, distinto da senha |
 | `OPENAI_API_KEY` | Chave da conta de API, apenas no servidor |
-| `OPENAI_MODEL` | Modelo habilitado nessa conta, compatível com Responses e Structured Outputs |
+| `OPENAI_MODEL` | Opcional; padrão do piloto: `gpt-5.6-terra`. Pode ser alterado para outro modelo habilitado na conta e compatível com Responses e Structured Outputs |
 
-Sem senha, segredo ou origens válidas, o modo hosted não inicia. Sem chave/modelo,
+Sem senha, segredo ou origens válidas, o modo hosted não inicia. Sem chave,
 o serviço pode extrair PDFs após autenticação, mas informa que a IA está indisponível.
 Não envie credenciais pelo chat, não use arquivos públicos e não as inclua no Git.
 
@@ -45,7 +50,8 @@ Não envie credenciais pelo chat, não use arquivos públicos e não as inclua n
 
 1. Abra uma investigação e entre em **LAI e respostas**.
 2. Expanda **Conectar o serviço de análise**.
-3. Informe a URL HTTPS do backend, sem caminho ou parâmetros, e a senha do piloto.
+3. A URL vem preenchida no Pages. Informe a senha do piloto, disponível na variável
+   privada `EVIDENCE_DESK_LOGIN_PASSWORD` do serviço no Render.
 4. Clique **Conectar** e confira as disponibilidades indicadas.
 5. Teste com um pedido e resposta sintéticos antes de enviar material de apuração.
 

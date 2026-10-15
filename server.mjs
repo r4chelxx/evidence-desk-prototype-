@@ -30,9 +30,13 @@ async function readJson(req, maxSize) {
 export async function createServer(options = {}) {
   const mode = options.mode || process.env.EVIDENCE_DESK_MODE || 'local';
   const origins = options.origins || (process.env.EVIDENCE_DESK_ALLOWED_ORIGINS || '').split(',').map(origin => origin.trim()).filter(Boolean);
+  if (mode === 'hosted' && !options.origins && process.env.RENDER_EXTERNAL_URL) {
+    const ownOrigin = new URL(process.env.RENDER_EXTERNAL_URL).origin;
+    if (ownOrigin.startsWith('https://') && !origins.includes(ownOrigin)) origins.push(ownOrigin);
+  }
   const access = createAccess({ mode, origins, password: options.password || process.env.EVIDENCE_DESK_LOGIN_PASSWORD, secret: options.secret || process.env.EVIDENCE_DESK_SESSION_SECRET });
   const apiKey = options.apiKey || process.env.OPENAI_API_KEY;
-  const model = options.model || process.env.OPENAI_MODEL;
+  const model = options.model || process.env.OPENAI_MODEL || 'gpt-5.6-terra';
   const configured = Boolean(apiKey && model);
   const pdfExtraction = options.pdfExtraction ?? await hasPdfExtractor();
   const analyze = options.analyze || analyzeRequest;

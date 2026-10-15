@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeServiceUrl, configureService, connectService, disconnectService, serviceFetch } from '../lai-service.mjs';
+import { normalizeServiceUrl, configureService, connectService, disconnectService, serviceFetch, getServiceUrl, DEFAULT_SERVICE_URL } from '../lai-service.mjs';
 
 test('remote configuration rejects insecure URLs, embedded credentials and redirects via URL parameters', () => {
   assert.equal(normalizeServiceUrl('https://example.org/'), 'https://example.org');
@@ -26,4 +26,19 @@ test('stores only the service URL, keeps session credentials in memory and remov
     assert.equal(storage.size, 1); assert.equal([...storage.values()][0], 'https://example.org');
     disconnectService(); await serviceFetch('status'); assert.equal(lastHeaders.Authorization, undefined);
   } finally { globalThis.window = previousWindow; globalThis.fetch = previousFetch; }
+});
+
+test('Pages uses the deployed backend by default while local preview stays same-origin', () => {
+  const previousWindow = globalThis.window;
+  try {
+    globalThis.window = { location: { origin: 'https://r4chelxx.github.io' }, localStorage: { getItem: () => null } };
+    assert.equal(getServiceUrl(), DEFAULT_SERVICE_URL);
+    globalThis.window.localStorage.getItem = () => '';
+    assert.equal(getServiceUrl(), DEFAULT_SERVICE_URL);
+    globalThis.window.localStorage.getItem = () => null;
+    globalThis.window.location.origin = 'http://127.0.0.1:4173';
+    assert.equal(getServiceUrl(), '');
+    globalThis.window.localStorage.getItem = () => 'https://custom.example';
+    assert.equal(getServiceUrl(), 'https://custom.example');
+  } finally { globalThis.window = previousWindow; }
 });
