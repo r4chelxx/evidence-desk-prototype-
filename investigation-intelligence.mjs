@@ -53,14 +53,15 @@ export function detectContradictions(caseData = {}) {
 
 export function auditClaims(caseData = {}) {
   return list(caseData.claims).filter(x => key(x?.id)).map(claim => {
-    const relations = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id);
+    const validEvidence = new Set(list(caseData.evidence).filter(e => key(e?.id) && key(e?.source_id) && list(caseData.sources).some(s => key(s?.id) === key(e.source_id))).map(e => key(e.id)));
+    const relations = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && validEvidence.has(key(r.evidence_id)));
     const supporting = relations.filter(r => r.relation === "supports");
     const contradictory = relations.filter(r => r.relation === "contradicts");
     const limiting = relations.filter(r => r.relation === "limits");
     const evidenceIds = new Set(list(caseData.evidence).map(e => e.id));
-    const unresolved = supporting.filter(r => !evidenceIds.has(r.evidence_id));
+    const unresolved = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && r.relation === "supports" && !validEvidence.has(key(r.evidence_id)));
     const status = contradictory.length ? "contradicted" : (!supporting.length || unresolved.length) ? "needs-evidence" : limiting.length ? "qualified" : "review-required";
-    return { claimId: claim.id, status, supporting: supporting.length, contradictory: contradictory.length, limiting: limiting.length, unresolvedEvidenceIds: unresolved.map(r => r.evidence_id), editorialApproval: false };
+    return { claimId: claim.id, status, supporting: supporting.length, contradictory: contradictory.length, limiting: limiting.length, unresolvedEvidenceIds: unresolved.map(r => r.evidence_id), editorialApproval: false, provenanceChecked: supporting.length > 0 && unresolved.length === 0 };
   });
 }
 
