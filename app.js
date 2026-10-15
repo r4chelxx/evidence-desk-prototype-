@@ -5325,15 +5325,20 @@ function renderSources(item) {
     <div class="stack">
       ${item.sources
         .map(
-          (source) => `
+          (source, index) => `
             <article class="panel source-card">
               <div class="card-footer top">
-                <h3>${source.name}</h3>
-                <span class="pill ${statusClass(source.status)}">${source.status}</span>
+                <h3>${escapeHtml(String(source.name || 'Fonte sem nome'))}</h3>
+                <span class="pill ${statusClass(source.status)}">${escapeHtml(String(source.status || ''))}</span>
               </div>
-              <p><strong>${source.type}</strong></p>
-              <p>${source.use}</p>
-              <p class="muted">${t("limits")}: ${source.limits}</p>
+              <p><strong>${escapeHtml(String(source.type || ''))}</strong></p>
+              <p>${escapeHtml(String(source.use || ''))}</p>
+              <p class="muted">${t("limits")}: ${escapeHtml(String(source.limits || ''))}</p>
+              <label>Origem primária documentada (opcional)
+                <input data-source-origin="${index}" value="${escapeHtml(String(source.primary_origin_id || source.original_source_id || ''))}" placeholder="Ex.: base-ibge-censo-2022">
+              </label>
+              <button type="button" class="button secondary" data-action="save-source-origin" data-source-index="${index}">Salvar origem</button>
+              <small class="muted">Use o mesmo identificador para fontes que reproduzem a mesma origem. Em branco significa origem não documentada.</small>
             </article>
           `,
         )
@@ -6888,6 +6893,16 @@ function bindActions() {
   bindNoteClassification();
   bindSilenceTracking();
   bindRobustnessSimulator();
+  document.querySelectorAll('[data-action="save-source-origin"]').forEach(button => button.addEventListener('click', () => {
+    const index = Number(button.dataset.sourceIndex);
+    const item = getCurrentInvestigation();
+    if (!Number.isInteger(index) || index < 0 || index >= (item.sources || []).length) return;
+    const input = document.querySelector('[data-source-origin="' + index + '"]');
+    if (!input) return;
+    item.sources[index].primary_origin_id = input.value.trim() || null;
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
