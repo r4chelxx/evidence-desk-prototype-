@@ -2993,3 +2993,8 @@ button:disabled {
 .quick-note-history ol {padding-inline-start:1.5rem;}
 .quick-note-history li {padding-block:.5rem;overflow-wrap:anywhere;}
 .quick-note-history li p {white-space:pre-wrap;margin:.3rem 0;}
+
+.create-optional {grid-column:1/-1;border:1px solid var(--border,#d6dbe2);border-radius:12px;padding:.8rem;margin-block:.5rem;}
+.create-optional > summary {cursor:pointer;font-weight:600;}
+.create-optional[open] > summary {margin-bottom:1rem;}
+.create-optional .form-grid {margin-top:.5rem;}
