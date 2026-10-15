@@ -1,3 +1,4 @@
+import { summarizeLegacyInvestigation } from "./investigation-adapter.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa39';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261014-qa39';
@@ -4212,6 +4213,34 @@ function renderEditorialWorkspace(item) {
   `;
 }
 
+function renderIntelligenceOverview(item) {
+  const result = summarizeLegacyInvestigation(item);
+  const lang = state.locale || "pt";
+  const labels = {
+    pt: ["Inteligência da investigação", "Evidências verificadas", "Lacunas abertas", "Afirmações a revisar", "Ações propostas", "O que ainda falta comprovar", "Próximos movimentos", "Abrir apuração", "Abrir revisão editorial", "Propostas automáticas não são conclusões. Confirme documentos e contexto antes de agir."],
+    en: ["Investigation intelligence", "Verified evidence", "Open gaps", "Claims to review", "Proposed actions", "What remains unverified", "Next moves", "Open reporting plan", "Open editorial review", "Automated proposals are not findings. Verify documents and context before acting."],
+    es: ["Inteligencia de investigación", "Evidencias verificadas", "Vacíos abiertos", "Afirmaciones por revisar", "Acciones propuestas", "Qué falta comprobar", "Próximos pasos", "Abrir investigación", "Abrir revisión editorial", "Las propuestas automáticas no son conclusiones. Verifique documentos y contexto antes de actuar."]
+  }[lang] || [];
+  const [title, verified, gaps, claims, actions, missing, next, openPlan, openEditorial, caution] = labels;
+  const unresolved = result.graph.nodes.filter(n => n.kind === "gap" && !["resolved","closed"].includes(n.status.toLowerCase()));
+  const reviewClaims = result.claims.filter(c => c.status !== "review-required");
+  const escape = value => escapeHtml(String(value ?? ""));
+  const gapItems = unresolved.slice(0, 4).map(g => `<li>${escape(g.label || g.id)}</li>`).join("");
+  const actionItems = result.proposedActions.slice(0, 4).map(a => `<li><strong>${escape(a.title)}</strong> — ${escape(a.rationale)}</li>`).join("");
+  return `<section class="panel intelligence-overview" aria-label="${escape(title)}">
+    <div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div><span class="pill neutral">Beta · regras verificáveis</span></div>
+    <div class="intelligence-metrics">
+      <div><strong>${result.graph.nodes.filter(n => n.kind === "evidence").length}</strong><span>${escape(verified)}</span></div>
+      <div><strong>${unresolved.length}</strong><span>${escape(gaps)}</span></div>
+      <div><strong>${reviewClaims.length}</strong><span>${escape(claims)}</span></div>
+      <div><strong>${result.proposedActions.length}</strong><span>${escape(actions)}</span></div>
+    </div>
+    <div class="intelligence-columns"><div><h3>${escape(missing)}</h3>${gapItems ? `<ul>${gapItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="plan">${escape(openPlan)}</button></div>
+    <div><h3>${escape(next)}</h3>${actionItems ? `<ul>${actionItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="editorial">${escape(openEditorial)}</button></div></div>
+    <p class="muted">${escape(caution)}</p>
+  </section>`;
+}
+
 function renderOverview(item) {
   return `
     <section class="content-header">
@@ -4219,6 +4248,7 @@ function renderOverview(item) {
       <h2>${item.centralQuestion}</h2>
       <p>${item.description}</p>
     </section>
+    ${renderIntelligenceOverview(item)}
     ${renderStoryBuilder(item)}
     ${renderExecutiveSummary(item)}
     ${renderInvestigationCompass(item)}
