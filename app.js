@@ -6753,6 +6753,13 @@ function bindQuickNotes() {
     const text = input?.value.trim();
     if (!text) return;
     const item = getCurrentInvestigation();
+    const normalized = text.normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase();
+    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase() === normalized)) {
+      input.setCustomValidity(state.locale === 'en' ? 'This note is already saved.' : state.locale === 'es' ? 'Esta nota ya está guardada.' : 'Esta anotação já foi salva.');
+      input.reportValidity();
+      input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
+      return;
+    }
     item.reporterNotes = [...(item.reporterNotes || []), { id: 'note-' + Date.now() + '-' + Math.random().toString(36).slice(2,8), createdAt: new Date().toISOString(), text }];
     touchInvestigation(item);
     renderInvestigation();
