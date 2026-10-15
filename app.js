@@ -6727,7 +6727,7 @@ function bindQuickNoteImport() {
       input.value = '';
       return;
     }
-    const allowed = /\\.(txt|md|csv|tsv|json)$/i.test(file.name);
+    const allowed = /\.(txt|md|csv|tsv|json)$/i.test(file.name);
     if (!allowed) {
       window.alert('Formato não suportado. Use TXT, MD, CSV, TSV ou JSON.');
       input.value = '';
@@ -6737,7 +6737,7 @@ function bindQuickNoteImport() {
       const content = await file.text();
       const excerpt = content.trim().slice(0, 5500);
       if (!excerpt) throw new Error('Arquivo vazio');
-      textarea.value = '[' + file.name + ']\\n' + excerpt;
+      textarea.value = '[' + file.name + ']\n' + excerpt;
       textarea.focus();
     } catch {
       window.alert('Não foi possível ler este arquivo.');
@@ -6753,8 +6753,8 @@ function bindQuickNotes() {
     const text = input?.value.trim();
     if (!text) return;
     const item = getCurrentInvestigation();
-    const normalized = text.normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase();
-    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase() === normalized)) {
+    const normalized = text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized)) {
       input.setCustomValidity(state.locale === 'en' ? 'This note is already saved.' : state.locale === 'es' ? 'Esta nota ya está guardada.' : 'Esta anotação já foi salva.');
       input.reportValidity();
       input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
