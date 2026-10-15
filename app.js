@@ -5756,8 +5756,9 @@ function renderComparisonAddForm(requestOptions) {
         <textarea data-comparison-field="received" rows="3" placeholder="${t("receivedPlaceholder")}">${escapeHtml(state.comparisonDraft.received)}</textarea>
       </label>
       <label>
-        <span>${t("missingLabel")}</span>
+        <span>${t("missingLabel")} <small>(opcional; uma lacuna por linha)</small></span>
         <textarea data-comparison-field="missing" rows="3" placeholder="${t("missingPlaceholder")}">${escapeHtml(state.comparisonDraft.missing)}</textarea>
+        <small class="muted">Se a resposta estiver completa, deixe em branco. Registre somente ausências que você verificou.</small>
       </label>
       <div class="form-grid">
         <label>
