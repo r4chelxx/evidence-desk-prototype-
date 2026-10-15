@@ -3396,13 +3396,13 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
-        ${renderTabGuide()}
+        ${state.currentTab === 'overview' ? '' : renderTabGuide()}
         <nav class="tabs">${nav}</nav>
       </aside>
       <section class="content">
-        ${renderDesktopTestRail(item, tabs)}
-        ${renderMobileTabContext()}
-        ${renderMobileFocusCard(item)}
+        ${state.currentTab === 'overview' ? '' : renderDesktopTestRail(item, tabs)}
+        ${state.currentTab === 'overview' ? '' : renderMobileTabContext()}
+        ${state.currentTab === 'overview' ? '' : renderMobileFocusCard(item)}
         ${renderTab(item)}
       </section>
     </main>
