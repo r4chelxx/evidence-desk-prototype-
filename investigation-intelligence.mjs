@@ -58,7 +58,6 @@ export function auditClaims(caseData = {}) {
     const supporting = relations.filter(r => r.relation === "supports");
     const contradictory = relations.filter(r => r.relation === "contradicts");
     const limiting = relations.filter(r => r.relation === "limits");
-    const evidenceIds = new Set(list(caseData.evidence).map(e => e.id));
     const unresolved = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && r.relation === "supports" && !validEvidence.has(key(r.evidence_id)));
     const status = contradictory.length ? "contradicted" : (!supporting.length || unresolved.length) ? "needs-evidence" : limiting.length ? "qualified" : "review-required";
     return { claimId: claim.id, status, supporting: supporting.length, contradictory: contradictory.length, limiting: limiting.length, unresolvedEvidenceIds: unresolved.map(r => r.evidence_id), editorialApproval: false, provenanceChecked: supporting.length > 0 && unresolved.length === 0 };
