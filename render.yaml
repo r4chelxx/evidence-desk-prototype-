@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: evidence-desk-lai
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: EVIDENCE_DESK_MODE
+        value: hosted
+      - key: EVIDENCE_DESK_ALLOWED_ORIGINS
+        value: https://r4chelxx.github.io
+      - key: EVIDENCE_DESK_LOGIN_PASSWORD
+        generateValue: true
+      - key: EVIDENCE_DESK_SESSION_SECRET
+        generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false

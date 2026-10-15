@@ -7,6 +7,18 @@ e nenhuma chave real está incluída no repositório.
 
 ## Preparação
 
+O arquivo `render.yaml` prepara a criação de um Web Service Docker no Render,
+com plano `free`, endpoint de saúde e geração de senha/segredo no ambiente privado
+da hospedagem. A disponibilidade do plano precisa ser confirmada na conta; não
+substitua por um plano pago sem aprovação. A integração Render ainda precisa ser
+conectada para que o serviço seja criado e o deploy seja validado. Não há serviço
+online só pela presença deste arquivo no Git.
+
+A chave e o modelo são solicitados no painel privado durante a criação inicial
+do Blueprint (`sync: false`). Não coloque valores reais neste arquivo. Em um
+serviço já existente, configure essas variáveis diretamente no ambiente privado.
+Referência: https://render.com/docs/blueprint-spec.
+
 Hospede o `Dockerfile` deste repositório em um serviço de contêineres com HTTPS.
 O processo lê a porta em `EVIDENCE_DESK_PORT`, depois `PORT`, e usa 4173 como padrão.
 O endpoint de saúde é `/healthz`. O contêiner usa Node 24 e Poppler para PDFs.
