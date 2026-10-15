@@ -2984,3 +2984,12 @@ button:disabled {
 .advanced-investigation > summary {cursor:pointer;list-style-position:inside;padding:1rem;border:1px solid var(--border,#d6dbe2);border-radius:12px;font-weight:600;}
 .advanced-investigation[open] > summary {margin-bottom:1rem;}
 @media(max-width:640px){.capture-actions {display:grid;grid-template-columns:1fr;}.capture-actions .button {width:100%;}.capture-first {padding:1rem;}}
+
+.quick-note-form {display:grid;gap:.65rem;}
+.quick-note-form label {font-weight:600;}
+.quick-note-form textarea {width:100%;box-sizing:border-box;min-height:5rem;padding:.8rem;border-radius:10px;border:1px solid var(--border,#d6dbe2);font:inherit;background:var(--surface,#fff);color:inherit;}
+.quick-note-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.75rem;}
+.quick-note-history > summary {cursor:pointer;font-weight:600;}
+.quick-note-history ol {padding-inline-start:1.5rem;}
+.quick-note-history li {padding-block:.5rem;overflow-wrap:anywhere;}
+.quick-note-history li p {white-space:pre-wrap;margin:.3rem 0;}
