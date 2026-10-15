@@ -2346,7 +2346,7 @@ function addComparisonToCurrent() {
   const expected = state.comparisonDraft.expected.trim();
   const received = state.comparisonDraft.received.trim();
   const missing = state.comparisonDraft.missing.trim();
-  if (!requestTitle || !expected || !received || !missing) {
+  if (!requestTitle || !expected || !received) {
     state.comparisonNotice = t("fillRequiredPlanFields");
     return false;
   }
