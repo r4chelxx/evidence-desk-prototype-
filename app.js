@@ -3641,15 +3641,35 @@ function renderPlanAddForms() {
 
 function renderSilenceDetector(item) {
   const comparisons = Array.isArray(item.requestComparisons) ? item.requestComparisons : [];
-  const issues = comparisons.filter(entry => String(entry.missing || '').trim()).map(entry => ({
-    title: String(entry.requestTitle || 'Pedido sem título'),
-    missing: String(entry.missing || ''),
-    next: String(entry.nextStep || ''),
-  }));
+  const issues = comparisons.map((entry, index) => ({...entry, index})).filter(entry => String(entry.missing || '').trim());
   const lang = state.locale || 'pt';
   const heading = lang === 'en' ? 'Unanswered information' : lang === 'es' ? 'Información sin respuesta' : 'Silêncios da resposta';
-  const disclaimer = lang === 'en' ? 'Only gaps explicitly recorded in request comparisons are listed. Absence is not evidence of wrongdoing.' : lang === 'es' ? 'Solo se muestran vacíos registrados en las comparaciones. La ausencia no prueba irregularidades.' : 'Exibe apenas lacunas registradas nas comparações. Ausência de resposta não comprova irregularidade.';
-  return `<section class="panel silence-detector"><div class="section-header"><div><p class="eyebrow">Evidence Desk · LAI</p><h3>${heading}</h3></div><span class="pill neutral">${issues.length}</span></div><p class="muted">${disclaimer}</p>${issues.length ? `<ul>${issues.slice(0,8).map(issue => `<li><strong>${escapeHtml(issue.title)}</strong><p>${escapeHtml(issue.missing)}</p>${issue.next ? `<p class="muted">${escapeHtml(issue.next)}</p>` : ''}</li>`).join('')}</ul>` : `<p class="muted">${lang === 'en' ? 'No gaps recorded yet. Compare a request and its response to begin.' : lang === 'es' ? 'Aún no hay vacíos registrados. Compare una solicitud y su respuesta.' : 'Ainda não há lacunas registradas. Compare um pedido e sua resposta para começar.'}</p>`}</section>`;
+  const disclaimer = lang === 'en' ? 'Only documented gaps are shown. Creating a task does not establish wrongdoing.' : lang === 'es' ? 'Solo se muestran vacíos documentados. Crear una tarea no prueba irregularidades.' : 'Apenas lacunas documentadas são exibidas. Criar uma pendência não comprova irregularidade.';
+  return `<section class="panel silence-detector"><div class="section-header"><div><p class="eyebrow">Evidence Desk · LAI</p><h3>${heading}</h3></div><span class="pill neutral">${issues.length}</span></div><p class="muted">${disclaimer}</p>${issues.length ? `<ul>${issues.slice(0,8).map(issue => {
+    const linked = (item.gaps || []).some(gap => gap.originComparisonIndex === issue.index && gap.originRequestTitle === issue.requestTitle);
+    return `<li><strong>${escapeHtml(String(issue.requestTitle || 'Pedido sem título'))}</strong><p>${escapeHtml(String(issue.missing))}</p>${issue.nextStep ? `<p class="muted">${escapeHtml(String(issue.nextStep))}</p>` : ''}<button class="button secondary" type="button" data-action="track-silence" data-comparison-index="${issue.index}" ${linked ? 'disabled' : ''}>${linked ? (lang === 'en' ? 'Tracked' : lang === 'es' ? 'Registrado' : 'Pendência registrada') : (lang === 'en' ? 'Track this gap' : lang === 'es' ? 'Registrar pendiente' : 'Acompanhar esta lacuna')}</button></li>`;
+  }).join('')}</ul>` : `<p class="muted">${lang === 'en' ? 'No documented gaps yet. Compare a request with its response.' : lang === 'es' ? 'Aún no hay vacíos documentados. Compare la solicitud con la respuesta.' : 'Ainda não há lacunas documentadas. Compare o pedido com a resposta.'}</p>`}</section>`;
+}
+
+function bindSilenceTracking() {
+  document.querySelectorAll('[data-action="track-silence"]').forEach(button => button.addEventListener('click', () => {
+    const item = getCurrentInvestigation();
+    const index = Number(button.dataset.comparisonIndex);
+    const comparison = item.requestComparisons?.[index];
+    if (!Number.isInteger(index) || !comparison || !String(comparison.missing || '').trim()) return;
+    if ((item.gaps || []).some(gap => gap.originComparisonIndex === index && gap.originRequestTitle === comparison.requestTitle)) return;
+    item.gaps = [...(item.gaps || []), {
+      id: 'lai-gap-' + Date.now().toString(36),
+      description: String(comparison.missing),
+      status: 'Aberta',
+      originComparisonIndex: index,
+      originRequestTitle: comparison.requestTitle,
+      suggestedNextStep: String(comparison.nextStep || ''),
+      provenance: 'Comparação de pedido e resposta; revisão humana necessária'
+    }];
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
 }
 
 function renderRequestsWorkspace(item) {
@@ -6799,6 +6819,7 @@ function bindActions() {
   bindQuickNotes();
   bindQuickNoteImport();
   bindNoteClassification();
+  bindSilenceTracking();
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
