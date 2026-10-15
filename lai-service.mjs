@@ -1,6 +1,16 @@
 const CONFIG_KEY = 'evidence-desk-lai-service-v1';
+const SESSION_KEY = 'evidence-desk-lai-session-v1';
 export const DEFAULT_SERVICE_URL = 'https://evidence-desk-lai.onrender.com';
 let sessionToken = '';
+
+function savedSession() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(SESSION_KEY) || 'null');
+    if (saved?.url === getServiceUrl() && saved.expiresAt > Date.now() && typeof saved.token === 'string') return saved.token;
+    window.localStorage.removeItem(SESSION_KEY);
+  } catch { return sessionToken; /* Storage may be unavailable in private browsing. */ }
+  return '';
+}
 
 export function normalizeServiceUrl(value) {
   if (!value?.trim()) return '';
@@ -23,21 +33,25 @@ export function getServiceUrl() {
 
 export function configureService(value) {
   const url = normalizeServiceUrl(value);
+  if (url !== getServiceUrl()) disconnectService();
   window.localStorage.setItem(CONFIG_KEY, url);
-  sessionToken = '';
   return url;
 }
 
-export function disconnectService() { sessionToken = ''; }
+export function disconnectService() {
+  sessionToken = '';
+  try { window.localStorage.removeItem(SESSION_KEY); } catch { /* No stored session. */ }
+}
 
 export async function serviceFetch(action, options = {}) {
   if (!['status', 'login', 'analyze', 'extract'].includes(action)) throw new Error('Invalid endpoint');
   const headers = { ...options.headers };
+  sessionToken = savedSession();
   if (sessionToken && action !== 'login') headers.Authorization = `Bearer ${sessionToken}`;
   const response = await fetch(`${getServiceUrl()}/api/lai/${action}`, {
     ...options, headers, credentials: 'omit', redirect: 'error',
   });
-  if (response.status === 401) sessionToken = '';
+  if (response.status === 401) disconnectService();
   return response;
 }
 
@@ -48,5 +62,9 @@ export async function connectService(password) {
   });
   const result = await response.json();
   if (!response.ok || typeof result.token !== 'string') throw new Error('Não foi possível entrar no serviço. Confira a senha e tente novamente.');
-  sessionToken = result.token; // Memory only: no password or access token in browser storage.
+  sessionToken = result.token;
+  try {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify({ url: getServiceUrl(), token: sessionToken,
+      expiresAt: Date.now() + Math.min(Number(result.expiresIn) || 3600, 30 * 86400) * 1000 }));
+  } catch { /* Continue in memory when storage is unavailable. */ }
 }

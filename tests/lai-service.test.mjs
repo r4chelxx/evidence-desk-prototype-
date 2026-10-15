@@ -10,20 +10,29 @@ test('remote configuration rejects insecure URLs, embedded credentials and redir
   }
 });
 
-test('stores only the service URL, keeps session credentials in memory and removes them on disconnect', async () => {
+test('remembers connection across reloads without storing password; disconnect removes access', async () => {
   const previousWindow = globalThis.window, previousFetch = globalThis.fetch;
   const storage = new Map(); let lastHeaders;
-  globalThis.window = { localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) } };
+  globalThis.window = { localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } };
   globalThis.fetch = async (_url, options) => {
     lastHeaders = options.headers;
     assert.equal(options.credentials, 'omit'); assert.equal(options.redirect, 'error');
-    return { ok: true, status: 200, json: async () => ({ token: 'synthetic-token-only' }) };
+    return { ok: true, status: 200, json: async () => ({ token: 'synthetic-token-only', expiresIn: 30 * 86400 }) };
   };
   try {
     configureService('https://example.org');
     await connectService('synthetic-password-only');
     await serviceFetch('status'); assert.equal(lastHeaders.Authorization, 'Bearer synthetic-token-only');
-    assert.equal(storage.size, 1); assert.equal([...storage.values()][0], 'https://example.org');
+    assert.equal(storage.size, 2);
+    assert.equal([...storage.values()].join('').includes('synthetic-password-only'), false);
+    const reloaded = await import('../lai-service.mjs?reload-test');
+    await reloaded.serviceFetch('status'); assert.equal(lastHeaders.Authorization, 'Bearer synthetic-token-only');
+    reloaded.configureService('https://other.example');
+    await reloaded.serviceFetch('status'); assert.equal(lastHeaders.Authorization, undefined);
+    configureService('https://example.org'); await connectService('synthetic-password-only');
+    globalThis.fetch = async () => ({ status: 401 });
+    await serviceFetch('status'); assert.equal(storage.size, 1);
+    globalThis.fetch = async (_url, options) => { lastHeaders = options.headers; return { status: 200 }; };
     disconnectService(); await serviceFetch('status'); assert.equal(lastHeaders.Authorization, undefined);
   } finally { globalThis.window = previousWindow; globalThis.fetch = previousFetch; }
 });

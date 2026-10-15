@@ -29,7 +29,7 @@ export function createAccess({ mode = 'local', password = '', secret = '', origi
     login(candidate) {
       if (!limit('login', 5, 60000)) throw new Error('RATE_LIMIT');
       if (typeof candidate !== 'string' || !equal(candidate, password)) throw new Error('UNAUTHORIZED');
-      const payload = Buffer.from(JSON.stringify({ exp: now() + 3600000, nonce: randomBytes(16).toString('hex') })).toString('base64url');
+      const payload = Buffer.from(JSON.stringify({ exp: now() + 30 * 86400000, nonce: randomBytes(16).toString('hex') })).toString('base64url');
       const signature = createHmac('sha256', secret).update(payload).digest('base64url');
       return `${payload}.${signature}`;
     },

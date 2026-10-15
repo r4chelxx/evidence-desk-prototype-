@@ -16,6 +16,8 @@ test('authenticates signed sessions and rejects forged and expired tokens', () =
   assert.equal(access.authorized(`Bearer ${token}x`), false);
   assert.equal(access.authorized('Bearer forged.token'), false);
   time += 3600000;
+  assert.equal(access.authorized(`Bearer ${token}`), true);
+  time += 30 * 86400000;
   assert.equal(access.authorized(`Bearer ${token}`), false);
   assert.equal(access.allowsOrigin('https://evil.example.org'), false);
 });

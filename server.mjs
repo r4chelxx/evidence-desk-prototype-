@@ -64,7 +64,7 @@ export async function createServer(options = {}) {
       return send(res, 200, { available: authorized && configured, pdfExtraction: authorized && pdfExtraction, authRequired: !authorized });
     }
     if (path === '/api/lai/login' && req.method === 'POST' && access.hosted) {
-      try { const body = await readJson(req, 2048); return send(res, 200, { token: access.login(body.password), expiresIn: 3600 }); }
+      try { const body = await readJson(req, 2048); return send(res, 200, { token: access.login(body.password), expiresIn: 30 * 86400 }); }
       catch (error) { return send(res, error.message === 'RATE_LIMIT' ? 429 : 401, { error: 'Acesso indisponível. Confira a senha ou tente mais tarde.' }); }
     }
     if (path === '/api/lai/extract' && req.method === 'POST') {

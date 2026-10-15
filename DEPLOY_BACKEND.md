@@ -55,9 +55,9 @@ Não envie credenciais pelo chat, não use arquivos públicos e não as inclua n
 4. Clique **Conectar** e confira as disponibilidades indicadas.
 5. Teste com um pedido e resposta sintéticos antes de enviar material de apuração.
 
-A URL fica salva neste navegador. A senha não é persistida e a sessão fica somente
-na memória da página, com validade de uma hora. Recarregar a página exige nova
-autenticação. Encerrar a sessão remove o token do navegador; um token já emitido
+A URL e o token de conexão ficam salvos neste navegador por até 30 dias. A senha
+não é persistida. Recarregar a página recupera a conexão automaticamente.
+Encerrar a sessão remove o token do navegador; um token já emitido
 continua válido no servidor até expirar. Alterar o segredo invalida todos os tokens.
 O cliente não usa cookies e não segue redirecionamentos nas chamadas do serviço.
 
