@@ -64,6 +64,17 @@ export function auditClaims(caseData = {}) {
   });
 }
 
+export function simulateEvidenceRemoval(caseData = {}, evidenceId = '') {
+  const id = key(evidenceId);
+  if (!id || !list(caseData.evidence).some(e => key(e?.id) === id)) return { found: false, evidenceId: id, affectedClaims: [] };
+  const before = auditClaims(caseData);
+  const after = auditClaims({ ...caseData, evidence: list(caseData.evidence).filter(e => key(e?.id) !== id) });
+  const affectedClaims = before.flatMap((old, i) => {
+    const now = after[i];
+    return old.supporting === now.supporting && old.contradictory === now.contradictory && old.limiting === now.limiting && old.status === now.status ? [] : [{ claimId: old.claimId, before: old, after: now, lostSupportingLinks: old.supporting - now.supporting }];
+  });
+  return { found: true, evidenceId: id, hypothetical: true, affectedClaims };
+}
 export function suggestNextSteps(caseData = {}) {
   const actions = [];
   for (const gap of list(caseData.gaps)) {
