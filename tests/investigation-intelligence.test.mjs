@@ -25,3 +25,14 @@ test("methodological events reject duplicates and do not mutate previous history
  assert.equal(next.length,2);
  assert.throws(()=>appendMethodEvent(next,next[0]),/Duplicate/);
 });
+
+test("claim support requires evidence with a traceable source", () => {
+  const claim = {id:"claim-1",statement:"A finding"};
+  const relation = {claim_id:"claim-1",evidence_id:"doc-1",relation:"supports"};
+  const untraced = {claims:[claim],evidence:[{id:"doc-1",source_id:"missing"}],evidenceRelations:[relation],sources:[]};
+  assert.equal(auditClaims(untraced)[0].status,"needs-evidence");
+  assert.equal(auditClaims(untraced)[0].editorialApproval,false);
+  const traced = {...untraced,sources:[{id:"agency"}],evidence:[{id:"doc-1",source_id:"agency"}]};
+  assert.equal(auditClaims(traced)[0].status,"review-required");
+  assert.equal(auditClaims(traced)[0].editorialApproval,false);
+});
