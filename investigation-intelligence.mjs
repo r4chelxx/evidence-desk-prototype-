@@ -64,6 +64,29 @@ export function auditClaims(caseData = {}) {
   });
 }
 
+// Explicit lineage only: never infer that matching documents share an origin.
+export function analyzeSourceIndependence(caseData = {}, claimId = '') {
+  const id = key(claimId);
+  const evidence = list(caseData.evidence);
+  const relations = list(caseData.evidenceRelations).filter(r => key(r.claim_id) === id && r.relation === 'supports');
+  const sources = list(caseData.sources);
+  const linked = relations.flatMap(r => {
+    const item = evidence.find(e => key(e?.id) === key(r.evidence_id));
+    const source = item && sources.find(s => key(s?.id) === key(item.source_id));
+    if (!item || !source) return [];
+    const origin = key(item.primary_origin_id || source.primary_origin_id || source.original_source_id);
+    return [{ evidenceId: key(item.id), sourceId: key(source.id), originId: origin || null, provenanceDeclared: Boolean(origin) }];
+  });
+  const groups = new Map();
+  for (const link of linked) {
+    const groupKey = link.originId ? 'origin:' + link.originId : 'unknown:' + link.sourceId;
+    if (!groups.has(groupKey)) groups.set(groupKey, { originId: link.originId, sourceIds: [], evidenceIds: [] });
+    const group = groups.get(groupKey);
+    if (!group.sourceIds.includes(link.sourceId)) group.sourceIds.push(link.sourceId);
+    if (!group.evidenceIds.includes(link.evidenceId)) group.evidenceIds.push(link.evidenceId);
+  }
+  return { claimId: id, supportingEvidence: linked.length, declaredOriginGroups: [...groups.values()].filter(g => g.originId), unknownOriginGroups: [...groups.values()].filter(g => !g.originId), repeatedOrigins: [...groups.values()].filter(g => g.originId && g.evidenceIds.length > 1), independenceVerified: linked.length > 0 && linked.every(link => link.provenanceDeclared) && [...groups.values()].every(g => g.evidenceIds.length === 1) };
+}
 export function simulateEvidenceRemoval(caseData = {}, evidenceId = '') {
   const id = key(evidenceId);
   if (!id || !list(caseData.evidence).some(e => key(e?.id) === id)) return { found: false, evidenceId: id, affectedClaims: [] };
