@@ -2951,3 +2951,15 @@ button:disabled {
     margin-block: 0.25rem;
   }
 }
+
+/* Investigation intelligence: compact and responsive, with the story as the entry point. */
+.intelligence-overview { margin-block: 1.25rem; }
+.intelligence-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin:1rem 0; }
+.intelligence-metrics > div { padding:1rem; border:1px solid var(--border, #d6dbe2); border-radius:12px; display:flex; flex-direction:column; gap:.35rem; min-width:0; }
+.intelligence-metrics strong { font-size:1.65rem; font-variant-numeric:tabular-nums; }
+.intelligence-metrics span { font-size:.85rem; overflow-wrap:anywhere; }
+.intelligence-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.intelligence-columns > div { min-width:0; padding:1rem; background:var(--surface-secondary,rgba(120,130,145,.07)); border-radius:12px; }
+.intelligence-columns li { margin-bottom:.65rem; overflow-wrap:anywhere; }
+.intelligence-columns .button { margin-top:.75rem; }
+@media(max-width:720px) { .intelligence-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .intelligence-columns { grid-template-columns:1fr; } }
