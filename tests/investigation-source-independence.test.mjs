@@ -32,3 +32,10 @@ test('a missing claim link cannot imply independence', () => {
   assert.equal(result.supportingEvidence, 0);
   assert.equal(result.independenceVerified, false);
 });
+
+test('duplicate support links do not inflate evidence count', () => {
+  const data = { ...caseData, evidenceRelations: [...caseData.evidenceRelations, caseData.evidenceRelations[0]] };
+  const result = analyzeSourceIndependence(data, 'c1');
+  assert.equal(result.supportingEvidence, 3);
+  assert.equal(result.repeatedOrigins[0].evidenceIds.length, 2);
+});
