@@ -41,18 +41,18 @@ function loadInvestigations() {
     const stored = readLocalStorage(STORAGE_KEY);
     if (!stored) return clone(seedInvestigations);
     const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed) || !parsed.length) return clone(seedInvestigations);
+    if (!Array.isArray(parsed)) return clone(seedInvestigations);
     let changed = false;
     const seedById = new Map(seedInvestigations.map((item) => [item.id, item]));
     const merged = parsed.map((item) => {
       const seed = seedById.get(item.id);
       if (!seed) return item;
-      if (item.seedRevision === SEED_DATA_REVISION) return item;
+      if (item.seedRevision === SEED_DATA_REVISION || item.seedCustomized === true) return item;
       changed = true;
       return { ...clone(seed), seedRevision: SEED_DATA_REVISION };
     });
     seedInvestigations.forEach((seed) => {
-      if (!merged.some((item) => item.id === seed.id)) {
+      if (!merged.some((item) => item.id === seed.id) && !parsed.some((item) => item.archivedSeedId === seed.id)) {
         changed = true;
         merged.push({ ...clone(seed), seedRevision: SEED_DATA_REVISION });
       }
@@ -2135,7 +2135,7 @@ function createEmptyInvestigation(draft) {
   const title = draft.title.trim();
   const country = draft.country.trim();
   const jurisdiction = draft.jurisdiction.trim() || country;
-  const language = draft.language.trim();
+  const language = draft.language.trim() || (state.locale === "pt" ? "Português" : state.locale === "es" ? "Español" : "English");
   const topic = draft.topic.trim() || t("topic");
   const territory = draft.territory.trim() || jurisdiction;
   const period = draft.period.trim() || t("notSet");
@@ -3199,11 +3199,6 @@ function renderNewInvestigation() {
   const fields = [
     ["title", t("investigationTitle"), t("investigationTitlePlaceholder")],
     ["country", t("country"), t("countryPlaceholder")],
-    ["jurisdiction", t("jurisdictionLocality"), t("jurisdictionPlaceholder")],
-    ["language", t("primaryLanguage"), t("primaryLanguagePlaceholder")],
-    ["topic", t("generalTopic"), t("topicPlaceholder")],
-    ["territory", t("investigatedTerritory"), t("territoryPlaceholder")],
-    ["period", t("investigatedPeriod"), t("periodPlaceholder")],
   ];
   const errors = state.draftErrors.map((error) => `<li>${error}</li>`).join("");
 
@@ -3233,6 +3228,10 @@ function renderNewInvestigation() {
               )
               .join("")}
           </div>
+          <details class="create-optional"><summary>${state.locale === "en" ? "Additional context (optional)" : state.locale === "es" ? "Contexto adicional (opcional)" : "Contexto adicional (opcional)"}</summary>
+          <div class="form-grid">
+          ${[["jurisdiction", t("jurisdictionLocality"), t("jurisdictionPlaceholder")],["language", t("primaryLanguage"), t("primaryLanguagePlaceholder")],["topic", t("generalTopic"), t("topicPlaceholder")],["territory", t("investigatedTerritory"), t("territoryPlaceholder")],["period", t("investigatedPeriod"), t("periodPlaceholder")]].map(([id,label,placeholder]) => `<label><span>${label}</span><input data-field="${id}" value="${escapeHtml(state.draft[id])}" placeholder="${placeholder}"></label>`).join("")}
+          </div></details>
           <label>
             <span>${t("centralInvestigativeQuestion")}</span>
             <textarea data-field="centralQuestion" rows="4" placeholder="${t("centralQuestionPlaceholder")}">${escapeHtml(state.draft.centralQuestion)}</textarea>
@@ -3310,14 +3309,13 @@ function validateDraft() {
   const required = [
     ["title", t("errorTitleRequired")],
     ["country", t("errorCountryRequired")],
-    ["language", t("errorLanguageRequired")],
     ["centralQuestion", t("errorQuestionRequired")],
   ];
   const errors = required
     .filter(([field]) => !state.draft[field].trim())
     .map(([, message]) => message);
 
-  if (state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
+  if (false && state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
     errors.push(t("errorTitleSpecific"));
   }
 
