@@ -4267,7 +4267,7 @@ function renderOverview(item) {
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
-    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><div class="quick-note-actions"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
     ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p>${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
       <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
@@ -6729,6 +6729,37 @@ function bindNoteClassification() {
   }));
 }
 
+function bindQuickNoteImport() {
+  document.querySelectorAll('[data-role="quick-note-file"]').forEach(input => input.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const form = input.closest('[data-role="quick-note"]');
+    const textarea = form?.querySelector('textarea[name="note"]');
+    if (!textarea) return;
+    if (file.size > 256000) {
+      window.alert('Arquivo muito grande. Importe um texto de até 256 KB.');
+      input.value = '';
+      return;
+    }
+    const allowed = /\\.(txt|md|csv|tsv|json)$/i.test(file.name);
+    if (!allowed) {
+      window.alert('Formato não suportado. Use TXT, MD, CSV, TSV ou JSON.');
+      input.value = '';
+      return;
+    }
+    try {
+      const content = await file.text();
+      const excerpt = content.trim().slice(0, 5500);
+      if (!excerpt) throw new Error('Arquivo vazio');
+      textarea.value = '[' + file.name + ']\\n' + excerpt;
+      textarea.focus();
+    } catch {
+      window.alert('Não foi possível ler este arquivo.');
+    }
+    input.value = '';
+  }));
+}
+
 function bindQuickNotes() {
   document.querySelectorAll('[data-role="quick-note"]').forEach(form => form.addEventListener('submit', event => {
     event.preventDefault();
@@ -6744,6 +6775,7 @@ function bindQuickNotes() {
 
 function bindActions() {
   bindQuickNotes();
+  bindQuickNoteImport();
   bindNoteClassification();
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
