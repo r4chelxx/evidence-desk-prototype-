@@ -4274,6 +4274,8 @@ function renderOverview(item) {
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><div class="quick-note-actions"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
       <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
       <button class="button secondary" data-action="tab" data-tab="requests">${words[3]}</button>
@@ -6718,7 +6720,21 @@ function exportCurrentInvestigationJson(button) {
   }
 }
 
+function bindQuickNotes() {
+  document.querySelectorAll('[data-role="quick-note"]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault();
+    const input = form.querySelector('textarea[name="note"]');
+    const text = input?.value.trim();
+    if (!text) return;
+    const item = getCurrentInvestigation();
+    item.reporterNotes = [...(item.reporterNotes || []), { id: 'note-' + Date.now() + '-' + Math.random().toString(36).slice(2,8), createdAt: new Date().toISOString(), text }];
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
+}
+
 function bindActions() {
+  bindQuickNotes();
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
