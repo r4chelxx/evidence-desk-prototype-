@@ -22,9 +22,12 @@ function readLocalStorage(key) {
 
 function writeLocalStorage(key, value) {
   try {
-    window.localStorage?.setItem(key, value);
+    if (!window.localStorage) return false;
+    window.localStorage.setItem(key, value);
+    return true;
   } catch (error) {
     console.warn(`Could not save ${key}`, error);
+    return false;
   }
 }
 
@@ -2084,7 +2087,19 @@ function getCurrentInvestigation() {
 }
 
 function saveInvestigations() {
-  writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
+  const saved = writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
+  if (!saved && typeof document !== 'undefined') {
+    const existing = document.getElementById('storage-warning');
+    if (!existing) {
+      const warning = document.createElement('div');
+      warning.id = 'storage-warning';
+      warning.setAttribute('role', 'alert');
+      warning.className = 'storage-warning';
+      warning.textContent = 'Não foi possível salvar no navegador. Exporte uma cópia da investigação antes de sair desta página.';
+      document.body.prepend(warning);
+    }
+  }
+  return saved;
 }
 
 function saveUiState() {
