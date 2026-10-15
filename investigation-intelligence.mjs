@@ -3,6 +3,7 @@
 const list = (value) => Array.isArray(value) ? value : [];
 const key = (value) => String(value ?? "").trim();
 const unique = (items) => [...new Set(items.filter(Boolean))];
+const isClosedGap = status => ['resolved', 'closed', 'resolvida', 'resolvido', 'fechada', 'fechado', 'concluída', 'concluida', 'concluído', 'concluido'].includes(key(status).toLocaleLowerCase());
 
 export function buildEvidenceGraph(caseData = {}) {
   const nodes = [];
@@ -77,15 +78,16 @@ export function analyzeSourceIndependence(caseData = {}, claimId = '') {
     const origin = key(item.primary_origin_id || source.primary_origin_id || source.original_source_id);
     return [{ evidenceId: key(item.id), sourceId: key(source.id), originId: origin || null, provenanceDeclared: Boolean(origin) }];
   });
+  const distinctLinks = [...new Map(linked.map(link => [link.evidenceId, link])).values()];
   const groups = new Map();
-  for (const link of linked) {
+  for (const link of distinctLinks) {
     const groupKey = link.originId ? 'origin:' + link.originId : 'unknown:' + link.sourceId;
     if (!groups.has(groupKey)) groups.set(groupKey, { originId: link.originId, sourceIds: [], evidenceIds: [] });
     const group = groups.get(groupKey);
     if (!group.sourceIds.includes(link.sourceId)) group.sourceIds.push(link.sourceId);
     if (!group.evidenceIds.includes(link.evidenceId)) group.evidenceIds.push(link.evidenceId);
   }
-  return { claimId: id, supportingEvidence: linked.length, declaredOriginGroups: [...groups.values()].filter(g => g.originId), unknownOriginGroups: [...groups.values()].filter(g => !g.originId), repeatedOrigins: [...groups.values()].filter(g => g.originId && g.evidenceIds.length > 1), independenceVerified: linked.length > 0 && linked.every(link => link.provenanceDeclared) && [...groups.values()].every(g => g.evidenceIds.length === 1) };
+  return { claimId: id, supportingEvidence: distinctLinks.length, declaredOriginGroups: [...groups.values()].filter(g => g.originId), unknownOriginGroups: [...groups.values()].filter(g => !g.originId), repeatedOrigins: [...groups.values()].filter(g => g.originId && g.evidenceIds.length > 1), independenceVerified: distinctLinks.length > 0 && distinctLinks.every(link => link.provenanceDeclared) && [...groups.values()].every(g => g.evidenceIds.length === 1) };
 }
 export function simulateEvidenceRemoval(caseData = {}, evidenceId = '') {
   const id = key(evidenceId);
@@ -101,7 +103,7 @@ export function simulateEvidenceRemoval(caseData = {}, evidenceId = '') {
 export function suggestNextSteps(caseData = {}) {
   const actions = [];
   for (const gap of list(caseData.gaps)) {
-    if (!key(gap?.id) || ["resolved", "closed"].includes(key(gap.status).toLowerCase())) continue;
+    if (!key(gap?.id) || isClosedGap(gap.status)) continue;
     actions.push({ id: "gap:" + gap.id, gapId: gap.id, type: "investigate-gap", title: "Verify missing or incomplete evidence", rationale: key(gap.description || gap.title), sourceIds: list(gap.basis_evidence_ids), status: "proposed", requiresReporterApproval: true });
   }
   for (const finding of detectContradictions(caseData)) actions.push({ id: "conflict:" + actions.length, type: "reconcile-conflict", title: "Reconcile conflicting records", rationale: finding.rationale, sourceIds: finding.sourceIds || [], status: "proposed", requiresReporterApproval: true });
