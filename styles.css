@@ -2998,3 +2998,5 @@ button:disabled {
 .create-optional > summary {cursor:pointer;font-weight:600;}
 .create-optional[open] > summary {margin-bottom:1rem;}
 .create-optional .form-grid {margin-top:.5rem;}
+
+.storage-warning {position:sticky;top:0;z-index:9999;padding:.8rem 1rem;background:#fff3d6;color:#5d3900;border-bottom:2px solid #b7791f;font-weight:600;text-align:center;}
