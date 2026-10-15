@@ -4084,32 +4084,18 @@ function renderRequestAddForm() {
     content: `
       <section class="panel create-form request-add-form">
       <div class="form-grid">
-        <label>
-          <span>${t("requestTitleLabel")}</span>
-          <input data-request-field="title" value="${escapeHtml(state.requestDraft.title)}" placeholder="${t("requestTitlePlaceholder")}">
-        </label>
-        <label>
-          <span>${t("agencyLabel")}</span>
-          <input data-request-field="agency" value="${escapeHtml(state.requestDraft.agency)}" placeholder="${t("agencyPlaceholder")}">
-        </label>
-
-
-
-
+        <label><span>${t("requestTitleLabel")}</span><input data-request-field="title" value="${escapeHtml(state.requestDraft.title)}" placeholder="${t("requestTitlePlaceholder")}"></label>
+        <label><span>${t("agencyLabel")}</span><input data-request-field="agency" value="${escapeHtml(state.requestDraft.agency)}" placeholder="${t("agencyPlaceholder")}"></label>
       </div>
-      <details class="create-optional"><summary>${state.locale === "en" ? "Protocol, dates and channel (optional)" : state.locale === "es" ? "Protocolo, fechas y canal (opcional)" : "Protocolo, datas e canal (opcional)"}</summary><div class="form-grid">        <label>
-          <span>${t("dueDateLabel")}</span>
-          <input data-request-field="dueDate" value="${escapeHtml(state.requestDraft.dueDate)}" type="date">
-        </label>        <label>
-          <span>${t("sentDateLabel")}</span>
-          <input data-request-field="sentDate" value="${escapeHtml(state.requestDraft.sentDate)}" type="date">
-        </label>        <label>
-          <span>${t("protocol")}</span>
-          <input data-request-field="protocol" value="${escapeHtml(state.requestDraft.protocol)}" placeholder="${t("protocolPlaceholder")}">
-        </label>        <label>
-          <span>${t("channelLabel")}</span>
-          <input data-request-field="channel" value="${escapeHtml(state.requestDraft.channel)}" placeholder="${t("channelPlaceholder")}">
-        </label></div></details>
+      <details class="create-optional">
+        <summary>${state.locale === "en" ? "Protocol, dates and channel (optional)" : state.locale === "es" ? "Protocolo, fechas y canal (opcional)" : "Protocolo, datas e canal (opcional)"}</summary>
+        <div class="form-grid">
+          <label><span>${t("channelLabel")}</span><input data-request-field="channel" value="${escapeHtml(state.requestDraft.channel)}" placeholder="${t("channelPlaceholder")}"></label>
+          <label><span>${t("protocol")}</span><input data-request-field="protocol" value="${escapeHtml(state.requestDraft.protocol)}" placeholder="${t("protocolPlaceholder")}"></label>
+          <label><span>${t("sentDateLabel")}</span><input data-request-field="sentDate" value="${escapeHtml(state.requestDraft.sentDate)}" type="date"></label>
+          <label><span>${t("dueDateLabel")}</span><input data-request-field="dueDate" value="${escapeHtml(state.requestDraft.dueDate)}" type="date"></label>
+        </div>
+      </details>
       <label>
         <span>${t("requestStatusLabel")}</span>
         <input data-request-field="status" value="${escapeHtml(state.requestDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
