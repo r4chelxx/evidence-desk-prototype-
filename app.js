@@ -2140,9 +2140,11 @@ function createEmptyInvestigation(draft) {
   const territory = draft.territory.trim() || jurisdiction;
   const period = draft.period.trim() || t("notSet");
   const id = `${slugify(title) || "investigation"}-${Date.now().toString(36)}`;
+  // New cases are user-owned, never silently replaced by demonstration seeds.
 
   return {
     id,
+    seedCustomized: true,
     title,
     country,
     jurisdiction,
