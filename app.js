@@ -2242,7 +2242,7 @@ function addHypothesisToCurrent() {
   const item = getCurrentInvestigation();
   const text = state.planDraft.hypothesisText.trim();
   const evidence = state.planDraft.hypothesisEvidence.trim();
-  if (!text || !evidence) {
+  if (!text) {
     state.planNotice = t("fillRequiredPlanFields");
     return false;
   }
@@ -2250,7 +2250,7 @@ function addHypothesisToCurrent() {
     ...(item.hypotheses || []),
     {
       text,
-      evidence,
+      evidence: evidence || "Ainda sem evidência vinculada",
       status: state.planDraft.hypothesisStatus.trim() || t("reviewRecommended"),
     },
   ];
