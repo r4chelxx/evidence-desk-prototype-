@@ -115,6 +115,7 @@ const state = {
     sourceStatus: "",
     sourceUse: "",
     sourceLimits: "",
+    sourceOrigin: "",
   },
   planNotice: "",
   requestDraft: {
@@ -2283,6 +2284,8 @@ function addSourceToCurrent() {
     ...(item.sources || []),
     {
       name,
+      id: "source-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7),
+      primary_origin_id: (state.planDraft.sourceOrigin || "").trim() || null,
       type: state.planDraft.sourceType.trim() || t("sourcesDatabases"),
       status: state.planDraft.sourceStatus.trim() || t("reviewRecommended"),
       use: use || "Uso ainda não definido",
@@ -2290,7 +2293,7 @@ function addSourceToCurrent() {
     },
   ];
   touchInvestigation(item);
-  resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits"]);
+  resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits", "sourceOrigin"]);
   state.planNotice = t("itemAdded");
   return true;
 }
@@ -3622,6 +3625,7 @@ function renderPlanAddForms() {
           <span>${t("sourceLimitsLabel")}</span>
           <textarea data-plan-field="sourceLimits" rows="2" placeholder="${t("sourceLimitsPlaceholder")}">${escapeHtml(state.planDraft.sourceLimits)}</textarea>
         </label>
+        <label><span>Identificador da origem primária (opcional)</span><input data-plan-field="sourceOrigin" value="${escapeHtml(state.planDraft.sourceOrigin || '')}" placeholder="Ex.: base-ibge-censo-2022"><small>Use o mesmo identificador quando fontes reproduzirem a mesma base ou documento original. Deixe vazio se desconhecido.</small></label>
         <button class="button secondary active-secondary" data-action="add-source" type="button">${t("addSourceTitle")}</button>
       </article>
       </section>
