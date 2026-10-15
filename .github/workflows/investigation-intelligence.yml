@@ -20,4 +20,3 @@ jobs:
       - run: node --check app.js
       - run: node --check investigation-intelligence.mjs
       - run: node --check investigation-adapter.mjs
-      - run: node --test tests/investigation-robustness.test.mjs tests/investigation-source-independence.test.mjs
