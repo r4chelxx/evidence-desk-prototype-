@@ -1,0 +1,22 @@
+name: Investigation intelligence tests
+on:
+  push:
+    branches: [feature/investigation-intelligence-engine]
+  pull_request:
+    paths:
+      - 'investigation-*.mjs'
+      - 'tests/investigation-*.test.mjs'
+      - 'app.js'
+      - 'styles.css'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/*.test.mjs
+      - run: node --check app.js
+      - run: node --check investigation-intelligence.mjs
+      - run: node --check investigation-adapter.mjs
