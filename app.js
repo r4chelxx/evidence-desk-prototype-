@@ -3315,14 +3315,6 @@ function validateDraft() {
     .filter(([field]) => !state.draft[field].trim())
     .map(([, message]) => message);
 
-  if (false && state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
-    errors.push(t("errorTitleSpecific"));
-  }
-
-  if (state.draft.centralQuestion.trim() && !state.draft.centralQuestion.includes("?")) {
-    errors.push(t("errorQuestionMark"));
-  }
-
   state.draftErrors = errors;
   state.draftNotice = errors.length ? "" : t("draftReady");
 }
