@@ -42,29 +42,18 @@ function removeLocalStorage(key) {
 function loadInvestigations() {
   try {
     const stored = readLocalStorage(STORAGE_KEY);
-    if (!stored) return clone(seedInvestigations);
+    // Seed data is used only on first launch. Saved investigations are authoritative:
+    // never overwrite, reinsert, or silently migrate reporter-edited records.
+    if (stored === null || stored === undefined) return clone(seedInvestigations);
     const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed)) return clone(seedInvestigations);
-    let changed = false;
-    const seedById = new Map(seedInvestigations.map((item) => [item.id, item]));
-    const merged = parsed.map((item) => {
-      const seed = seedById.get(item.id);
-      if (!seed) return item;
-      if (item.seedRevision === SEED_DATA_REVISION || item.seedCustomized === true) return item;
-      changed = true;
-      return { ...clone(seed), seedRevision: SEED_DATA_REVISION };
-    });
-    seedInvestigations.forEach((seed) => {
-      if (!merged.some((item) => item.id === seed.id) && !parsed.some((item) => item.archivedSeedId === seed.id)) {
-        changed = true;
-        merged.push({ ...clone(seed), seedRevision: SEED_DATA_REVISION });
-      }
-    });
-    if (changed) writeLocalStorage(STORAGE_KEY, JSON.stringify(merged));
-    return merged;
+    if (!Array.isArray(parsed)) {
+      console.warn("Saved investigations have an unexpected format; preserving the original storage value.");
+      return [];
+    }
+    return parsed;
   } catch (error) {
-    console.warn("Could not load saved investigations", error);
-    return clone(seedInvestigations);
+    console.warn("Could not load saved investigations; original storage has not been modified", error);
+    return [];
   }
 }
 
@@ -85,7 +74,7 @@ function loadUiState() {
 const savedUiState = loadUiState();
 const savedCurrentId = investigations.some((item) => item.id === savedUiState.currentId)
   ? savedUiState.currentId
-  : investigations[0].id;
+  : (investigations[0]?.id || null);
 
 const state = {
   view: savedUiState.view || "dashboard",
