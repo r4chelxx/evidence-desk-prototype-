@@ -4266,6 +4266,25 @@ function renderEvidenceMap(item) {
 }
 
 function renderOverview(item) {
+  const locale = state.locale || "pt";
+  const words = {
+    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Registrar pedido ou resposta", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
+    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Log a request or response", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
+    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Registrar solicitud o respuesta", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
+  }[locale] || [];
+  return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
+    <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
+    <div class="capture-actions">
+      <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
+      <button class="button secondary" data-action="tab" data-tab="requests">${words[3]}</button>
+      <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
+      <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
+    </div><p class="muted">${words[7]}</p></section>
+    ${renderIntelligenceOverview(item)}
+    <details class="advanced-investigation"><summary>${words[6]}</summary>${renderDetailedOverview(item)}</details>`;
+}
+
+function renderDetailedOverview(item) {
   return `
     <section class="content-header">
       <p class="eyebrow">${t("overview")}</p>
