@@ -4249,6 +4249,16 @@ function renderEditorialWorkspace(item) {
   `;
 }
 
+function renderClaimGapDependencies(item) {
+  const claims = Array.isArray(item.claims) ? item.claims : [];
+  const gaps = Array.isArray(item.gaps) ? item.gaps : [];
+  const isOpen = gap => !['resolved','closed','resolvida','resolvido','fechada','fechado'].includes(String(gap.status || '').trim().toLowerCase());
+  const linked = claims.map((claim,index) => ({claim,gaps:gaps.filter(gap => isOpen(gap) && String(gap.target_claim_id || '') === String(claim.id || 'claim-' + index))})).filter(entry => entry.gaps.length);
+  if (!linked.length) return '';
+  const esc = value => escapeHtml(String(value ?? ''));
+  const rows = linked.slice(0,8).map(entry => '<li><strong>' + esc(entry.claim.statement || entry.claim.text || entry.claim.claim || entry.claim.title || 'Afirmação sem título') + '</strong><ul>' + entry.gaps.slice(0,5).map(gap => '<li>' + esc(gap.description || gap.title || '') + (gap.originRequestTitle ? ' <small>· LAI: ' + esc(gap.originRequestTitle) + '</small>' : '') + '</li>').join('') + '</ul></li>').join('');
+  return '<section class="panel claim-gap-dependencies"><div class="section-header"><div><p class="eyebrow">Investigação reversa · vínculos registrados</p><h3>Afirmações com lacunas em aberto</h3></div><span class="pill neutral">' + linked.length + '</span></div><p class="muted">Vínculos definidos pelo jornalista. Uma lacuna não invalida automaticamente uma afirmação.</p><ul>' + rows + '</ul><button class="button secondary" type="button" data-action="tab" data-tab="requests">Revisar pedidos e respostas</button></section>';
+}
 function renderIntelligenceOverview(item) {
   const result = summarizeLegacyInvestigation(item);
   const lang = state.locale || "pt";
@@ -4274,7 +4284,7 @@ function renderIntelligenceOverview(item) {
     <div class="intelligence-columns"><div><h3>${escape(missing)}</h3>${gapItems ? `<ul>${gapItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="plan">${escape(openPlan)}</button></div>
     <div><h3>${escape(next)}</h3>${actionItems ? `<ul>${actionItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="editorial">${escape(openEditorial)}</button></div></div>
     <p class="muted">${escape(caution)}</p>
-  </section>`;
+  </section>${renderClaimGapDependencies(item)}`;
 }
 
 function renderEvidenceMap(item) {
