@@ -1,5 +1,5 @@
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
-import { simulateEvidenceRemoval } from "./investigation-intelligence.mjs";
+import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa39';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261014-qa39';
@@ -4250,6 +4250,20 @@ function renderEditorialWorkspace(item) {
   `;
 }
 
+function renderSourceDependence(item) {
+  const adapted = adaptLegacyInvestigation(item);
+  const esc = value => escapeHtml(String(value ?? ''));
+  const linked = adapted.claims.map(claim => ({ claim, audit: analyzeSourceIndependence(adapted, claim.id) })).filter(x => x.audit.supportingEvidence);
+  if (!linked.length) return '<section class="panel"><h3>Independência das fontes</h3><p class="muted">Ainda não há vínculos explícitos entre evidências e afirmações. Não é possível avaliar independência por contagem de documentos.</p></section>';
+  const rows = linked.map(({claim,audit}) => {
+    const repeated = audit.repeatedOrigins.map(g => esc(g.originId) + ' (' + g.evidenceIds.length + ' evidências)').join('; ');
+    const warning = repeated ? '<p><strong>Origem repetida:</strong> ' + repeated + '</p>' : '';
+    const unknown = audit.unknownOriginGroups.length ? '<p>Origem não declarada em ' + audit.unknownOriginGroups.reduce((n,g)=>n+g.evidenceIds.length,0) + ' evidência(s); independência não demonstrada.</p>' : '';
+    const verdict = audit.independenceVerified ? 'Origens distintas declaradas; verificar a documentação de cada origem.' : 'Independência ainda não demonstrada.';
+    return '<li><strong>' + esc(claim.statement || claim.id) + '</strong><p>' + audit.supportingEvidence + ' vínculo(s) de apoio. ' + esc(verdict) + '</p>' + warning + unknown + '</li>';
+  }).join('');
+  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Procedência · revisão humana</p><h3>Dependência entre fontes</h3></div></div><p class="muted">Apenas origens primárias declaradas são comparadas. Origens diferentes registradas não comprovam, por si só, independência editorial.</p><ul>' + rows + '</ul></section>';
+}
 function renderRobustnessSimulator(item) {
   const adapted = adaptLegacyInvestigation(item);
   const evidence = adapted.evidence;
@@ -5972,6 +5986,7 @@ function renderClaims(item) {
     ${renderClaimsDashboard(item)}
     ${renderClaimDecisionBoard(item)}
     ${renderRobustnessSimulator(item)}
+    ${renderSourceDependence(item)}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
