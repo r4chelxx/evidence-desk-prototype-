@@ -4308,10 +4308,12 @@ function renderEvidenceMap(item) {
   const title = ({pt:"Mapa vivo da investigação",en:"Living investigation map",es:"Mapa vivo de investigación"})[locale] || "Mapa vivo da investigação";
   const kinds = {hypothesis:["Hipóteses","Hypotheses","Hipótesis"],source:["Fontes","Sources","Fuentes"],evidence:["Evidências documentadas","Documented evidence","Evidencias documentadas"],claim:["Afirmações","Claims","Afirmaciones"],gap:["Lacunas","Gaps","Vacíos"]};
   const index = ({pt:0,en:1,es:2})[locale] ?? 0;
+  const graphNodeIds = new Set(graph.nodes.map(node => node.id));
+  const validEdges = graph.edges.filter(edge => graphNodeIds.has(edge.from) && graphNodeIds.has(edge.to));
   const sections = Object.entries(kinds).map(([kind,names]) => {
     const nodes = graph.nodes.filter(node => node.kind === kind);
     const cards = nodes.slice(0,8).map(node => {
-      const related = graph.edges.filter(edge => edge.from === node.id || edge.to === node.id);
+      const related = validEdges.filter(edge => edge.from === node.id || edge.to === node.id);
       const connections = related.map(edge => {
         const other = graph.nodes.find(n => n.id === (edge.from === node.id ? edge.to : edge.from));
         return other ? `<li>${escape(edge.relation)}: ${escape(other.label)}</li>` : "";
@@ -4320,7 +4322,7 @@ function renderEvidenceMap(item) {
     }).join("");
     return `<div class="intelligence-map-column"><h3>${escape(names[index])} <span class="pill neutral">${nodes.length}</span></h3>${cards || "<p>—</p>"}${nodes.length>8?`<p class="muted">+ ${nodes.length-8}</p>`:""}</div>`;
   }).join("");
-  const caveat = index===0 ? "O mapa mostra apenas vínculos explícitos. Blocos de evidência planejados não são documentos comprovados; conexões não verificadas não são inventadas." : "Only explicit links are shown. Planned evidence is not verified evidence.";
+  const caveat = index===0 ? "O mapa exibe apenas relações presentes no registro estruturado. Uma ligação não equivale a confirmação editorial ou documental. Blocos planejados não são documentos comprovados." : "Only explicit links are shown. Planned evidence is not verified evidence.";
   return `<section class="panel intelligence-map" aria-label="${escape(title)}"><div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div></div><div class="intelligence-map-grid">${sections}</div><p class="muted">${escape(caveat)}</p></section>`;
 }
 
