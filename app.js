@@ -3362,11 +3362,8 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
-        <nav class="workspace-primary-nav" aria-label="Navegação principal">${primaryNav}</nav>
-        <details class="workspace-more" ${secondaryTabs.some(([id]) => id === state.currentTab) ? "open" : ""}>
-          <summary>Mais ferramentas ${secondaryTabs.some(([id]) => id === state.currentTab) ? `· ${currentLabel}` : ""}</summary>
-          <div class="workspace-secondary-nav">${secondaryNav}</div>
-        </details>
+        ${state.currentTab === "overview" ? '<p class="workspace-single-hint">Tudo da investigação em um único painel. Abra apenas o que precisar.</p>' : `<button class="workspace-return" type="button" data-action="tab" data-tab="overview">← Voltar ao painel</button><nav class="workspace-primary-nav" aria-label="Navegação principal">${primaryNav}</nav><details class="workspace-more"><summary>Outras ferramentas</summary><div class="workspace-secondary-nav">${secondaryNav}</div></details>`}
+
       </aside>
       <section class="content">
 
@@ -4361,7 +4358,16 @@ function renderOverview(item) {
       <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
       <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
     </div><p class="muted">${words[7]}</p></section>
-    ${renderIntelligenceOverview(item)}
+    <section class="unified-workspace" aria-label="Ferramentas da investigação">
+      <div class="unified-workspace-heading"><p class="eyebrow">Espaço de trabalho</p><h2>Tudo em um lugar</h2><p>Abra uma área para trabalhar. Os registros continuam associados a esta investigação.</p></div>
+      <details class="workspace-module" id="workspace-evidence"><summary><span><strong>Evidências e alegações</strong><small>O que sustenta cada afirmação</small></span><span class="module-count">${(item.claims || []).length}</span></summary><div class="workspace-module-body">${renderClaims(item)}</div></details>
+      <details class="workspace-module" id="workspace-plan"><summary><span><strong>Hipóteses e planejamento</strong><small>Organize perguntas, lacunas e próximos passos</small></span><span class="module-count">${gaps}</span></summary><div class="workspace-module-body">${renderPlanningWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-requests"><summary><span><strong>Pedidos e respostas</strong><small>Acompanhe solicitações e prazos</small></span><span class="module-count">${overdue ? overdue + " atrasados" : "Abrir"}</span></summary><div class="workspace-module-body">${renderRequestsWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-context"><summary><span><strong>Contexto e fontes</strong><small>Reúna o que já se sabe</small></span></summary><div class="workspace-module-body">${renderContextWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-editorial"><summary><span><strong>Decisões editoriais</strong><small>Revisões, limites e pendências</small></span></summary><div class="workspace-module-body">${renderEditorialWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-story"><summary><span><strong>Reportagem e publicação</strong><small>Construa o texto a partir da apuração</small></span></summary><div class="workspace-module-body">${renderStoryWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-method"><summary><span><strong>Metodologia e revisão</strong><small>Transparência, verificação e QA</small></span></summary><div class="workspace-module-body">${renderMethodology(item)}${renderQaChecklist(item)}</div></details>
+    </section>
     <details class="advanced-investigation"><summary>${words[6]}</summary>${renderDetailedOverview(item)}</details>`;
 }
 
