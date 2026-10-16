@@ -52,3 +52,35 @@ export async function deleteAttachment(id, investigationId) {
   await transact('readwrite', store => store.delete(id));
   return true;
 }
+
+export async function exportAttachmentBundle(investigationId, metadata = []) {
+  const files = [];
+  for (const entry of metadata) {
+    const record = await readAttachment(entry.id, investigationId);
+    if (!record) throw new Error('Anexo ausente: ' + entry.name + '. Backup interrompido para evitar arquivo incompleto.');
+    const buffer = await record.blob.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+    files.push({ name: record.name, type: record.type, size: record.size, createdAt: record.createdAt, base64: btoa(binary) });
+  }
+  return files;
+}
+export async function restoreAttachmentBundle(investigationId, files = []) {
+  if (!Array.isArray(files)) throw new Error('Pacote de anexos inválido.');
+  const restored = [];
+  try {
+    for (const file of files) {
+      if (!file || typeof file.base64 !== 'string' || typeof file.name !== 'string') throw new Error('Anexo inválido.');
+      const binary = atob(file.base64);
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      if (bytes.length !== file.size) throw new Error('Tamanho do anexo não corresponde ao backup: ' + file.name);
+      const blob = new File([bytes], file.name, { type: file.type || 'application/octet-stream' });
+      restored.push(await storeAttachment(investigationId, blob));
+    }
+    return restored;
+  } catch (error) {
+    await Promise.allSettled(restored.map(entry => deleteAttachment(entry.id, investigationId)));
+    throw error;
+  }
+}
