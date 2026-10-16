@@ -1,9 +1,9 @@
 import { storeAttachment, readAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
 import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
-import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
-import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261014-qa39';
-import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261014-qa39';
+import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
+import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261015-qa41';
+import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261015-qa41';
 
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
@@ -3851,10 +3851,10 @@ function renderLaiAssistant(item) {
     <h3>Pedido → resposta → próxima ação</h3>
     <p role="note" data-lai-service-status>Verificando disponibilidade da análise por IA…</p>
     <details class="lai-connection"><summary>Conectar o serviço de análise</summary>
-      <p>Configuração para o piloto. Use a URL do backend hospedado e a senha de acesso fornecida na configuração. A chave de IA permanece no servidor.</p>
+      <p>Ative uma vez neste navegador. Depois, a IA e os PDFs se conectam automaticamente. A chave de IA permanece no servidor.</p>
       <label>Endereço do serviço<input type="url" data-lai-service-url value="${escapeHtml(getServiceUrl())}" placeholder="https://seu-servico.example"></label>
       <label>Senha de acesso<input type="password" data-lai-service-password autocomplete="off"></label>
-      <p>A senha e a sessão não são salvas no navegador. A sessão dura até uma hora.</p>
+      <p>A conexão fica lembrada neste navegador por até 30 dias. Sua senha não é salva. Use “Encerrar sessão” em um dispositivo compartilhado.</p>
       <button type="button" class="button secondary" data-action="connect-lai-service">Conectar</button>
       <button type="button" class="button secondary" data-action="disconnect-lai-service">Encerrar sessão neste navegador</button>
       <p data-lai-connection-notice role="status"></p>
