@@ -16,7 +16,9 @@ function database() {
       if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, { keyPath: 'id' });
     };
     request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
+    let result;
+      request.onsuccess = () => { result = request.result; };
+      transaction.oncomplete = () => resolve(result);
   });
 }
 async function transact(mode, operation) {
