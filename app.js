@@ -3005,26 +3005,31 @@ function renderDashboard() {
             },
           ]
       : roadmap;
-  const cards = filteredInvestigations
-    .map(
-      (item) => `
-        <article class="investigation-card">
-          <div class="card-kicker">${item.country} / ${item.jurisdiction}</div>
-          <h2>${item.title}</h2>
-          <p>${item.centralQuestion}</p>
-          <div class="metrics-grid compact">
-            <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-            <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
-            <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
-          </div>
-          <div class="card-footer">
-            <span class="pill ${statusClass(item.status)}">${item.status}</span>
-            <button class="button" data-action="open" data-id="${item.id}">${t("openInvestigation")}</button>
-          </div>
-        </article>
-      `,
-    )
-    .join("");
+  const cards = filteredInvestigations.map((item) => {
+    const gaps = countOpenGaps(item);
+    const review = countClaimsNeedingCare(item);
+    const overdue = countLateRequests(item);
+    const needsAttention = gaps + review + overdue;
+    const question = String(item.centralQuestion || item.description || "");
+    return `
+      <article class="investigation-card portfolio-card">
+        <div class="portfolio-card-top">
+          <span class="portfolio-kicker">${escapeHtml(String(item.country || ""))} · ${escapeHtml(String(item.jurisdiction || ""))}</span>
+          <span class="pill ${statusClass(item.status)}">${escapeHtml(String(item.status || ""))}</span>
+        </div>
+        <h2>${escapeHtml(String(item.title || "Investigação sem título"))}</h2>
+        <p class="portfolio-question">${escapeHtml(question)}</p>
+        <div class="portfolio-stats" aria-label="Situação da investigação">
+          <span><strong>${(item.claims || []).length}</strong> alegações</span>
+          <span><strong>${(item.reporterNotes || []).length}</strong> notas</span>
+          <span class="${needsAttention ? "portfolio-attention" : ""}"><strong>${needsAttention}</strong> pendências</span>
+        </div>
+        <div class="portfolio-card-bottom">
+          <span class="portfolio-card-caption">${needsAttention ? "Há pontos a revisar" : "Sem pendências contabilizadas"}</span>
+          <button class="button" type="button" data-action="open" data-id="${escapeHtml(String(item.id))}">Continuar investigação →</button>
+        </div>
+      </article>`;
+  }).join("");
   const emptyState = `
     <section class="empty-state">
       <h3>${t("emptyTitle")}</h3>
@@ -3117,16 +3122,14 @@ function renderDashboard() {
 
   renderShell(`
     <main class="page dashboard">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">${t("heroEyebrow")}</p>
-          <h1>${t("heroTitle")}</h1>
-          <p>${t("heroCopy")}</p>
-        </div>
-        <div class="hero-panel">
-          <strong>${t("prototypeGoal")}</strong>
-          <span>${t("prototypeGoalText")}</span>
-        </div>
+      <section class="portfolio-hero">
+        <div><p class="eyebrow">Evidence Desk · espaço de trabalho</p><h1>Suas investigações</h1><p>Retome uma apuração, acompanhe pendências ou comece uma nova investigação.</p></div>
+        <button class="button portfolio-create" type="button" data-action="new-investigation">+ Nova investigação</button>
+      </section>
+      <section class="portfolio-summary" aria-label="Resumo das investigações">
+        <div><strong>${investigations.length}</strong><span>Investigações</span></div>
+        <div><strong>${investigations.reduce((total, item) => total + countOpenGaps(item), 0)}</strong><span>Lacunas abertas</span></div>
+        <div><strong>${investigations.reduce((total, item) => total + countLateRequests(item), 0)}</strong><span>Pedidos atrasados</span></div>
       </section>
       <section class="section-header">
         <div>
