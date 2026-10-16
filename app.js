@@ -5232,54 +5232,52 @@ function renderLanguagePlan(item) {
 function renderReportingMap(item) {
   const evidenceBlocks = item.evidenceBlocks || [];
   const sources = item.sources || [];
-  const rows = (item.hypotheses || []).map((hypothesis, index) => {
-    const evidence = evidenceBlocks[index] || evidenceBlocks.find((block) => hypothesis.evidence?.includes(block.type)) || evidenceBlocks[0];
-    const source =
-      sources.find((entry) => hypothesis.evidence?.toLowerCase().includes(entry.name.toLowerCase())) ||
-      sources.find((entry) => evidence?.type && entry.use?.toLowerCase().includes(evidence.type.toLowerCase())) ||
-      sources[index % Math.max(sources.length, 1)];
-
+  const safe = value => escapeHtml(String(value ?? ""));
+  const normalized = value => String(value ?? "").trim().toLocaleLowerCase();
+  const rows = (item.hypotheses || []).map(hypothesis => {
+    const reference = normalized(hypothesis.evidence);
+    // Only display a link when the reporter's reference explicitly names the source
+    // or evidence block. Position in a list is not a documentary relationship.
+    const evidence = reference
+      ? evidenceBlocks.find(block => normalized(block.type) && reference.includes(normalized(block.type)))
+      : null;
+    const source = reference
+      ? sources.find(entry => normalized(entry.name) && reference.includes(normalized(entry.name)))
+      : null;
     return { hypothesis, evidence, source };
   });
-
   return `
     <section class="content-header">
       <p class="eyebrow">${t("reportingMapTitle")}</p>
       <h2>${t("reportingMapHeading")}</h2>
       <p>${t("reportingMapCopy")}</p>
     </section>
+    <p class="muted">Vínculos mostrados somente quando a referência da hipótese menciona explicitamente o material ou a fonte cadastrada. A correspondência textual não confirma a evidência.</p>
     <div class="reporting-map">
-      ${rows
-        .map(
-          ({ hypothesis, evidence, source }, index) => `
-            <article class="reporting-path">
-              <div class="path-index">${index + 1}</div>
-              <section class="path-card hypothesis-card">
-                <p class="eyebrow">${t("hypotheses")}</p>
-                <h3>${hypothesis.text}</h3>
-                <span class="pill ${statusClass(hypothesis.status)}">${hypothesis.status}</span>
-              </section>
-              <section class="path-card">
-                <p class="eyebrow">${t("evidencePath")}</p>
-                <h3>${evidence?.type || hypothesis.evidence || t("notSet")}</h3>
-                <p>${hypothesis.evidence}</p>
-                <div class="pill-row">
-                  <span class="pill ${statusClass(evidence?.priority || "")}">${evidence?.priority || t("priorityPrefix")}</span>
-                  <span class="pill ${statusClass(evidence?.status || "")}">${evidence?.status || t("reviewRecommended")}</span>
-                </div>
-              </section>
-              <section class="path-card source-path">
-                <p class="eyebrow">${t("sourcePath")}</p>
-                <h3>${source?.name || t("notSet")}</h3>
-                <p>${source?.use || t("reviewLog")}</p>
-                <p class="muted">${t("limits")}: ${source?.limits || t("notSet")}</p>
-              </section>
-            </article>
-          `,
-        )
-        .join("") || `<section class="empty-state"><h3>${t("reportingMapTitle")}</h3><p>${t("workflowPlanCopy")}</p></section>`}
-    </div>
-  `;
+      ${rows.map(({ hypothesis, evidence, source }, index) => `
+        <article class="reporting-path">
+          <div class="path-index">${index + 1}</div>
+          <section class="path-card hypothesis-card">
+            <p class="eyebrow">${t("hypotheses")}</p>
+            <h3>${safe(hypothesis.text)}</h3>
+            <span class="pill ${statusClass(hypothesis.status)}">${safe(hypothesis.status)}</span>
+          </section>
+          <section class="path-card">
+            <p class="eyebrow">${t("evidencePath")}</p>
+            <h3>${safe(evidence?.type || hypothesis.evidence || t("notSet"))}</h3>
+            <p>${safe(hypothesis.evidence)}</p>
+            <div class="pill-row">
+              ${evidence ? `<span class="pill ${statusClass(evidence.priority)}">${safe(evidence.priority || t("priorityPrefix"))}</span><span class="pill ${statusClass(evidence.status)}">${safe(evidence.status || t("reviewRecommended"))}</span>` : '<span class="pill neutral">Bloco não vinculado</span>'}
+            </div>
+          </section>
+          <section class="path-card source-path">
+            <p class="eyebrow">${t("sourcePath")}</p>
+            <h3>${safe(source?.name || t("notSet"))}</h3>
+            <p>${safe(source?.use || (source ? t("reviewLog") : "Fonte não vinculada"))}</p>
+            ${source ? `<p class="muted">${t("limits")}: ${safe(source.limits || t("notSet"))}</p>` : ""}
+          </section>
+        </article>`).join("") || `<section class="empty-state"><h3>${t("reportingMapTitle")}</h3><p>${t("workflowPlanCopy")}</p></section>`}
+    </div>`;
 }
 
 function renderEvidenceInventory(item) {
