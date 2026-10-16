@@ -3000,3 +3000,37 @@ button:disabled {
 .create-optional .form-grid {margin-top:.5rem;}
 
 .storage-warning {position:sticky;top:0;z-index:9999;padding:.8rem 1rem;background:#fff3d6;color:#5d3900;border-bottom:2px solid #b7791f;font-weight:600;text-align:center;}
+
+/* Investigation-centered workspace: navigation and hierarchy refresh. */
+.workspace { --workspace-ink:#182b35; --workspace-accent:#246a65; align-items:start; }
+.workspace .sidebar { position:sticky; top:1rem; align-self:start; max-height:calc(100dvh - 2rem); overflow-y:auto; scrollbar-width:thin; }
+.workspace .project-card { padding:1.2rem; border-radius:18px; background:linear-gradient(145deg,#e9f2ee,#f7f9f7); color:var(--workspace-ink); }
+.workspace .project-card h1 { line-height:1.18; letter-spacing:-.035em; overflow-wrap:anywhere; }
+.workspace .tabs { display:grid; gap:1rem; }
+.workspace .tab-group { display:grid; gap:.3rem; }
+.workspace .tab-group > p { margin:0 0 .3rem; font-size:.7rem; font-weight:750; letter-spacing:.11em; text-transform:uppercase; opacity:.58; }
+.workspace .tab { width:100%; text-align:left; border-radius:11px; transition:background-color .15s ease, color .15s ease; }
+.workspace .tab.active { background:#e3efea; color:#164b46; box-shadow:inset 3px 0 0 #246a65; font-weight:700; }
+.workspace-nav-hint { font-size:.8rem; line-height:1.5; opacity:.7; margin:.75rem 0 1.25rem; }
+.workspace .content { min-width:0; }
+.workspace .content-header.investigation-focus { padding:clamp(1.2rem,3vw,2.2rem); border-radius:18px; background:linear-gradient(130deg,#eef4f0,#f8faf8); }
+.workspace .content-header.investigation-focus h2 { max-width:23ch; font-size:clamp(1.5rem,3.3vw,2.6rem); line-height:1.15; letter-spacing:-.035em; }
+.workspace .capture-first { border-radius:18px; border:1px solid #dbe7e1; box-shadow:0 8px 30px rgba(24,43,53,.045); }
+.workspace .quick-note-form { max-width:850px; }
+.workspace .quick-note-form textarea { min-height:8rem; border-radius:13px; }
+.workspace :is(button,a,input,textarea,select,summary):focus-visible { outline:3px solid #247c75; outline-offset:3px; }
+@media (max-width:900px) {
+ .workspace .sidebar { position:static; max-height:none; overflow:visible; }
+ .workspace .tabs { display:flex; gap:.6rem; overflow-x:auto; padding-bottom:.6rem; scroll-snap-type:x proximity; }
+ .workspace .tab-group { flex:0 0 auto; min-width:155px; }
+ .workspace .tab { min-height:42px; }
+ .workspace .project-card { padding:1rem; }
+}
+@media (max-width:640px) {
+ .workspace .tabs { margin-inline:-.5rem; padding-inline:.5rem; }
+ .workspace .tab-group { min-width:135px; }
+ .workspace .content-header.investigation-focus h2 { max-width:none; }
+ .workspace .capture-first { padding:1rem; }
+ .workspace .quick-note-actions { align-items:stretch; }
+ .workspace .quick-note-actions > .button { flex:1 1 auto; }
+}
