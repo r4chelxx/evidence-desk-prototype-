@@ -5996,24 +5996,28 @@ function renderClaims(item) {
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
     </section>
-    <div class="claim-matrix-cards">
-      ${item.claims
-        .map(
-          (claim) => `
-            <article class="claim-mini-card">
-              <h3>${claim.text}</h3>
+    <section class="evidence-reading-view" aria-label="Leitura das alegações e evidências">
+      <div class="evidence-reading-head">
+        <div><p class="eyebrow">Leitura de evidências</p><h3>O que podemos afirmar?</h3></div>
+        <p class="muted">As classificações são registros editoriais; não equivalem a verificação automática.</p>
+      </div>
+      <div class="evidence-reading-list">
+        ${(item.claims || []).map((claim, index) => `
+          <article class="evidence-reading-card">
+            <div class="evidence-reading-number" aria-hidden="true">${String(index + 1).padStart(2, "0")}</div>
+            <div class="evidence-reading-body">
+              <h4>${escapeHtml(String(claim.text || "Alegação sem descrição"))}</h4>
               <div class="pill-row">
-                <span class="pill neutral">${claim.type}</span>
-                <span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span>
-                <span class="pill ${statusClass(claim.strength)}">${claim.strength}</span>
-                <span class="pill ${statusClass(claim.risk)}">${claim.risk}</span>
+                <span class="pill neutral">${escapeHtml(String(claim.type || "Tipo não informado"))}</span>
+                <span class="pill ${statusClass(claim.relation)}">${escapeHtml(String(claim.relation || "Relação não informada"))}</span>
+                <span class="pill ${statusClass(claim.strength)}">${escapeHtml(String(claim.strength || "Força não informada"))}</span>
+                <span class="pill ${statusClass(claim.risk)}">${escapeHtml(String(claim.risk || "Risco não informado"))}</span>
               </div>
-              <p class="muted">${claim.evidence}</p>
-            </article>
-          `,
-        )
-        .join("")}
-    </div>
+              <div class="evidence-reading-source"><span>Base registrada</span><p>${escapeHtml(String(claim.evidence || "Ainda não há evidência descrita."))}</p></div>
+            </div>
+          </article>`).join("") || '<p class="muted">Nenhuma alegação registrada. Adicione uma para começar a análise.</p>'}
+      </div>
+    </section>
   `;
 }
 
