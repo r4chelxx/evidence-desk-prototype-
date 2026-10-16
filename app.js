@@ -1,4 +1,4 @@
-import { storeAttachment, readAttachment } from "./local-attachments.mjs";
+import { storeAttachment, readAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
 import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261014-qa39";
@@ -4424,7 +4424,7 @@ function renderDetailedOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("openStoryWorkspace")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
-        <button class="button" data-action="export-json">${t("exportJson")}</button>
+        <button class="button" data-action="export-json">${t("exportJson")}</button> <button type="button" class="button secondary" data-action="export-full-backup">Backup completo com anexos</button>
       </div>
     </section>
     ${renderFreshnessPanel(item)}
@@ -6982,7 +6982,15 @@ function bindActions() {
       if (!file) return;
       try {
         const text = await file.text();
-        const imported = normalizeImportedInvestigation(JSON.parse(text));
+        const payload = JSON.parse(text);
+        const imported = normalizeImportedInvestigation(payload);
+        if (payload.schema === 'evidence-desk-complete-backup-v1') {
+          const attachments = await restoreAttachmentBundle(imported.id, payload.attachments);
+          imported.localAttachments = attachments;
+        } else if ((imported.localAttachments || []).length) {
+          imported.localAttachments = [];
+          window.alert('O JSON importado não contém os arquivos originais. Os metadados de anexos foram removidos desta cópia para evitar referências inválidas.');
+        }
         investigations = [imported, ...investigations];
         saveInvestigations();
         state.currentId = imported.id;
@@ -7268,6 +7276,24 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll('[data-action="export-full-backup"]').forEach(button => button.addEventListener('click', async () => {
+    const item = getCurrentInvestigation();
+    button.disabled = true;
+    try {
+      const attachments = await exportAttachmentBundle(item.id, item.localAttachments || []);
+      const payload = { ...investigationExportPayload(item), schema: 'evidence-desk-complete-backup-v1', attachments };
+      const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = (slugify(item.title) || 'investigation') + '-complete-backup.json';
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) { window.alert('Backup completo não gerado: ' + error.message); }
+    finally { button.disabled = false; }
+  }));
   document.querySelectorAll("[data-action='export-json']").forEach((button) => {
     button.addEventListener("click", () => {
       exportCurrentInvestigationJson(button);
