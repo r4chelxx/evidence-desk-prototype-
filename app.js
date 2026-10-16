@@ -1,3 +1,6 @@
+import { storeAttachment, readAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
+import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
+import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261015-qa41';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261015-qa41';
@@ -21,9 +24,12 @@ function readLocalStorage(key) {
 
 function writeLocalStorage(key, value) {
   try {
-    window.localStorage?.setItem(key, value);
+    if (!window.localStorage) return false;
+    window.localStorage.setItem(key, value);
+    return true;
   } catch (error) {
     console.warn(`Could not save ${key}`, error);
+    return false;
   }
 }
 
@@ -38,29 +44,18 @@ function removeLocalStorage(key) {
 function loadInvestigations() {
   try {
     const stored = readLocalStorage(STORAGE_KEY);
-    if (!stored) return clone(seedInvestigations);
+    // Seed data is used only on first launch. Saved investigations are authoritative:
+    // never overwrite, reinsert, or silently migrate reporter-edited records.
+    if (stored === null || stored === undefined) return clone(seedInvestigations);
     const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed) || !parsed.length) return clone(seedInvestigations);
-    let changed = false;
-    const seedById = new Map(seedInvestigations.map((item) => [item.id, item]));
-    const merged = parsed.map((item) => {
-      const seed = seedById.get(item.id);
-      if (!seed) return item;
-      if (item.seedRevision === SEED_DATA_REVISION) return item;
-      changed = true;
-      return { ...clone(seed), seedRevision: SEED_DATA_REVISION };
-    });
-    seedInvestigations.forEach((seed) => {
-      if (!merged.some((item) => item.id === seed.id)) {
-        changed = true;
-        merged.push({ ...clone(seed), seedRevision: SEED_DATA_REVISION });
-      }
-    });
-    if (changed) writeLocalStorage(STORAGE_KEY, JSON.stringify(merged));
-    return merged;
+    if (!Array.isArray(parsed)) {
+      console.warn("Saved investigations have an unexpected format; preserving the original storage value.");
+      return [];
+    }
+    return parsed;
   } catch (error) {
-    console.warn("Could not load saved investigations", error);
-    return clone(seedInvestigations);
+    console.warn("Could not load saved investigations; original storage has not been modified", error);
+    return [];
   }
 }
 
@@ -81,7 +76,7 @@ function loadUiState() {
 const savedUiState = loadUiState();
 const savedCurrentId = investigations.some((item) => item.id === savedUiState.currentId)
   ? savedUiState.currentId
-  : investigations[0].id;
+  : (investigations[0]?.id || null);
 
 const state = {
   view: savedUiState.view || "dashboard",
@@ -121,6 +116,7 @@ const state = {
     sourceStatus: "",
     sourceUse: "",
     sourceLimits: "",
+    sourceOrigin: "",
   },
   planNotice: "",
   requestDraft: {
@@ -2083,7 +2079,19 @@ function getCurrentInvestigation() {
 }
 
 function saveInvestigations() {
-  writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
+  const saved = writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
+  if (!saved && typeof document !== 'undefined') {
+    const existing = document.getElementById('storage-warning');
+    if (!existing) {
+      const warning = document.createElement('div');
+      warning.id = 'storage-warning';
+      warning.setAttribute('role', 'alert');
+      warning.className = 'storage-warning';
+      warning.textContent = 'Não foi possível salvar no navegador. Exporte uma cópia da investigação antes de sair desta página.';
+      document.body.prepend(warning);
+    }
+  }
+  return saved;
 }
 
 function saveUiState() {
@@ -2134,14 +2142,16 @@ function createEmptyInvestigation(draft) {
   const title = draft.title.trim();
   const country = draft.country.trim();
   const jurisdiction = draft.jurisdiction.trim() || country;
-  const language = draft.language.trim();
+  const language = draft.language.trim() || (state.locale === "pt" ? "Português" : state.locale === "es" ? "Español" : "English");
   const topic = draft.topic.trim() || t("topic");
   const territory = draft.territory.trim() || jurisdiction;
   const period = draft.period.trim() || t("notSet");
   const id = `${slugify(title) || "investigation"}-${Date.now().toString(36)}`;
+  // New cases are user-owned, never silently replaced by demonstration seeds.
 
   return {
     id,
+    seedCustomized: true,
     title,
     country,
     jurisdiction,
@@ -2224,7 +2234,7 @@ function addHypothesisToCurrent() {
   const item = getCurrentInvestigation();
   const text = state.planDraft.hypothesisText.trim();
   const evidence = state.planDraft.hypothesisEvidence.trim();
-  if (!text || !evidence) {
+  if (!text) {
     state.planNotice = t("fillRequiredPlanFields");
     return false;
   }
@@ -2232,7 +2242,7 @@ function addHypothesisToCurrent() {
     ...(item.hypotheses || []),
     {
       text,
-      evidence,
+      evidence: evidence || "Ainda sem evidência vinculada",
       status: state.planDraft.hypothesisStatus.trim() || t("reviewRecommended"),
     },
   ];
@@ -2267,7 +2277,7 @@ function addSourceToCurrent() {
   const item = getCurrentInvestigation();
   const name = state.planDraft.sourceName.trim();
   const use = state.planDraft.sourceUse.trim();
-  if (!name || !use) {
+  if (!name) {
     state.planNotice = t("fillRequiredPlanFields");
     return false;
   }
@@ -2275,14 +2285,16 @@ function addSourceToCurrent() {
     ...(item.sources || []),
     {
       name,
+      id: "source-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7),
+      primary_origin_id: (state.planDraft.sourceOrigin || "").trim() || null,
       type: state.planDraft.sourceType.trim() || t("sourcesDatabases"),
       status: state.planDraft.sourceStatus.trim() || t("reviewRecommended"),
-      use,
+      use: use || "Uso ainda não definido",
       limits: state.planDraft.sourceLimits.trim() || t("reviewLog"),
     },
   ];
   touchInvestigation(item);
-  resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits"]);
+  resetPlanDraft(["sourceName", "sourceType", "sourceStatus", "sourceUse", "sourceLimits", "sourceOrigin"]);
   state.planNotice = t("itemAdded");
   return true;
 }
@@ -2339,7 +2351,7 @@ function addComparisonToCurrent() {
   const expected = state.comparisonDraft.expected.trim();
   const received = state.comparisonDraft.received.trim();
   const missing = state.comparisonDraft.missing.trim();
-  if (!requestTitle || !expected || !received || !missing) {
+  if (!requestTitle || !expected || !received) {
     state.comparisonNotice = t("fillRequiredPlanFields");
     return false;
   }
@@ -3198,11 +3210,6 @@ function renderNewInvestigation() {
   const fields = [
     ["title", t("investigationTitle"), t("investigationTitlePlaceholder")],
     ["country", t("country"), t("countryPlaceholder")],
-    ["jurisdiction", t("jurisdictionLocality"), t("jurisdictionPlaceholder")],
-    ["language", t("primaryLanguage"), t("primaryLanguagePlaceholder")],
-    ["topic", t("generalTopic"), t("topicPlaceholder")],
-    ["territory", t("investigatedTerritory"), t("territoryPlaceholder")],
-    ["period", t("investigatedPeriod"), t("periodPlaceholder")],
   ];
   const errors = state.draftErrors.map((error) => `<li>${error}</li>`).join("");
 
@@ -3232,6 +3239,10 @@ function renderNewInvestigation() {
               )
               .join("")}
           </div>
+          <details class="create-optional"><summary>${state.locale === "en" ? "Additional context (optional)" : state.locale === "es" ? "Contexto adicional (opcional)" : "Contexto adicional (opcional)"}</summary>
+          <div class="form-grid">
+          ${[["jurisdiction", t("jurisdictionLocality"), t("jurisdictionPlaceholder")],["language", t("primaryLanguage"), t("primaryLanguagePlaceholder")],["topic", t("generalTopic"), t("topicPlaceholder")],["territory", t("investigatedTerritory"), t("territoryPlaceholder")],["period", t("investigatedPeriod"), t("periodPlaceholder")]].map(([id,label,placeholder]) => `<label><span>${label}</span><input data-field="${id}" value="${escapeHtml(state.draft[id])}" placeholder="${placeholder}"></label>`).join("")}
+          </div></details>
           <label>
             <span>${t("centralInvestigativeQuestion")}</span>
             <textarea data-field="centralQuestion" rows="4" placeholder="${t("centralQuestionPlaceholder")}">${escapeHtml(state.draft.centralQuestion)}</textarea>
@@ -3309,20 +3320,11 @@ function validateDraft() {
   const required = [
     ["title", t("errorTitleRequired")],
     ["country", t("errorCountryRequired")],
-    ["language", t("errorLanguageRequired")],
     ["centralQuestion", t("errorQuestionRequired")],
   ];
   const errors = required
     .filter(([field]) => !state.draft[field].trim())
     .map(([, message]) => message);
-
-  if (state.draft.title.trim() && state.draft.title.trim().split(/\s+/).length < 3) {
-    errors.push(t("errorTitleSpecific"));
-  }
-
-  if (state.draft.centralQuestion.trim() && !state.draft.centralQuestion.includes("?")) {
-    errors.push(t("errorQuestionMark"));
-  }
 
   state.draftErrors = errors;
   state.draftNotice = errors.length ? "" : t("draftReady");
@@ -3395,13 +3397,13 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
-        ${renderTabGuide()}
+        ${state.currentTab === 'overview' ? '' : renderTabGuide()}
         <nav class="tabs">${nav}</nav>
       </aside>
       <section class="content">
-        ${renderDesktopTestRail(item, tabs)}
-        ${renderMobileTabContext()}
-        ${renderMobileFocusCard(item)}
+        ${state.currentTab === 'overview' ? '' : renderDesktopTestRail(item, tabs)}
+        ${state.currentTab === 'overview' ? '' : renderMobileTabContext()}
+        ${state.currentTab === 'overview' ? '' : renderMobileFocusCard(item)}
         ${renderTab(item)}
       </section>
     </main>
@@ -3624,6 +3626,7 @@ function renderPlanAddForms() {
           <span>${t("sourceLimitsLabel")}</span>
           <textarea data-plan-field="sourceLimits" rows="2" placeholder="${t("sourceLimitsPlaceholder")}">${escapeHtml(state.planDraft.sourceLimits)}</textarea>
         </label>
+        <label><span>Identificador da origem primária (opcional)</span><input data-plan-field="sourceOrigin" value="${escapeHtml(state.planDraft.sourceOrigin || '')}" placeholder="Ex.: base-ibge-censo-2022"><small>Use o mesmo identificador quando fontes reproduzirem a mesma base ou documento original. Deixe vazio se desconhecido.</small></label>
         <button class="button secondary active-secondary" data-action="add-source" type="button">${t("addSourceTitle")}</button>
       </article>
       </section>
@@ -3631,10 +3634,63 @@ function renderPlanAddForms() {
   });
 }
 
+function renderSilenceDetector(item) {
+  const comparisons = Array.isArray(item.requestComparisons) ? item.requestComparisons : [];
+  const issues = comparisons.flatMap((entry, index) => {
+    const missing = String(entry.missing || '').trim();
+    if (!missing) return [];
+    // A newline-separated list is a reporter-authored list of omissions.
+    // Do not split ordinary prose or infer that an item was withheld.
+    const lines = missing.split(/\r?\n/).map(line => line.trim().replace(/^[-*•]\s*/, '')).filter(Boolean);
+    const parts = lines.length > 1 ? lines : [missing];
+    return parts.map((part, partIndex) => ({entry, index, part, partIndex}));
+  });
+  const lang = state.locale || 'pt';
+  const heading = lang === 'en' ? 'Unanswered information' : lang === 'es' ? 'Información sin respuesta' : 'Silêncios da resposta';
+  const disclaimer = lang === 'en' ? 'Only documented gaps are shown. No omission is inferred from the text.' : lang === 'es' ? 'Solo se muestran vacíos documentados. No se infieren omisiones.' : 'Apenas lacunas documentadas são exibidas. Nenhuma omissão é inferida automaticamente.';
+  return `<section class="panel silence-detector"><div class="section-header"><div><p class="eyebrow">Evidence Desk · LAI</p><h3>${heading}</h3></div><span class="pill neutral">${issues.length}</span></div><p class="muted">${disclaimer}</p>${issues.length ? `<ul>${issues.slice(0,12).map(issue => {
+    const linked = (item.gaps || []).some(gap => gap.originComparisonIndex === issue.index && gap.originRequestTitle === issue.entry.requestTitle && gap.originMissingText === issue.part);
+    return `<li><strong>${escapeHtml(String(issue.entry.requestTitle || 'Pedido sem título'))}</strong><p>${escapeHtml(issue.part)}</p>${issue.entry.nextStep ? `<p class="muted">${escapeHtml(String(issue.entry.nextStep))}</p>` : ''}${(item.claims || []).length && !linked ? `<label class="silence-claim-link">Afirmação potencialmente afetada (opcional)<select data-silence-claim-index="${issue.index}-${issue.partIndex}"><option value="">Não vincular</option>${(item.claims || []).map((claim, claimIndex) => `<option value="${claimIndex}">${escapeHtml(String(claim.statement || claim.text || claim.claim || claim.title || 'Afirmação ' + (claimIndex + 1)))}</option>`).join('')}</select></label>` : ''}<button class="button secondary" type="button" data-action="track-silence" data-comparison-index="${issue.index}" data-part-index="${issue.partIndex}" ${linked ? 'disabled' : ''}>${linked ? 'Pendência registrada' : 'Acompanhar esta lacuna'}</button></li>`;
+  }).join('')}</ul>` : '<p class="muted">Ainda não há lacunas documentadas. Compare o pedido com a resposta.</p>'}</section>`;
+}
+
+function bindSilenceTracking() {
+  document.querySelectorAll('[data-action="track-silence"]').forEach(button => button.addEventListener('click', () => {
+    const item = getCurrentInvestigation();
+    const index = Number(button.dataset.comparisonIndex);
+    const partIndex = Number(button.dataset.partIndex);
+    const comparison = item.requestComparisons?.[index];
+    if (!Number.isInteger(index) || !Number.isInteger(partIndex) || !comparison) return;
+    const missing = String(comparison.missing || '').trim();
+    const lines = missing.split(/\r?\n/).map(line => line.trim().replace(/^[-*•]\s*/, '')).filter(Boolean);
+    const parts = lines.length > 1 ? lines : [missing];
+    const part = parts[partIndex];
+    if (!part) return;
+    if ((item.gaps || []).some(gap => gap.originComparisonIndex === index && gap.originRequestTitle === comparison.requestTitle && gap.originMissingText === part)) return;
+    const claimSelector = document.querySelector('[data-silence-claim-index="' + index + '-' + partIndex + '"]');
+    const claimIndex = claimSelector?.value === '' || claimSelector?.value == null ? -1 : Number(claimSelector.value);
+    const claim = Number.isInteger(claimIndex) && claimIndex >= 0 ? item.claims?.[claimIndex] : null;
+    item.gaps = [...(item.gaps || []), {
+      target_claim_id: claim ? (claim.id || 'claim-' + claimIndex) : null,
+      id: 'lai-gap-' + Date.now().toString(36) + '-' + partIndex,
+      description: part,
+      status: 'Aberta',
+      originComparisonIndex: index,
+      originRequestTitle: comparison.requestTitle,
+      originMissingText: part,
+      suggestedNextStep: String(comparison.nextStep || ''),
+      provenance: 'Lacuna descrita pelo jornalista na comparação de pedido e resposta; requer revisão humana'
+    }];
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
+}
+
 function renderRequestsWorkspace(item) {
   return `
     ${renderRequestAddForm()}
     ${renderRequestsCommandCenter(item)}
+    ${renderSilenceDetector(item)}
     ${renderLaiAssistant(item)}
     <details class="panel"><summary>Visão geral dos pedidos e prazos</summary>
     ${renderRequestBoard(item)}
@@ -4091,31 +4147,18 @@ function renderRequestAddForm() {
     content: `
       <section class="panel create-form request-add-form">
       <div class="form-grid">
-        <label>
-          <span>${t("requestTitleLabel")}</span>
-          <input data-request-field="title" value="${escapeHtml(state.requestDraft.title)}" placeholder="${t("requestTitlePlaceholder")}">
-        </label>
-        <label>
-          <span>${t("agencyLabel")}</span>
-          <input data-request-field="agency" value="${escapeHtml(state.requestDraft.agency)}" placeholder="${t("agencyPlaceholder")}">
-        </label>
-        <label>
-          <span>${t("channelLabel")}</span>
-          <input data-request-field="channel" value="${escapeHtml(state.requestDraft.channel)}" placeholder="${t("channelPlaceholder")}">
-        </label>
-        <label>
-          <span>${t("protocol")}</span>
-          <input data-request-field="protocol" value="${escapeHtml(state.requestDraft.protocol)}" placeholder="${t("protocolPlaceholder")}">
-        </label>
-        <label>
-          <span>${t("sentDateLabel")}</span>
-          <input data-request-field="sentDate" value="${escapeHtml(state.requestDraft.sentDate)}" type="date">
-        </label>
-        <label>
-          <span>${t("dueDateLabel")}</span>
-          <input data-request-field="dueDate" value="${escapeHtml(state.requestDraft.dueDate)}" type="date">
-        </label>
+        <label><span>${t("requestTitleLabel")}</span><input data-request-field="title" value="${escapeHtml(state.requestDraft.title)}" placeholder="${t("requestTitlePlaceholder")}"></label>
+        <label><span>${t("agencyLabel")}</span><input data-request-field="agency" value="${escapeHtml(state.requestDraft.agency)}" placeholder="${t("agencyPlaceholder")}"></label>
       </div>
+      <details class="create-optional">
+        <summary>${state.locale === "en" ? "Protocol, dates and channel (optional)" : state.locale === "es" ? "Protocolo, fechas y canal (opcional)" : "Protocolo, datas e canal (opcional)"}</summary>
+        <div class="form-grid">
+          <label><span>${t("channelLabel")}</span><input data-request-field="channel" value="${escapeHtml(state.requestDraft.channel)}" placeholder="${t("channelPlaceholder")}"></label>
+          <label><span>${t("protocol")}</span><input data-request-field="protocol" value="${escapeHtml(state.requestDraft.protocol)}" placeholder="${t("protocolPlaceholder")}"></label>
+          <label><span>${t("sentDateLabel")}</span><input data-request-field="sentDate" value="${escapeHtml(state.requestDraft.sentDate)}" type="date"></label>
+          <label><span>${t("dueDateLabel")}</span><input data-request-field="dueDate" value="${escapeHtml(state.requestDraft.dueDate)}" type="date"></label>
+        </div>
+      </details>
       <label>
         <span>${t("requestStatusLabel")}</span>
         <input data-request-field="status" value="${escapeHtml(state.requestDraft.status)}" list="status-options" placeholder="${t("reviewRecommended")}">
@@ -4212,13 +4255,140 @@ function renderEditorialWorkspace(item) {
   `;
 }
 
+function renderSourceDependence(item) {
+  const adapted = adaptLegacyInvestigation(item);
+  const esc = value => escapeHtml(String(value ?? ''));
+  const linked = adapted.claims.map(claim => ({ claim, audit: analyzeSourceIndependence(adapted, claim.id) })).filter(x => x.audit.supportingEvidence);
+  if (!linked.length) return '<section class="panel"><h3>Independência das fontes</h3><p class="muted">Ainda não há vínculos explícitos entre evidências e afirmações. Não é possível avaliar independência por contagem de documentos.</p></section>';
+  const rows = linked.map(({claim,audit}) => {
+    const repeated = audit.repeatedOrigins.map(g => esc(g.originId) + ' (' + g.evidenceIds.length + ' evidências)').join('; ');
+    const warning = repeated ? '<p><strong>Origem repetida:</strong> ' + repeated + '</p>' : '';
+    const unknown = audit.unknownOriginGroups.length ? '<p>Origem não declarada em ' + audit.unknownOriginGroups.reduce((n,g)=>n+g.evidenceIds.length,0) + ' evidência(s); independência não demonstrada.</p>' : '';
+    const verdict = audit.independenceVerified ? 'Origens distintas declaradas; verificar a documentação de cada origem.' : 'Independência ainda não demonstrada.';
+    return '<li><strong>' + esc(claim.statement || claim.id) + '</strong><p>' + audit.supportingEvidence + ' vínculo(s) de apoio. ' + esc(verdict) + '</p>' + warning + unknown + '</li>';
+  }).join('');
+  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Procedência · revisão humana</p><h3>Dependência entre fontes</h3></div></div><p class="muted">Apenas origens primárias declaradas são comparadas. Origens diferentes registradas não comprovam, por si só, independência editorial.</p><ul>' + rows + '</ul></section>';
+}
+function renderRobustnessSimulator(item) {
+  const adapted = adaptLegacyInvestigation(item);
+  const evidence = adapted.evidence;
+  if (!evidence.length) return '<section class="panel"><h3>Simulador de robustez</h3><p class="muted">Ainda não há evidências com fonte identificada para simular. Anotações e necessidades de prova não contam como evidência.</p></section>';
+  const esc = value => escapeHtml(String(value ?? ''));
+  const options = evidence.map(e => '<option value="' + esc(e.id) + '">' + esc(e.title || e.description || e.id) + '</option>').join('');
+  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Simulação · sem alterar dados</p><h3>Simulador de robustez</h3></div></div><p>Retire provisoriamente uma evidência da análise e veja quais vínculos documentais seriam afetados.</p><label>Evidência a retirar da simulação<select data-robustness-evidence><option value="">Selecione uma evidência</option>' + options + '</select></label><button class="button secondary" type="button" data-action="simulate-robustness">Simular retirada</button><div data-robustness-result aria-live="polite"></div><p class="muted">O cenário não altera documentos nem aprova ou reprova afirmações. Só considera vínculos explícitos.</p></section>';
+}
+
+function bindRobustnessSimulator() {
+  document.querySelectorAll('[data-action="simulate-robustness"]').forEach(button => button.addEventListener('click', () => {
+    const container = document.querySelector('[data-robustness-result]');
+    const id = document.querySelector('[data-robustness-evidence]')?.value;
+    if (!container) return;
+    if (!id) { container.textContent = 'Selecione uma evidência para simular.'; return; }
+    const item = getCurrentInvestigation();
+    const result = simulateEvidenceRemoval(adaptLegacyInvestigation(item), id);
+    if (!result.found) { container.textContent = 'Evidência não encontrada. Nenhum dado foi alterado.'; return; }
+    if (!result.affectedClaims.length) { container.textContent = 'Nenhuma afirmação com vínculo explícito foi afetada neste cenário.'; return; }
+    const esc = value => escapeHtml(String(value ?? ''));
+    const claims = adaptLegacyInvestigation(item).claims;
+    container.innerHTML = '<h4>Afirmações afetadas (' + result.affectedClaims.length + ')</h4><ul>' + result.affectedClaims.map(change => {
+      const claim = claims.find(c => c.id === change.claimId);
+      return '<li><strong>' + esc(claim?.statement || change.claimId) + '</strong><p>Vínculos de apoio: ' + change.before.supporting + ' → ' + change.after.supporting + '. Estado documental: ' + esc(change.before.status) + ' → ' + esc(change.after.status) + '.</p></li>';
+    }).join('') + '</ul>';
+  }));
+}
+function renderClaimGapDependencies(item) {
+  const claims = Array.isArray(item.claims) ? item.claims : [];
+  const gaps = Array.isArray(item.gaps) ? item.gaps : [];
+  const isOpen = gap => !['resolved','closed','resolvida','resolvido','fechada','fechado'].includes(String(gap.status || '').trim().toLowerCase());
+  const linked = claims.map((claim,index) => ({claim,gaps:gaps.filter(gap => isOpen(gap) && String(gap.target_claim_id || '') === String(claim.id || 'claim-' + index))})).filter(entry => entry.gaps.length);
+  if (!linked.length) return '';
+  const esc = value => escapeHtml(String(value ?? ''));
+  const rows = linked.slice(0,8).map(entry => '<li><strong>' + esc(entry.claim.statement || entry.claim.text || entry.claim.claim || entry.claim.title || 'Afirmação sem título') + '</strong><ul>' + entry.gaps.slice(0,5).map(gap => '<li>' + esc(gap.description || gap.title || '') + (gap.originRequestTitle ? ' <small>· LAI: ' + esc(gap.originRequestTitle) + '</small>' : '') + '</li>').join('') + '</ul></li>').join('');
+  return '<section class="panel claim-gap-dependencies"><div class="section-header"><div><p class="eyebrow">Investigação reversa · vínculos registrados</p><h3>Afirmações com lacunas em aberto</h3></div><span class="pill neutral">' + linked.length + '</span></div><p class="muted">Vínculos definidos pelo jornalista. Uma lacuna não invalida automaticamente uma afirmação.</p><ul>' + rows + '</ul><button class="button secondary" type="button" data-action="tab" data-tab="requests">Revisar pedidos e respostas</button></section>';
+}
+function renderIntelligenceOverview(item) {
+  const result = summarizeLegacyInvestigation(item);
+  const lang = state.locale || "pt";
+  const labels = {
+    pt: ["Inteligência da investigação", "Evidências verificadas", "Lacunas abertas", "Afirmações a revisar", "Ações propostas", "O que ainda falta comprovar", "Próximos movimentos", "Abrir apuração", "Abrir revisão editorial", "Propostas automáticas não são conclusões. Confirme documentos e contexto antes de agir."],
+    en: ["Investigation intelligence", "Verified evidence", "Open gaps", "Claims to review", "Proposed actions", "What remains unverified", "Next moves", "Open reporting plan", "Open editorial review", "Automated proposals are not findings. Verify documents and context before acting."],
+    es: ["Inteligencia de investigación", "Evidencias verificadas", "Vacíos abiertos", "Afirmaciones por revisar", "Acciones propuestas", "Qué falta comprobar", "Próximos pasos", "Abrir investigación", "Abrir revisión editorial", "Las propuestas automáticas no son conclusiones. Verifique documentos y contexto antes de actuar."]
+  }[lang] || [];
+  const [title, verified, gaps, claims, actions, missing, next, openPlan, openEditorial, caution] = labels;
+  const unresolved = result.graph.nodes.filter(n => n.kind === "gap" && !["resolved","closed"].includes(n.status.toLowerCase()));
+  const reviewClaims = result.claims.filter(c => c.editorialApproval !== true);
+  const escape = value => escapeHtml(String(value ?? ""));
+  const gapItems = unresolved.slice(0, 4).map(g => `<li>${escape(g.label || g.id)}</li>`).join("");
+  const actionItems = result.proposedActions.slice(0, 4).map(a => `<li><strong>${escape(a.title)}</strong> — ${escape(a.rationale)}</li>`).join("");
+  return `<section class="panel intelligence-overview" aria-label="${escape(title)}">
+    <div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div><span class="pill neutral">Beta · regras verificáveis</span></div>
+    <div class="intelligence-metrics">
+      <div><strong>${result.graph.nodes.filter(n => n.kind === "evidence" && ["verified", "verificado", "verificada"].includes(String(n.status || "").toLowerCase())).length}</strong><span>${escape(verified)}</span></div>
+      <div><strong>${unresolved.length}</strong><span>${escape(gaps)}</span></div>
+      <div><strong>${reviewClaims.length}</strong><span>${escape(claims)}</span></div>
+      <div><strong>${result.proposedActions.length}</strong><span>${escape(actions)}</span></div>
+    </div>
+    <div class="intelligence-columns"><div><h3>${escape(missing)}</h3>${gapItems ? `<ul>${gapItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="plan">${escape(openPlan)}</button></div>
+    <div><h3>${escape(next)}</h3>${actionItems ? `<ul>${actionItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="editorial">${escape(openEditorial)}</button></div></div>
+    <p class="muted">${escape(caution)}</p>
+  </section>${renderClaimGapDependencies(item)}`;
+}
+
+function renderEvidenceMap(item) {
+  const analysis = summarizeLegacyInvestigation(item);
+  const graph = analysis.graph;
+  const escape = value => escapeHtml(String(value ?? ""));
+  const locale = state.locale || "pt";
+  const title = ({pt:"Mapa vivo da investigação",en:"Living investigation map",es:"Mapa vivo de investigación"})[locale] || "Mapa vivo da investigação";
+  const kinds = {hypothesis:["Hipóteses","Hypotheses","Hipótesis"],source:["Fontes","Sources","Fuentes"],evidence:["Evidências documentadas","Documented evidence","Evidencias documentadas"],claim:["Afirmações","Claims","Afirmaciones"],gap:["Lacunas","Gaps","Vacíos"]};
+  const index = ({pt:0,en:1,es:2})[locale] ?? 0;
+  const sections = Object.entries(kinds).map(([kind,names]) => {
+    const nodes = graph.nodes.filter(node => node.kind === kind);
+    const cards = nodes.slice(0,8).map(node => {
+      const related = graph.edges.filter(edge => edge.from === node.id || edge.to === node.id);
+      const connections = related.map(edge => {
+        const other = graph.nodes.find(n => n.id === (edge.from === node.id ? edge.to : edge.from));
+        return other ? `<li>${escape(edge.relation)}: ${escape(other.label)}</li>` : "";
+      }).join("");
+      return `<details class="intelligence-node"><summary>${escape(node.label || node.id)} <small>${escape(node.status)}</small></summary>${connections ? `<ul>${connections}</ul>` : `<p class="muted">${index===0?"Sem vínculos documentais explícitos.":"No explicit documentary links."}</p>`}</details>`;
+    }).join("");
+    return `<div class="intelligence-map-column"><h3>${escape(names[index])} <span class="pill neutral">${nodes.length}</span></h3>${cards || "<p>—</p>"}${nodes.length>8?`<p class="muted">+ ${nodes.length-8}</p>`:""}</div>`;
+  }).join("");
+  const caveat = index===0 ? "O mapa mostra apenas vínculos explícitos. Blocos de evidência planejados não são documentos comprovados; conexões não verificadas não são inventadas." : "Only explicit links are shown. Planned evidence is not verified evidence.";
+  return `<section class="panel intelligence-map" aria-label="${escape(title)}"><div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div></div><div class="intelligence-map-grid">${sections}</div><p class="muted">${escape(caveat)}</p></section>`;
+}
+
 function renderOverview(item) {
+  const locale = state.locale || "pt";
+  const words = {
+    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Registrar pedido ou resposta", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
+    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Log a request or response", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
+    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Registrar solicitud o respuesta", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
+  }[locale] || [];
+  return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
+    <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label class="button secondary" for="original-attachment-file">Anexar original (até 20 MB)</label><input id="original-attachment-file" type="file" class="visually-hidden" data-role="original-attachment-file"><span class="muted">Anexos ficam apenas neste navegador e não entram automaticamente no backup JSON.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
+    ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
+    <div class="capture-actions">
+      <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
+      <button class="button secondary" data-action="tab" data-tab="requests">${words[3]}</button>
+      <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
+      <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
+    </div><p class="muted">${words[7]}</p></section>
+    ${renderIntelligenceOverview(item)}
+    <details class="advanced-investigation"><summary>${words[6]}</summary>${renderDetailedOverview(item)}</details>`;
+}
+
+function renderDetailedOverview(item) {
   return `
     <section class="content-header">
       <p class="eyebrow">${t("overview")}</p>
       <h2>${item.centralQuestion}</h2>
       <p>${item.description}</p>
     </section>
+    ${renderIntelligenceOverview(item)}
+    ${renderEvidenceMap(item)}
     ${renderStoryBuilder(item)}
     ${renderExecutiveSummary(item)}
     ${renderInvestigationCompass(item)}
@@ -4254,7 +4424,7 @@ function renderOverview(item) {
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("openStoryWorkspace")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("exportMethodology")}</button>
-        <button class="button" data-action="export-json">${t("exportJson")}</button>
+        <button class="button" data-action="export-json">${t("exportJson")}</button> <button type="button" class="button secondary" data-action="export-full-backup">Backup completo com anexos</button>
       </div>
     </section>
     ${renderFreshnessPanel(item)}
@@ -5157,15 +5327,20 @@ function renderSources(item) {
     <div class="stack">
       ${item.sources
         .map(
-          (source) => `
+          (source, index) => `
             <article class="panel source-card">
               <div class="card-footer top">
-                <h3>${source.name}</h3>
-                <span class="pill ${statusClass(source.status)}">${source.status}</span>
+                <h3>${escapeHtml(String(source.name || 'Fonte sem nome'))}</h3>
+                <span class="pill ${statusClass(source.status)}">${escapeHtml(String(source.status || ''))}</span>
               </div>
-              <p><strong>${source.type}</strong></p>
-              <p>${source.use}</p>
-              <p class="muted">${t("limits")}: ${source.limits}</p>
+              <p><strong>${escapeHtml(String(source.type || ''))}</strong></p>
+              <p>${escapeHtml(String(source.use || ''))}</p>
+              <p class="muted">${t("limits")}: ${escapeHtml(String(source.limits || ''))}</p>
+              <label>Origem primária documentada (opcional)
+                <input data-source-origin="${index}" value="${escapeHtml(String(source.primary_origin_id || source.original_source_id || ''))}" placeholder="Ex.: base-ibge-censo-2022">
+              </label>
+              <button type="button" class="button secondary" data-action="save-source-origin" data-source-index="${index}">Salvar origem</button>
+              <small class="muted">Use o mesmo identificador para fontes que reproduzem a mesma origem. Em branco significa origem não documentada.</small>
             </article>
           `,
         )
@@ -5644,8 +5819,9 @@ function renderComparisonAddForm(requestOptions) {
         <textarea data-comparison-field="received" rows="3" placeholder="${t("receivedPlaceholder")}">${escapeHtml(state.comparisonDraft.received)}</textarea>
       </label>
       <label>
-        <span>${t("missingLabel")}</span>
+        <span>${t("missingLabel")} <small>(opcional; uma lacuna por linha)</small></span>
         <textarea data-comparison-field="missing" rows="3" placeholder="${t("missingPlaceholder")}">${escapeHtml(state.comparisonDraft.missing)}</textarea>
+        <small class="muted">Se a resposta estiver completa, deixe em branco. Registre somente ausências que você verificou.</small>
       </label>
       <div class="form-grid">
         <label>
@@ -5820,6 +5996,8 @@ function renderClaims(item) {
     ${renderClaimAddForm()}
     ${renderClaimsDashboard(item)}
     ${renderClaimDecisionBoard(item)}
+    ${renderRobustnessSimulator(item)}
+    ${renderSourceDependence(item)}
     <section class="content-header">
       <p class="eyebrow">${t("claimMatrixTitle")}</p>
       <h2>${t("claimMatrixHeading")}</h2>
@@ -6644,7 +6822,128 @@ function exportCurrentInvestigationJson(button) {
   }
 }
 
+function bindNoteClassification() {
+  document.querySelectorAll('[data-action="classify-note"]').forEach(button => button.addEventListener('click', () => {
+    const item = getCurrentInvestigation();
+    const note = (item.reporterNotes || []).find(entry => entry.id === button.dataset.noteId);
+    const kind = button.dataset.kind;
+    if (!note || note.classifiedAs || !['hypothesis','gap','source'].includes(kind)) return;
+    const id = 'from-note-' + note.id;
+    if (kind === 'hypothesis') item.hypotheses = [...(item.hypotheses || []), {id, text:note.text, evidence:'A verificar — material não verificado', status:'A verificar', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
+    if (kind === 'gap') item.gaps = [...(item.gaps || []), {id, description:note.text, status:'Aberta', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
+    if (kind === 'source') item.sources = [...(item.sources || []), {id, name:note.text, type:'Pista não verificada', status:'A verificar', use:'Verificar identidade e pertinência', limits:'Origem: material de entrada não verificado', originNoteId:note.id, provenance:note.materialOrigin || null}];
+    note.classifiedAs = kind;
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
+}
+
+function bindQuickNoteImport() {
+  document.querySelectorAll('[data-role="quick-note-file"]').forEach(input => input.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const form = input.closest('[data-role="quick-note"]');
+    const textarea = form?.querySelector('textarea[name="note"]');
+    if (!textarea) return;
+    if (file.size > 256000) {
+      window.alert('Arquivo muito grande. Importe um texto de até 256 KB.');
+      input.value = '';
+      return;
+    }
+    const allowed = /\.(txt|md|csv|tsv|json)$/i.test(file.name);
+    if (!allowed) {
+      window.alert('Formato não suportado. Use TXT, MD, CSV, TSV ou JSON.');
+      input.value = '';
+      return;
+    }
+    try {
+      const content = await file.text();
+      const excerpt = content.trim();
+      if (!excerpt) throw new Error('Arquivo vazio');
+      if (('[' + file.name + ']\n' + excerpt).length > Number(textarea.maxLength || 6000)) {
+        window.alert('O arquivo ultrapassa o limite do formulário. Nenhum trecho foi importado ou descartado. Divida o material ou preserve o arquivo original antes de continuar.');
+        input.value = '';
+        return;
+      }
+      textarea.value = '[' + file.name + ']\n' + excerpt;
+      const kind = form?.querySelector('[name="materialKind"]');
+      if (kind) kind.value = 'document';
+      const origin = form?.querySelector('[name="materialOrigin"]');
+      if (origin && !origin.value.trim()) origin.value = file.name;
+      textarea.focus();
+    } catch {
+      window.alert('Não foi possível ler este arquivo.');
+    }
+    input.value = '';
+  }));
+}
+
+function bindQuickNotes() {
+  document.querySelectorAll('[data-role="quick-note"]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault();
+    const input = form.querySelector('textarea[name="note"]');
+    const text = input?.value.trim();
+    if (!text) return;
+    const materialKind = form.querySelector('[name="materialKind"]')?.value || 'note';
+    const materialOrigin = form.querySelector('[name="materialOrigin"]')?.value.trim() || null;
+    const item = getCurrentInvestigation();
+    const normalized = text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized && String(note.materialOrigin || '').trim().toLocaleLowerCase() === String(materialOrigin || '').trim().toLocaleLowerCase() && String(note.materialKind || 'note') === materialKind)) {
+      input.setCustomValidity(state.locale === 'en' ? 'This note is already saved.' : state.locale === 'es' ? 'Esta nota ya está guardada.' : 'Esta anotação já foi salva.');
+      input.reportValidity();
+      input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
+      return;
+    }
+    item.reporterNotes = [...(item.reporterNotes || []), { id: 'note-' + Date.now() + '-' + Math.random().toString(36).slice(2,8), createdAt: new Date().toISOString(), text, materialKind, materialOrigin, verificationStatus: 'unverified' }];
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
+}
+
 function bindActions() {
+  document.querySelectorAll('[data-role="original-attachment-file"]').forEach(input => input.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const item = getCurrentInvestigation();
+    try {
+      const metadata = await storeAttachment(item.id, file);
+      item.localAttachments = [...(item.localAttachments || []), metadata];
+      touchInvestigation(item);
+      renderInvestigation();
+    } catch (error) {
+      window.alert('Anexo não salvo: ' + error.message);
+    } finally { input.value = ''; }
+  }));
+  document.querySelectorAll('[data-action="download-local-attachment"]').forEach(button => button.addEventListener('click', async () => {
+    const item = getCurrentInvestigation();
+    try {
+      const record = await readAttachment(button.dataset.attachmentId, item.id);
+      if (!record) { window.alert('Arquivo não encontrado neste navegador.'); return; }
+      const url = URL.createObjectURL(record.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = record.name;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) { window.alert('Não foi possível abrir o anexo: ' + error.message); }
+  }));
+  bindQuickNotes();
+  bindQuickNoteImport();
+  bindNoteClassification();
+  bindSilenceTracking();
+  bindRobustnessSimulator();
+  document.querySelectorAll('[data-action="save-source-origin"]').forEach(button => button.addEventListener('click', () => {
+    const index = Number(button.dataset.sourceIndex);
+    const item = getCurrentInvestigation();
+    if (!Number.isInteger(index) || index < 0 || index >= (item.sources || []).length) return;
+    const input = document.querySelector('[data-source-origin="' + index + '"]');
+    if (!input) return;
+    item.sources[index].primary_origin_id = input.value.trim() || null;
+    touchInvestigation(item);
+    renderInvestigation();
+  }));
   document.querySelectorAll("[data-action='dashboard']").forEach((button) => {
     button.addEventListener("click", () => {
       state.view = "dashboard";
@@ -6683,7 +6982,15 @@ function bindActions() {
       if (!file) return;
       try {
         const text = await file.text();
-        const imported = normalizeImportedInvestigation(JSON.parse(text));
+        const payload = JSON.parse(text);
+        const imported = normalizeImportedInvestigation(payload);
+        if (payload.schema === 'evidence-desk-complete-backup-v1') {
+          const attachments = await restoreAttachmentBundle(imported.id, payload.attachments);
+          imported.localAttachments = attachments;
+        } else if ((imported.localAttachments || []).length) {
+          imported.localAttachments = [];
+          window.alert('O JSON importado não contém os arquivos originais. Os metadados de anexos foram removidos desta cópia para evitar referências inválidas.');
+        }
         investigations = [imported, ...investigations];
         saveInvestigations();
         state.currentId = imported.id;
@@ -6969,6 +7276,24 @@ function bindActions() {
     });
   });
 
+  document.querySelectorAll('[data-action="export-full-backup"]').forEach(button => button.addEventListener('click', async () => {
+    const item = getCurrentInvestigation();
+    button.disabled = true;
+    try {
+      const attachments = await exportAttachmentBundle(item.id, item.localAttachments || []);
+      const payload = { ...investigationExportPayload(item), schema: 'evidence-desk-complete-backup-v1', attachments };
+      const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = (slugify(item.title) || 'investigation') + '-complete-backup.json';
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) { window.alert('Backup completo não gerado: ' + error.message); }
+    finally { button.disabled = false; }
+  }));
   document.querySelectorAll("[data-action='export-json']").forEach((button) => {
     button.addEventListener("click", () => {
       exportCurrentInvestigationJson(button);
