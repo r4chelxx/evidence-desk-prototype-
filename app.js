@@ -6827,9 +6827,9 @@ function bindNoteClassification() {
     const kind = button.dataset.kind;
     if (!note || note.classifiedAs || !['hypothesis','gap','source'].includes(kind)) return;
     const id = 'from-note-' + note.id;
-    if (kind === 'hypothesis') item.hypotheses = [...(item.hypotheses || []), {id, text:note.text, evidence:'A verificar — anotação de apuração', status:'A verificar', originNoteId:note.id}];
-    if (kind === 'gap') item.gaps = [...(item.gaps || []), {id, description:note.text, status:'Aberta', originNoteId:note.id}];
-    if (kind === 'source') item.sources = [...(item.sources || []), {id, name:note.text, type:'Pista não verificada', status:'A verificar', use:'Verificar identidade e pertinência', limits:'Origem: anotação de apuração', originNoteId:note.id}];
+    if (kind === 'hypothesis') item.hypotheses = [...(item.hypotheses || []), {id, text:note.text, evidence:'A verificar — material não verificado', status:'A verificar', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
+    if (kind === 'gap') item.gaps = [...(item.gaps || []), {id, description:note.text, status:'Aberta', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
+    if (kind === 'source') item.sources = [...(item.sources || []), {id, name:note.text, type:'Pista não verificada', status:'A verificar', use:'Verificar identidade e pertinência', limits:'Origem: material de entrada não verificado', originNoteId:note.id, provenance:note.materialOrigin || null}];
     note.classifiedAs = kind;
     touchInvestigation(item);
     renderInvestigation();
