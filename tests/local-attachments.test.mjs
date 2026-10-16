@@ -14,3 +14,8 @@ test('restore rejects malformed size without writing to IndexedDB', async () => 
 test('restore rejects invalid input before writing', async () => {
  await assert.rejects(restoreAttachmentBundle('case-1', [{name:'bad.pdf',size:1}]), /inválido/);
 });
+
+test('backup rejects a missing local file rather than silently exporting incomplete data', async () => {
+ const { exportAttachmentBundle } = await import('../local-attachments.mjs');
+ await assert.rejects(exportAttachmentBundle('case-1', [{id:'missing',name:'original.pdf'}]), /IndexedDB indisponível/);
+});
