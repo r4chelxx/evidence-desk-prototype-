@@ -5281,34 +5281,29 @@ function renderReportingMap(item) {
 }
 
 function renderEvidenceInventory(item) {
-  const linkedEvidence = new Set((item.hypotheses || []).map((hypothesis) => hypothesis.evidence).filter(Boolean));
-
+  const references = (item.hypotheses || []).map(hypothesis => String(hypothesis.evidence || "").trim().toLocaleLowerCase()).filter(Boolean);
+  const safe = value => escapeHtml(String(value ?? ""));
   return `
     <section class="content-header process-header">
       <p class="eyebrow">${t("evidenceInventoryTitle")}</p>
       <h2>${t("evidenceInventoryHeading")}</h2>
+      <p class="muted">Cobertura indica apenas que uma hipótese cita o bloco pelo nome. Não comprova autenticidade nem suficiência documental.</p>
     </section>
     <div class="evidence-inventory">
-      ${(item.evidenceBlocks || [])
-        .map((block) => {
-          const isLinked = [...linkedEvidence].some((evidence) => evidence.toLowerCase().includes(block.type.toLowerCase()));
-          return `
-            <article class="evidence-chip-card">
-              <div>
-                <p class="eyebrow">${t("block")}</p>
-                <h3>${block.type}</h3>
-              </div>
-              <div class="pill-row">
-                <span class="pill ${statusClass(block.priority)}">${block.priority}</span>
-                <span class="pill ${statusClass(block.status)}">${block.status}</span>
-                <span class="pill ${isLinked ? "success" : "warning"}">${t("evidenceCoverage")}: ${isLinked ? t("readinessReady") : t("readinessReview")}</span>
-              </div>
-            </article>
-          `;
-        })
-        .join("") || `<section class="empty-state compact-empty"><p>${t("workflowPlanCopy")}</p></section>`}
-    </div>
-  `;
+      ${(item.evidenceBlocks || []).map(block => {
+        const name = String(block.type || "").trim().toLocaleLowerCase();
+        const isLinked = Boolean(name) && references.some(reference => reference.includes(name));
+        return `
+          <article class="evidence-chip-card">
+            <div><p class="eyebrow">${t("block")}</p><h3>${safe(block.type)}</h3></div>
+            <div class="pill-row">
+              <span class="pill ${statusClass(block.priority)}">${safe(block.priority)}</span>
+              <span class="pill ${statusClass(block.status)}">${safe(block.status)}</span>
+              <span class="pill ${isLinked ? "success" : "warning"}">${t("evidenceCoverage")}: ${isLinked ? "Referenciado" : "Sem referência"}</span>
+            </div>
+          </article>`;
+      }).join("") || `<section class="empty-state compact-empty"><p>${t("workflowPlanCopy")}</p></section>`}
+    </div>`;
 }
 
 function renderSources(item) {
