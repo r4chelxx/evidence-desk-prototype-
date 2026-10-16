@@ -6923,6 +6923,19 @@ function bindActions() {
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (error) { window.alert('Não foi possível abrir o anexo: ' + error.message); }
   }));
+  // Dashboard shortcuts reveal the relevant module instead of switching pages.
+  const dashboardModules = { plan: "workspace-plan", claims: "workspace-evidence", requests: "workspace-requests", context: "workspace-context", editorial: "workspace-editorial", story: "workspace-story", methodology: "workspace-method", qa: "workspace-method" };
+  document.querySelectorAll('.investigation-snapshot [data-action="tab"], .capture-actions a[href^="#workspace-"]').forEach(control => {
+    control.addEventListener("click", event => {
+      const id = control.dataset.tab ? dashboardModules[control.dataset.tab] : control.getAttribute("href")?.slice(1);
+      const target = id && document.getElementById(id);
+      if (!target) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      target.open = true;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, { capture: true });
+  });
   bindQuickNotes();
   bindQuickNoteImport();
   bindNoteClassification();
