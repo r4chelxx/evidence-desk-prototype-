@@ -74,6 +74,7 @@ export async function restoreAttachmentBundle(investigationId, files = []) {
   try {
     for (const file of files) {
       if (!file || typeof file.base64 !== 'string' || typeof file.name !== 'string') throw new Error('Anexo inválido.');
+      if (!Number.isSafeInteger(file.size) || file.size < 1 || file.size > MAX_ATTACHMENT_BYTES) throw new Error('Invalid backup size');
       const binary = atob(file.base64);
       const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
       if (bytes.length !== file.size) throw new Error('Tamanho do anexo não corresponde ao backup: ' + file.name);
