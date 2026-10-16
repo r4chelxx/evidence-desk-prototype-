@@ -3087,3 +3087,31 @@ button:disabled {
  .workspace-secondary-tab { min-height:42px; }
 }
 @media(max-width:420px) { .workspace-primary-tab { font-size:.78rem; } }
+
+/* Unified investigation dashboard: progressive disclosure instead of page hopping. */
+.workspace-single-hint { font-size:.85rem;line-height:1.55;color:var(--muted); }
+.workspace-return { width:100%;text-align:left;border:0;background:transparent;padding:.75rem 0;color:inherit;font-weight:650;cursor:pointer; }
+.unified-workspace { display:grid;gap:.65rem;margin:1.6rem 0; }
+.unified-workspace-heading { margin-bottom:.5rem; }
+.unified-workspace-heading h2 { margin:.15rem 0;font-size:clamp(1.4rem,2.5vw,1.9rem);letter-spacing:-.03em; }
+.unified-workspace-heading p:last-child { margin:.3rem 0 0;color:var(--muted);font-size:.9rem; }
+.workspace-module { border:1px solid #dbe6df;background:#fff;border-radius:15px;overflow:hidden; }
+.workspace-module > summary { display:flex;align-items:center;justify-content:space-between;gap:1rem;list-style:none;cursor:pointer;padding:1.05rem 1.15rem;min-height:74px; }
+.workspace-module > summary::-webkit-details-marker { display:none; }
+.workspace-module > summary::after { content:"+";font-size:1.45rem;font-weight:400;color:#47756a; }
+.workspace-module[open] > summary::after { content:"−"; }
+.workspace-module > summary > span:first-child { display:grid;gap:.2rem;min-width:0;flex:1; }
+.workspace-module > summary strong { font-size:1rem; }
+.workspace-module > summary small { color:var(--muted);font-size:.79rem;line-height:1.4; }
+.workspace-module .module-count { font-size:.73rem;white-space:nowrap;color:#526c62;background:#eef4ef;padding:.35rem .55rem;border-radius:99px; }
+.workspace-module-body { border-top:1px solid #e4ebe6;padding:clamp(.8rem,2vw,1.5rem);min-width:0; }
+.workspace-module-body > .content-header:first-child { margin-top:0; }
+.workspace-module:focus-within { border-color:#78a799; }
+@media(max-width:700px) {
+ .workspace-module > summary { padding:.85rem .9rem;min-height:68px; }
+ .workspace-module-body { padding:.75rem; }
+ .workspace-module .module-count { font-size:.68rem; }
+ .workspace .sidebar { margin-bottom:.4rem; }
+ .workspace .project-card { padding:.8rem 1rem; }
+ .workspace .project-card h1 { font-size:clamp(1.1rem,5vw,1.45rem); }
+}
