@@ -16,9 +16,7 @@ function database() {
       if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, { keyPath: 'id' });
     };
     request.onerror = () => reject(request.error);
-    let result;
-      request.onsuccess = () => { result = request.result; };
-      transaction.oncomplete = () => resolve(result);
+    request.onsuccess = () => resolve(request.result);
   });
 }
 async function transact(mode, operation) {
@@ -27,7 +25,9 @@ async function transact(mode, operation) {
     return await new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE, mode);
       const request = operation(transaction.objectStore(STORE));
-      request.onsuccess = () => resolve(request.result);
+      let result;
+      request.onsuccess = () => { result = request.result; };
+      transaction.oncomplete = () => resolve(result);
       request.onerror = () => reject(request.error);
       transaction.onabort = () => reject(transaction.error || new Error('Transação cancelada.'));
     });
