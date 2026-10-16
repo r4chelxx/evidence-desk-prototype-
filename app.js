@@ -6886,7 +6886,7 @@ function bindQuickNotes() {
     const materialOrigin = form.querySelector('[name="materialOrigin"]')?.value.trim() || null;
     const item = getCurrentInvestigation();
     const normalized = text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
-    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized)) {
+    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized && String(note.materialOrigin || '').trim().toLocaleLowerCase() === String(materialOrigin || '').trim().toLocaleLowerCase() && String(note.materialKind || 'note') === materialKind)) {
       input.setCustomValidity(state.locale === 'en' ? 'This note is already saved.' : state.locale === 'es' ? 'Esta nota ya está guardada.' : 'Esta anotação já foi salva.');
       input.reportValidity();
       input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
