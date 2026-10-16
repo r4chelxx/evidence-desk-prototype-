@@ -3333,35 +3333,9 @@ function validateDraft() {
 function renderInvestigation() {
   const item = getCurrentInvestigation();
   const tabGroups = [
-    {
-      label: t("navGroupStart"),
-      tabs: [
-        ["overview", t("overview")],
-        ["context", t("context")],
-      ],
-    },
-    {
-      label: t("navGroupInvestigate"),
-      tabs: [
-        ["plan", t("planTab")],
-        ["requests", t("requestsWorkspace")],
-      ],
-    },
-    {
-      label: t("navGroupDecide"),
-      tabs: [
-        ["editorial", t("editorialWorkspace")],
-        ["claims", t("claims")],
-      ],
-    },
-    {
-      label: t("navGroupExport"),
-      tabs: [
-        ["story", t("storyTab")],
-        ["methodology", t("methodology")],
-        ["qa", "QA"],
-      ],
-    },
+    { label: "Investigar", tabs: [["overview", t("overview")], ["context", t("context")], ["requests", t("requestsWorkspace")]] },
+    { label: "Analisar", tabs: [["claims", t("claims")], ["plan", t("planTab")], ["editorial", t("editorialWorkspace")]] },
+    { label: "Publicar", tabs: [["story", t("storyTab")], ["methodology", t("methodology")], ["qa", "QA"]] },
   ];
   const tabs = tabGroups.flatMap((group) => group.tabs);
 
@@ -3398,7 +3372,8 @@ function renderInvestigation() {
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
         ${state.currentTab === 'overview' ? '' : renderTabGuide()}
-        <nav class="tabs">${nav}</nav>
+        <p class="workspace-nav-hint">Navegue por objetivo. Cada etapa mantém os registros e decisões da investigação.</p>
+        <nav class="tabs" aria-label="Áreas da investigação">${nav}</nav>
       </aside>
       <section class="content">
         ${state.currentTab === 'overview' ? '' : renderDesktopTestRail(item, tabs)}
