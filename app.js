@@ -3005,26 +3005,31 @@ function renderDashboard() {
             },
           ]
       : roadmap;
-  const cards = filteredInvestigations
-    .map(
-      (item) => `
-        <article class="investigation-card">
-          <div class="card-kicker">${item.country} / ${item.jurisdiction}</div>
-          <h2>${item.title}</h2>
-          <p>${item.centralQuestion}</p>
-          <div class="metrics-grid compact">
-            <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-            <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
-            <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
-          </div>
-          <div class="card-footer">
-            <span class="pill ${statusClass(item.status)}">${item.status}</span>
-            <button class="button" data-action="open" data-id="${item.id}">${t("openInvestigation")}</button>
-          </div>
-        </article>
-      `,
-    )
-    .join("");
+  const cards = filteredInvestigations.map((item) => {
+    const gaps = countOpenGaps(item);
+    const review = countClaimsNeedingCare(item);
+    const overdue = countLateRequests(item);
+    const needsAttention = gaps + review + overdue;
+    const question = String(item.centralQuestion || item.description || "");
+    return `
+      <article class="investigation-card portfolio-card">
+        <div class="portfolio-card-top">
+          <span class="portfolio-kicker">${escapeHtml(String(item.country || ""))} · ${escapeHtml(String(item.jurisdiction || ""))}</span>
+          <span class="pill ${statusClass(item.status)}">${escapeHtml(String(item.status || ""))}</span>
+        </div>
+        <h2>${escapeHtml(String(item.title || "Investigação sem título"))}</h2>
+        <p class="portfolio-question">${escapeHtml(question)}</p>
+        <div class="portfolio-stats" aria-label="Situação da investigação">
+          <span><strong>${(item.claims || []).length}</strong> alegações</span>
+          <span><strong>${(item.reporterNotes || []).length}</strong> notas</span>
+          <span class="${needsAttention ? "portfolio-attention" : ""}"><strong>${needsAttention}</strong> pendências</span>
+        </div>
+        <div class="portfolio-card-bottom">
+          <span class="portfolio-card-caption">${needsAttention ? "Há pontos a revisar" : "Sem pendências contabilizadas"}</span>
+          <button class="button" type="button" data-action="open" data-id="${escapeHtml(String(item.id))}">Continuar investigação →</button>
+        </div>
+      </article>`;
+  }).join("");
   const emptyState = `
     <section class="empty-state">
       <h3>${t("emptyTitle")}</h3>
@@ -3117,16 +3122,14 @@ function renderDashboard() {
 
   renderShell(`
     <main class="page dashboard">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">${t("heroEyebrow")}</p>
-          <h1>${t("heroTitle")}</h1>
-          <p>${t("heroCopy")}</p>
-        </div>
-        <div class="hero-panel">
-          <strong>${t("prototypeGoal")}</strong>
-          <span>${t("prototypeGoalText")}</span>
-        </div>
+      <section class="portfolio-hero">
+        <div><p class="eyebrow">Evidence Desk · espaço de trabalho</p><h1>Suas investigações</h1><p>Retome uma apuração, acompanhe pendências ou comece uma nova investigação.</p></div>
+        <button class="button portfolio-create" type="button" data-action="new-investigation">+ Nova investigação</button>
+      </section>
+      <section class="portfolio-summary" aria-label="Resumo das investigações">
+        <div><strong>${investigations.length}</strong><span>Investigações</span></div>
+        <div><strong>${investigations.reduce((total, item) => total + countOpenGaps(item), 0)}</strong><span>Lacunas abertas</span></div>
+        <div><strong>${investigations.reduce((total, item) => total + countLateRequests(item), 0)}</strong><span>Pedidos atrasados</span></div>
       </section>
       <section class="section-header">
         <div>
@@ -3333,35 +3336,9 @@ function validateDraft() {
 function renderInvestigation() {
   const item = getCurrentInvestigation();
   const tabGroups = [
-    {
-      label: t("navGroupStart"),
-      tabs: [
-        ["overview", t("overview")],
-        ["context", t("context")],
-      ],
-    },
-    {
-      label: t("navGroupInvestigate"),
-      tabs: [
-        ["plan", t("planTab")],
-        ["requests", t("requestsWorkspace")],
-      ],
-    },
-    {
-      label: t("navGroupDecide"),
-      tabs: [
-        ["editorial", t("editorialWorkspace")],
-        ["claims", t("claims")],
-      ],
-    },
-    {
-      label: t("navGroupExport"),
-      tabs: [
-        ["story", t("storyTab")],
-        ["methodology", t("methodology")],
-        ["qa", "QA"],
-      ],
-    },
+    { label: "Investigar", tabs: [["overview", t("overview")], ["context", t("context")], ["requests", t("requestsWorkspace")]] },
+    { label: "Analisar", tabs: [["claims", t("claims")], ["plan", t("planTab")], ["editorial", t("editorialWorkspace")]] },
+    { label: "Publicar", tabs: [["story", t("storyTab")], ["methodology", t("methodology")], ["qa", "QA"]] },
   ];
   const tabs = tabGroups.flatMap((group) => group.tabs);
 
@@ -3369,24 +3346,15 @@ function renderInvestigation() {
     state.currentTab = "overview";
   }
 
-  const nav = tabGroups
-    .map(
-      (group) => `
-        <section class="tab-group">
-          <p>${group.label}</p>
-          ${group.tabs
-            .map(
-              ([id, label]) => `
-                <button class="tab ${state.currentTab === id ? "active" : ""}" data-action="tab" data-tab="${id}">
-                  ${label}
-                </button>
-              `,
-            )
-            .join("")}
-        </section>
-      `,
-    )
-    .join("");
+  const primaryTabs = [["overview", "Investigar"], ["claims", "Evidências"], ["story", "Reportagem"]];
+  const secondaryTabs = tabs.filter(([id]) => !primaryTabs.some(([primaryId]) => primaryId === id));
+  const currentLabel = tabs.find(([id]) => id === state.currentTab)?.[1] || "Investigar";
+  const primaryNav = primaryTabs.map(([id, label]) => `
+    <button class="workspace-primary-tab ${state.currentTab === id ? "active" : ""}" type="button" data-action="tab" data-tab="${id}" ${state.currentTab === id ? 'aria-current="page"' : ""}>${label}</button>
+  `).join("");
+  const secondaryNav = secondaryTabs.map(([id, label]) => `
+    <button class="workspace-secondary-tab ${state.currentTab === id ? "active" : ""}" type="button" data-action="tab" data-tab="${id}">${label}</button>
+  `).join("");
 
   renderShell(`
     <main class="workspace">
@@ -3397,13 +3365,11 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
-        ${state.currentTab === 'overview' ? '' : renderTabGuide()}
-        <nav class="tabs">${nav}</nav>
+        ${state.currentTab === "overview" ? '<p class="workspace-single-hint">Tudo da investigação em um único painel. Abra apenas o que precisar.</p>' : `<button class="workspace-return" type="button" data-action="tab" data-tab="overview">← Voltar ao painel</button><nav class="workspace-primary-nav" aria-label="Navegação principal">${primaryNav}</nav><details class="workspace-more"><summary>Outras ferramentas</summary><div class="workspace-secondary-nav">${secondaryNav}</div></details>`}
+
       </aside>
       <section class="content">
-        ${state.currentTab === 'overview' ? '' : renderDesktopTestRail(item, tabs)}
-        ${state.currentTab === 'overview' ? '' : renderMobileTabContext()}
-        ${state.currentTab === 'overview' ? '' : renderMobileFocusCard(item)}
+
         ${renderTab(item)}
       </section>
     </main>
@@ -4342,10 +4308,12 @@ function renderEvidenceMap(item) {
   const title = ({pt:"Mapa vivo da investigação",en:"Living investigation map",es:"Mapa vivo de investigación"})[locale] || "Mapa vivo da investigação";
   const kinds = {hypothesis:["Hipóteses","Hypotheses","Hipótesis"],source:["Fontes","Sources","Fuentes"],evidence:["Evidências documentadas","Documented evidence","Evidencias documentadas"],claim:["Afirmações","Claims","Afirmaciones"],gap:["Lacunas","Gaps","Vacíos"]};
   const index = ({pt:0,en:1,es:2})[locale] ?? 0;
+  const graphNodeIds = new Set(graph.nodes.map(node => node.id));
+  const validEdges = graph.edges.filter(edge => graphNodeIds.has(edge.from) && graphNodeIds.has(edge.to));
   const sections = Object.entries(kinds).map(([kind,names]) => {
     const nodes = graph.nodes.filter(node => node.kind === kind);
     const cards = nodes.slice(0,8).map(node => {
-      const related = graph.edges.filter(edge => edge.from === node.id || edge.to === node.id);
+      const related = validEdges.filter(edge => edge.from === node.id || edge.to === node.id);
       const connections = related.map(edge => {
         const other = graph.nodes.find(n => n.id === (edge.from === node.id ? edge.to : edge.from));
         return other ? `<li>${escape(edge.relation)}: ${escape(other.label)}</li>` : "";
@@ -4354,7 +4322,7 @@ function renderEvidenceMap(item) {
     }).join("");
     return `<div class="intelligence-map-column"><h3>${escape(names[index])} <span class="pill neutral">${nodes.length}</span></h3>${cards || "<p>—</p>"}${nodes.length>8?`<p class="muted">+ ${nodes.length-8}</p>`:""}</div>`;
   }).join("");
-  const caveat = index===0 ? "O mapa mostra apenas vínculos explícitos. Blocos de evidência planejados não são documentos comprovados; conexões não verificadas não são inventadas." : "Only explicit links are shown. Planned evidence is not verified evidence.";
+  const caveat = index===0 ? "O mapa exibe apenas relações presentes no registro estruturado. Uma ligação não equivale a confirmação editorial ou documental. Blocos planejados não são documentos comprovados." : "Only explicit links are shown. Planned evidence is not verified evidence.";
   return `<section class="panel intelligence-map" aria-label="${escape(title)}"><div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div></div><div class="intelligence-map-grid">${sections}</div><p class="muted">${escape(caveat)}</p></section>`;
 }
 
@@ -4365,18 +4333,47 @@ function renderOverview(item) {
     en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Log a request or response", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
     es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Registrar solicitud o respuesta", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
   }[locale] || [];
+  const gaps = countOpenGaps(item);
+  const claimsToReview = countClaimsNeedingCare(item);
+  const overdue = countLateRequests(item);
+  const notes = (item.reporterNotes || []).length;
+  const attachments = (item.localAttachments || []).length;
+  const overviewStatus = `
+    <section class="investigation-snapshot" aria-label="Situação da investigação">
+      <div class="snapshot-heading"><div><p class="eyebrow">Painel de investigação</p><h3>Onde estamos agora</h3></div><p class="muted">Indicadores de acompanhamento, não conclusões automatizadas.</p></div>
+      <div class="snapshot-grid">
+        <button type="button" data-action="tab" data-tab="overview" class="snapshot-tile"><strong>${notes}</strong><span>Anotações registradas</span></button>
+        <button type="button" data-action="tab" data-tab="overview" class="snapshot-tile"><strong>${attachments}</strong><span>Arquivos originais locais</span></button>
+        <button type="button" data-action="tab" data-tab="plan" class="snapshot-tile ${gaps ? "needs-attention" : ""}"><strong>${gaps}</strong><span>Lacunas em aberto</span></button>
+        <button type="button" data-action="tab" data-tab="claims" class="snapshot-tile ${claimsToReview ? "needs-attention" : ""}"><strong>${claimsToReview}</strong><span>Alegações a revisar</span></button>
+      </div>
+      <div class="snapshot-next">
+        <div><p class="eyebrow">Próxima ação sugerida</p><p>${overdue ? `${overdue} pedido(s) com prazo vencido precisam de acompanhamento.` : gaps ? "Revise as lacunas e decida qual evidência buscar primeiro." : claimsToReview ? "Confira a sustentação das alegações antes de avançar." : "Registre uma descoberta ou revise o material já reunido."}</p></div>
+        <button type="button" class="button secondary" data-action="tab" data-tab="${overdue ? "requests" : gaps ? "plan" : claimsToReview ? "claims" : "overview"}">Abrir etapa →</button>
+      </div>
+    </section>`;
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
-    <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
-    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label class="button secondary" for="original-attachment-file">Anexar original (até 20 MB)</label><input id="original-attachment-file" type="file" class="visually-hidden" data-role="original-attachment-file"><span class="muted">Anexos ficam apenas neste navegador e não entram automaticamente no backup JSON.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    ${overviewStatus}\n    <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label class="button secondary" for="original-attachment-file">Anexar original (até 20 MB)</label><input id="original-attachment-file" type="file" class="visually-hidden" data-role="original-attachment-file"><span class="muted">Arquivos originais são armazenados apenas neste navegador. O backup JSON não inclui os arquivos: mantenha cópias externas dos originais.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
     ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
-      <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
-      <button class="button secondary" data-action="tab" data-tab="requests">${words[3]}</button>
-      <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
-      <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
+      <a class="button" href="#workspace-plan">${words[2]}</a>
+      <a class="button secondary" href="#workspace-requests">${words[3]}</a>
+      <a class="button secondary" href="#workspace-editorial">${words[4]}</a>
+      <a class="button secondary" href="#workspace-story">${words[5]}</a>
     </div><p class="muted">${words[7]}</p></section>
-    ${renderIntelligenceOverview(item)}
+    <section class="unified-workspace" aria-label="Ferramentas da investigação">
+      <div class="unified-workspace-heading"><p class="eyebrow">Espaço de trabalho</p><h2>Tudo em um lugar</h2><p>Abra uma área para trabalhar. Os registros continuam associados a esta investigação.</p></div>
+      <details class="workspace-module workspace-map-module" id="workspace-map"><summary><span><strong>Mapa da investigação</strong><small>Explore hipóteses, fontes, evidências e lacunas conectadas</small></span></summary><div class="workspace-module-body">${renderEvidenceMap(item)}</div></details>
+      <details class="workspace-module" id="workspace-evidence"><summary><span><strong>Evidências e alegações</strong><small>O que sustenta cada afirmação</small></span><span class="module-count">${(item.claims || []).length}</span></summary><div class="workspace-module-body">${renderClaims(item)}</div></details>
+      <details class="workspace-module" id="workspace-plan"><summary><span><strong>Hipóteses e planejamento</strong><small>Organize perguntas, lacunas e próximos passos</small></span><span class="module-count">${gaps}</span></summary><div class="workspace-module-body">${renderPlanningWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-requests"><summary><span><strong>Pedidos e respostas</strong><small>Acompanhe solicitações e prazos</small></span><span class="module-count">${overdue ? overdue + " atrasados" : "Abrir"}</span></summary><div class="workspace-module-body">${renderRequestsWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-context"><summary><span><strong>Contexto e fontes</strong><small>Reúna o que já se sabe</small></span></summary><div class="workspace-module-body">${renderContextWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-editorial"><summary><span><strong>Decisões editoriais</strong><small>Revisões, limites e pendências</small></span></summary><div class="workspace-module-body">${renderEditorialWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-story"><summary><span><strong>Reportagem e publicação</strong><small>Construa o texto a partir da apuração</small></span></summary><div class="workspace-module-body">${renderStoryWorkspace(item)}</div></details>
+      <details class="workspace-module" id="workspace-method"><summary><span><strong>Metodologia e revisão</strong><small>Transparência, verificação e QA</small></span></summary><div class="workspace-module-body">${renderMethodology(item)}${renderQaChecklist(item)}</div></details>
+    </section>
     <details class="advanced-investigation"><summary>${words[6]}</summary>${renderDetailedOverview(item)}</details>`;
 }
 
@@ -5237,85 +5234,78 @@ function renderLanguagePlan(item) {
 function renderReportingMap(item) {
   const evidenceBlocks = item.evidenceBlocks || [];
   const sources = item.sources || [];
-  const rows = (item.hypotheses || []).map((hypothesis, index) => {
-    const evidence = evidenceBlocks[index] || evidenceBlocks.find((block) => hypothesis.evidence?.includes(block.type)) || evidenceBlocks[0];
-    const source =
-      sources.find((entry) => hypothesis.evidence?.toLowerCase().includes(entry.name.toLowerCase())) ||
-      sources.find((entry) => evidence?.type && entry.use?.toLowerCase().includes(evidence.type.toLowerCase())) ||
-      sources[index % Math.max(sources.length, 1)];
-
+  const safe = value => escapeHtml(String(value ?? ""));
+  const normalized = value => String(value ?? "").trim().toLocaleLowerCase();
+  const rows = (item.hypotheses || []).map(hypothesis => {
+    const reference = normalized(hypothesis.evidence);
+    // Only display a link when the reporter's reference explicitly names the source
+    // or evidence block. Position in a list is not a documentary relationship.
+    const evidence = reference
+      ? evidenceBlocks.find(block => normalized(block.type) && reference.includes(normalized(block.type)))
+      : null;
+    const source = reference
+      ? sources.find(entry => normalized(entry.name) && reference.includes(normalized(entry.name)))
+      : null;
     return { hypothesis, evidence, source };
   });
-
   return `
     <section class="content-header">
       <p class="eyebrow">${t("reportingMapTitle")}</p>
       <h2>${t("reportingMapHeading")}</h2>
       <p>${t("reportingMapCopy")}</p>
     </section>
+    <p class="muted">Vínculos mostrados somente quando a referência da hipótese menciona explicitamente o material ou a fonte cadastrada. A correspondência textual não confirma a evidência.</p>
     <div class="reporting-map">
-      ${rows
-        .map(
-          ({ hypothesis, evidence, source }, index) => `
-            <article class="reporting-path">
-              <div class="path-index">${index + 1}</div>
-              <section class="path-card hypothesis-card">
-                <p class="eyebrow">${t("hypotheses")}</p>
-                <h3>${hypothesis.text}</h3>
-                <span class="pill ${statusClass(hypothesis.status)}">${hypothesis.status}</span>
-              </section>
-              <section class="path-card">
-                <p class="eyebrow">${t("evidencePath")}</p>
-                <h3>${evidence?.type || hypothesis.evidence || t("notSet")}</h3>
-                <p>${hypothesis.evidence}</p>
-                <div class="pill-row">
-                  <span class="pill ${statusClass(evidence?.priority || "")}">${evidence?.priority || t("priorityPrefix")}</span>
-                  <span class="pill ${statusClass(evidence?.status || "")}">${evidence?.status || t("reviewRecommended")}</span>
-                </div>
-              </section>
-              <section class="path-card source-path">
-                <p class="eyebrow">${t("sourcePath")}</p>
-                <h3>${source?.name || t("notSet")}</h3>
-                <p>${source?.use || t("reviewLog")}</p>
-                <p class="muted">${t("limits")}: ${source?.limits || t("notSet")}</p>
-              </section>
-            </article>
-          `,
-        )
-        .join("") || `<section class="empty-state"><h3>${t("reportingMapTitle")}</h3><p>${t("workflowPlanCopy")}</p></section>`}
-    </div>
-  `;
+      ${rows.map(({ hypothesis, evidence, source }, index) => `
+        <article class="reporting-path">
+          <div class="path-index">${index + 1}</div>
+          <section class="path-card hypothesis-card">
+            <p class="eyebrow">${t("hypotheses")}</p>
+            <h3>${safe(hypothesis.text)}</h3>
+            <span class="pill ${statusClass(hypothesis.status)}">${safe(hypothesis.status)}</span>
+          </section>
+          <section class="path-card">
+            <p class="eyebrow">${t("evidencePath")}</p>
+            <h3>${safe(evidence?.type || hypothesis.evidence || t("notSet"))}</h3>
+            <p>${safe(hypothesis.evidence)}</p>
+            <div class="pill-row">
+              ${evidence ? `<span class="pill ${statusClass(evidence.priority)}">${safe(evidence.priority || t("priorityPrefix"))}</span><span class="pill ${statusClass(evidence.status)}">${safe(evidence.status || t("reviewRecommended"))}</span>` : '<span class="pill neutral">Bloco não vinculado</span>'}
+            </div>
+          </section>
+          <section class="path-card source-path">
+            <p class="eyebrow">${t("sourcePath")}</p>
+            <h3>${safe(source?.name || t("notSet"))}</h3>
+            <p>${safe(source?.use || (source ? t("reviewLog") : "Fonte não vinculada"))}</p>
+            ${source ? `<p class="muted">${t("limits")}: ${safe(source.limits || t("notSet"))}</p>` : ""}
+          </section>
+        </article>`).join("") || `<section class="empty-state"><h3>${t("reportingMapTitle")}</h3><p>${t("workflowPlanCopy")}</p></section>`}
+    </div>`;
 }
 
 function renderEvidenceInventory(item) {
-  const linkedEvidence = new Set((item.hypotheses || []).map((hypothesis) => hypothesis.evidence).filter(Boolean));
-
+  const references = (item.hypotheses || []).map(hypothesis => String(hypothesis.evidence || "").trim().toLocaleLowerCase()).filter(Boolean);
+  const safe = value => escapeHtml(String(value ?? ""));
   return `
     <section class="content-header process-header">
       <p class="eyebrow">${t("evidenceInventoryTitle")}</p>
       <h2>${t("evidenceInventoryHeading")}</h2>
+      <p class="muted">Cobertura indica apenas que uma hipótese cita o bloco pelo nome. Não comprova autenticidade nem suficiência documental.</p>
     </section>
     <div class="evidence-inventory">
-      ${(item.evidenceBlocks || [])
-        .map((block) => {
-          const isLinked = [...linkedEvidence].some((evidence) => evidence.toLowerCase().includes(block.type.toLowerCase()));
-          return `
-            <article class="evidence-chip-card">
-              <div>
-                <p class="eyebrow">${t("block")}</p>
-                <h3>${block.type}</h3>
-              </div>
-              <div class="pill-row">
-                <span class="pill ${statusClass(block.priority)}">${block.priority}</span>
-                <span class="pill ${statusClass(block.status)}">${block.status}</span>
-                <span class="pill ${isLinked ? "success" : "warning"}">${t("evidenceCoverage")}: ${isLinked ? t("readinessReady") : t("readinessReview")}</span>
-              </div>
-            </article>
-          `;
-        })
-        .join("") || `<section class="empty-state compact-empty"><p>${t("workflowPlanCopy")}</p></section>`}
-    </div>
-  `;
+      ${(item.evidenceBlocks || []).map(block => {
+        const name = String(block.type || "").trim().toLocaleLowerCase();
+        const isLinked = Boolean(name) && references.some(reference => reference.includes(name));
+        return `
+          <article class="evidence-chip-card">
+            <div><p class="eyebrow">${t("block")}</p><h3>${safe(block.type)}</h3></div>
+            <div class="pill-row">
+              <span class="pill ${statusClass(block.priority)}">${safe(block.priority)}</span>
+              <span class="pill ${statusClass(block.status)}">${safe(block.status)}</span>
+              <span class="pill ${isLinked ? "success" : "warning"}">${t("evidenceCoverage")}: ${isLinked ? "Referenciado" : "Sem referência"}</span>
+            </div>
+          </article>`;
+      }).join("") || `<section class="empty-state compact-empty"><p>${t("workflowPlanCopy")}</p></section>`}
+    </div>`;
 }
 
 function renderSources(item) {
@@ -5998,28 +5988,28 @@ function renderClaims(item) {
     ${renderClaimDecisionBoard(item)}
     ${renderRobustnessSimulator(item)}
     ${renderSourceDependence(item)}
-    <section class="content-header">
-      <p class="eyebrow">${t("claimMatrixTitle")}</p>
-      <h2>${t("claimMatrixHeading")}</h2>
-    </section>
-    <div class="claim-matrix-cards">
-      ${item.claims
-        .map(
-          (claim) => `
-            <article class="claim-mini-card">
-              <h3>${claim.text}</h3>
+    <section class="evidence-reading-view" aria-label="Leitura das alegações e evidências">
+      <div class="evidence-reading-head">
+        <div><p class="eyebrow">Leitura de evidências</p><h3>O que podemos afirmar?</h3></div>
+        <p class="muted">As classificações são registros editoriais; não equivalem a verificação automática.</p>
+      </div>
+      <div class="evidence-reading-list">
+        ${(item.claims || []).map((claim, index) => `
+          <article class="evidence-reading-card">
+            <div class="evidence-reading-number" aria-hidden="true">${String(index + 1).padStart(2, "0")}</div>
+            <div class="evidence-reading-body">
+              <h4>${escapeHtml(String(claim.text || "Alegação sem descrição"))}</h4>
               <div class="pill-row">
-                <span class="pill neutral">${claim.type}</span>
-                <span class="pill ${statusClass(claim.relation)}">${claim.relation || "-"}</span>
-                <span class="pill ${statusClass(claim.strength)}">${claim.strength}</span>
-                <span class="pill ${statusClass(claim.risk)}">${claim.risk}</span>
+                <span class="pill neutral">${escapeHtml(String(claim.type || "Tipo não informado"))}</span>
+                <span class="pill ${statusClass(claim.relation)}">${escapeHtml(String(claim.relation || "Relação não informada"))}</span>
+                <span class="pill ${statusClass(claim.strength)}">${escapeHtml(String(claim.strength || "Força não informada"))}</span>
+                <span class="pill ${statusClass(claim.risk)}">${escapeHtml(String(claim.risk || "Risco não informado"))}</span>
               </div>
-              <p class="muted">${claim.evidence}</p>
-            </article>
-          `,
-        )
-        .join("")}
-    </div>
+              <div class="evidence-reading-source"><span>Base registrada</span><p>${escapeHtml(String(claim.evidence || "Ainda não há evidência descrita."))}</p></div>
+            </div>
+          </article>`).join("") || '<p class="muted">Nenhuma alegação registrada. Adicione uma para começar a análise.</p>'}
+      </div>
+    </section>
   `;
 }
 
@@ -6929,6 +6919,19 @@ function bindActions() {
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (error) { window.alert('Não foi possível abrir o anexo: ' + error.message); }
   }));
+  // Dashboard shortcuts reveal the relevant module instead of switching pages.
+  const dashboardModules = { plan: "workspace-plan", claims: "workspace-evidence", requests: "workspace-requests", context: "workspace-context", editorial: "workspace-editorial", story: "workspace-story", methodology: "workspace-method", qa: "workspace-method" };
+  document.querySelectorAll('.investigation-snapshot [data-action="tab"], .capture-actions a[href^="#workspace-"]').forEach(control => {
+    control.addEventListener("click", event => {
+      const id = control.dataset.tab ? dashboardModules[control.dataset.tab] : control.getAttribute("href")?.slice(1);
+      const target = id && document.getElementById(id);
+      if (!target) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      target.open = true;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, { capture: true });
+  });
   bindQuickNotes();
   bindQuickNoteImport();
   bindNoteClassification();
