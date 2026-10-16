@@ -7,7 +7,7 @@ on:
       - 'investigation-*.mjs'
       - 'tests/investigation-*.test.mjs'
       - 'local-attachments.mjs'
-      - 'tests/local-attachments.test.mjs'
+      - 'tests/local-attachments*.test.mjs'
       - 'app.js'
       - 'styles.css'
 jobs:
