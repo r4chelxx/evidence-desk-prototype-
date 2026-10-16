@@ -3066,3 +3066,24 @@ button:disabled {
 .evidence-reading-source > span { font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;opacity:.7; }
 .evidence-reading-source p { margin:.4rem 0 0;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere; }
 @media(max-width:600px) { .evidence-reading-head { align-items:start;flex-direction:column;gap:.4rem; } .evidence-reading-card { grid-template-columns:1fr;gap:.3rem;padding:1rem; } .evidence-reading-number { font-size:.85rem; } }
+
+/* Simpler navigation: three primary destinations, advanced tools on demand. */
+.workspace-primary-nav { display:grid;gap:.4rem;margin:1.2rem 0 .85rem; }
+.workspace-primary-tab { width:100%;padding:.85rem 1rem;text-align:left;border:1px solid transparent;border-radius:12px;background:transparent;color:inherit;font-weight:650;cursor:pointer; }
+.workspace-primary-tab:hover { background:#f1f5f2; }
+.workspace-primary-tab.active { background:#e1eee8;border-color:#c9dfd4;color:#174b45; }
+.workspace-more { border-top:1px solid #e0e8e2;padding-top:.8rem; }
+.workspace-more summary { cursor:pointer;padding:.65rem .5rem;font-weight:650;font-size:.85rem; }
+.workspace-secondary-nav { display:grid;gap:.25rem;padding:.5rem 0; }
+.workspace-secondary-tab { border:0;background:transparent;text-align:left;padding:.7rem 1rem;border-radius:10px;color:inherit;cursor:pointer;font-size:.9rem; }
+.workspace-secondary-tab:hover,.workspace-secondary-tab.active { background:#f1f5f2; }
+.workspace-secondary-tab.active { font-weight:750;color:#174b45; }
+@media(max-width:900px) {
+ .workspace-primary-nav { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin:.8rem 0; }
+ .workspace-primary-tab { text-align:center;padding:.75rem .35rem;font-size:.85rem;min-height:44px; }
+ .workspace-more { border-top:0;padding:0; }
+ .workspace-more summary { padding:.55rem .3rem; }
+ .workspace-secondary-nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .workspace-secondary-tab { min-height:42px; }
+}
+@media(max-width:420px) { .workspace-primary-tab { font-size:.78rem; } }
