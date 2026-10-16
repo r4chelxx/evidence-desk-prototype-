@@ -5992,10 +5992,6 @@ function renderClaims(item) {
     ${renderClaimDecisionBoard(item)}
     ${renderRobustnessSimulator(item)}
     ${renderSourceDependence(item)}
-    <section class="content-header">
-      <p class="eyebrow">${t("claimMatrixTitle")}</p>
-      <h2>${t("claimMatrixHeading")}</h2>
-    </section>
     <section class="evidence-reading-view" aria-label="Leitura das alegações e evidências">
       <div class="evidence-reading-head">
         <div><p class="eyebrow">Leitura de evidências</p><h3>O que podemos afirmar?</h3></div>
