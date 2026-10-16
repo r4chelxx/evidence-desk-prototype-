@@ -3343,24 +3343,15 @@ function renderInvestigation() {
     state.currentTab = "overview";
   }
 
-  const nav = tabGroups
-    .map(
-      (group) => `
-        <section class="tab-group">
-          <p>${group.label}</p>
-          ${group.tabs
-            .map(
-              ([id, label]) => `
-                <button class="tab ${state.currentTab === id ? "active" : ""}" data-action="tab" data-tab="${id}">
-                  ${label}
-                </button>
-              `,
-            )
-            .join("")}
-        </section>
-      `,
-    )
-    .join("");
+  const primaryTabs = [["overview", "Investigar"], ["claims", "Evidências"], ["story", "Reportagem"]];
+  const secondaryTabs = tabs.filter(([id]) => !primaryTabs.some(([primaryId]) => primaryId === id));
+  const currentLabel = tabs.find(([id]) => id === state.currentTab)?.[1] || "Investigar";
+  const primaryNav = primaryTabs.map(([id, label]) => `
+    <button class="workspace-primary-tab ${state.currentTab === id ? "active" : ""}" type="button" data-action="tab" data-tab="${id}" ${state.currentTab === id ? 'aria-current="page"' : ""}>${label}</button>
+  `).join("");
+  const secondaryNav = secondaryTabs.map(([id, label]) => `
+    <button class="workspace-secondary-tab ${state.currentTab === id ? "active" : ""}" type="button" data-action="tab" data-tab="${id}">${label}</button>
+  `).join("");
 
   renderShell(`
     <main class="workspace">
@@ -3371,14 +3362,14 @@ function renderInvestigation() {
           <h1>${item.title}</h1>
           <span class="pill ${statusClass(item.status)}">${item.status}</span>
         </div>
-        ${state.currentTab === 'overview' ? '' : renderTabGuide()}
-        <p class="workspace-nav-hint">Navegue por objetivo. Cada etapa mantém os registros e decisões da investigação.</p>
-        <nav class="tabs" aria-label="Áreas da investigação">${nav}</nav>
+        <nav class="workspace-primary-nav" aria-label="Navegação principal">${primaryNav}</nav>
+        <details class="workspace-more" ${secondaryTabs.some(([id]) => id === state.currentTab) ? "open" : ""}>
+          <summary>Mais ferramentas ${secondaryTabs.some(([id]) => id === state.currentTab) ? `· ${currentLabel}` : ""}</summary>
+          <div class="workspace-secondary-nav">${secondaryNav}</div>
+        </details>
       </aside>
       <section class="content">
-        ${state.currentTab === 'overview' ? '' : renderDesktopTestRail(item, tabs)}
-        ${state.currentTab === 'overview' ? '' : renderMobileTabContext()}
-        ${state.currentTab === 'overview' ? '' : renderMobileFocusCard(item)}
+
         ${renderTab(item)}
       </section>
     </main>
