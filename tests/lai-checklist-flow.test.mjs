@@ -172,3 +172,16 @@ test('actual checklist renderer escapes copied originals and isolates invalid ch
   assert.doesNotMatch(html,/<script>/);
   assert.match(context.renderLaiItemChecklist({},{itemChecklist:[{}]},0),/não pôde ser lido/);
 });
+
+test('request item text remains inert when shown in the transparency diary', () => {
+ const a=source.indexOf('function renderTransparencyLog(item) {');
+ const b=source.indexOf('\nfunction ',a+1);
+ const escStart=source.indexOf('function escapeHtml(');
+ const escEnd=source.indexOf('\nfunction ',escStart+1);
+ const context=vm.createContext({renderTransparencyAddForm:()=>'',t:key=>key,statusClass:()=> 'neutral'});
+ vm.runInContext(source.slice(escStart,escEnd)+'\n'+source.slice(a,b),context);
+ const unsafe='<img src=x onerror=alert(1)>';
+ context.item={transparencyLog:[{date:unsafe,actor:unsafe,event:unsafe,status:unsafe,nextStep:unsafe}]};
+ const html=vm.runInContext('renderTransparencyLog(item)',context);
+ assert.ok(!html.includes('<img')); assert.ok(html.includes('&lt;img'));
+});

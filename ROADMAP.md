@@ -217,5 +217,7 @@ A migração aqui cobre o envelope local; não é uma migração completa de tod
 - Marcar atendido exige trecho, referência ou nota de conferência. Nada vira evidência ou afirmação sustentada automaticamente.
 - Item parcial/ausente/negado pode virar lacuna por ação explícita. Encerramento também é explícito após conferência como atendido. As ações entram no diário de transparência.
 - Falha de gravação reverte o registro em memória e mantém o formulário. Acompanhar/encerrar exige salvar alterações do item primeiro.
-- 97 testes automatizados locais aprovados, incluindo fluxos reais de interface em ambiente simulado, persistência de rascunho, rollback e proteção de preenchimento.
+- 98 testes automatizados locais aprovados, incluindo fluxos reais de interface em ambiente simulado, persistência de rascunho, rollback e proteção de preenchimento.
 - **Ainda parcial:** detector de silêncios completo (comparação automática de anexos/períodos/versões e rascunhos de recurso), investigação reversa, retirada de fonte inteira no simulador, radar priorizado e demais frentes do roadmap mestre permanecem pendentes.
+
+- Conferência adicional: textos do checklist são exibidos como texto no diário, sem interpretar marcação HTML de documentos.

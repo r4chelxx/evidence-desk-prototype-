@@ -5589,12 +5589,12 @@ function renderTransparencyLog(item) {
             <article class="panel timeline-card">
               <div class="card-footer top">
                 <div>
-                  <p class="eyebrow">${event.date} / ${event.actor}</p>
-                  <h3>${event.event}</h3>
+                  <p class="eyebrow">${escapeHtml(String(event.date || ''))} / ${escapeHtml(String(event.actor || ''))}</p>
+                  <h3>${escapeHtml(String(event.event || ''))}</h3>
                 </div>
-                <span class="pill ${statusClass(event.status)}">${event.status}</span>
+                <span class="pill ${statusClass(event.status)}">${escapeHtml(String(event.status || ''))}</span>
               </div>
-              <p><strong>${t("nextStep")}:</strong> ${event.nextStep}</p>
+              <p><strong>${t("nextStep")}:</strong> ${escapeHtml(String(event.nextStep || ''))}</p>
             </article>
           `,
         )
