@@ -1,3 +1,5 @@
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs";
+import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs";
 import { validateInvestigationImport } from "./investigation-import.mjs";
 import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
@@ -42,25 +44,11 @@ function removeLocalStorage(key) {
   }
 }
 
-function loadInvestigations() {
-  try {
-    const stored = readLocalStorage(STORAGE_KEY);
-    // Seed data is used only on first launch. Saved investigations are authoritative:
-    // never overwrite, reinsert, or silently migrate reporter-edited records.
-    if (stored === null || stored === undefined) return clone(seedInvestigations);
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed)) {
-      console.warn("Saved investigations have an unexpected format; preserving the original storage value.");
-      return [];
-    }
-    return parsed;
-  } catch (error) {
-    console.warn("Could not load saved investigations; original storage has not been modified", error);
-    return [];
-  }
+function investigationStorage() {
+  try { return window.localStorage; } catch { return null; }
 }
-
-let investigations = loadInvestigations();
+let storeState = loadInvestigationStore(investigationStorage(), STORAGE_KEY, seedInvestigations);
+let investigations = storeState.investigations;
 
 function loadUiState() {
   try {
@@ -208,7 +196,7 @@ const dictionary = {
     heroEyebrow: "MVP v0.1",
     heroTitle: "Transforme perguntas investigativas em evidências, lacunas e afirmações publicáveis.",
     heroCopy:
-      "Este protótipo estático testa o fluxo central antes de backend, login ou IA: mapear evidências, acompanhar pedidos, comparar respostas e ligar afirmações a provas.",
+      "Organize materiais, acompanhe pedidos e revise afirmações em uma investigação. Os dados ficam neste navegador; a análise assistida de LAI é opcional e depende da conexão ao serviço.",
     prototypeGoal: "Objetivo do protótipo",
     prototypeGoalText: "Validar se o método ajuda jornalistas a trabalhar com menos caos.",
     investigations: "Investigações",
@@ -383,7 +371,7 @@ const dictionary = {
     exportJson: "Exportar JSON",
     exportedJson: "JSON exportado",
     importJson: "Importar JSON",
-    resetLocalData: "Restaurar exemplos",
+    resetLocalData: "Adicionar exemplos",
     localSaveNote: "Salvo neste navegador",
     importedJson: "JSON importado",
     importJsonError: "Não foi possível importar este JSON.",
@@ -816,7 +804,7 @@ const dictionary = {
     heroEyebrow: "MVP v0.1",
     heroTitle: "Turn investigative questions into evidence, gaps and publishable claims.",
     heroCopy:
-      "This static prototype tests the core workflow before backend, login or AI: map evidence, track requests, compare responses and link claims to proof.",
+      "Organize materials, track requests and review claims within an investigation. Data stays in this browser; assisted records-request analysis is optional and requires a service connection.",
     prototypeGoal: "Prototype goal",
     prototypeGoalText: "Validate whether the method helps journalists work with less chaos.",
     investigations: "Investigations",
@@ -1426,7 +1414,7 @@ dictionary.es = {
   goDashboard: "Volver al panel",
   heroTitle: "Convierte preguntas investigativas en evidências, vacios y afirmaciones públicables.",
   heroCopy:
-    "Este protótipo estático prueba el flujo central antes de backend, login o IA: mapear evidências, seguir solicitudes, comparar respuestas y vincular afirmaciones a pruebas.",
+    "Organiza materiales, sigue solicitudes y revisa afirmaciones dentro de una investigación. Los datos quedan en este navegador; el análisis asistido es opcional y requiere conexión al servicio.",
   prototypeGoal: "Objetivo del protótipo",
   prototypeGoalText: "Validar si el metodo ayuda a periodistas a trabajar con menos caos.",
   investigations: "Investigaciones",
@@ -1594,7 +1582,7 @@ dictionary.es = {
   exportJson: "Exportar JSON",
   exportedJson: "JSON exportado",
   importJson: "Importar JSON",
-  resetLocalData: "Restaurar ejemplos",
+  resetLocalData: "Añadir ejemplos",
   localSaveNote: "Guardado en este navegador",
   importedJson: "JSON importado",
   importJsonError: "No fue posible importar este JSON.",
@@ -2080,7 +2068,10 @@ function getCurrentInvestigation() {
 }
 
 function saveInvestigations() {
-  const saved = writeLocalStorage(STORAGE_KEY, JSON.stringify(investigations));
+  const result = saveInvestigationStore(investigationStorage(), STORAGE_KEY, investigations);
+  const saved = result.saved;
+  if (saved && typeof document !== 'undefined') document.getElementById('storage-warning')?.remove();
+  if (result.blocked) storeState = { ...storeState, blocked: true, error: result.error };
   if (!saved && typeof document !== 'undefined') {
     const existing = document.getElementById('storage-warning');
     if (!existing) {
@@ -2126,12 +2117,13 @@ function resetDraft() {
 }
 
 function resetLocalInvestigations() {
-  investigations = clone(seedInvestigations);
-  removeLocalStorage(STORAGE_KEY);
-  state.currentId = investigations[0].id;
-  state.currentTab = "overview";
-  state.view = "dashboard";
-  saveUiState();
+  if (storeState.blocked) return;
+  const next = [...investigations, ...clone(seedInvestigations).filter(seed => !investigations.some(item => item.id === seed.id))];
+  const result = saveInvestigationStore(investigationStorage(), STORAGE_KEY, next);
+  if (!result.saved) { window.alert('Não foi possível adicionar os exemplos. Seus casos foram preservados.'); return; }
+  investigations = next;
+  state.currentId = investigations[0]?.id || null;
+  state.currentTab = 'overview'; state.view = 'dashboard'; saveUiState();
 }
 
 function todayIsoDate() {
@@ -2866,6 +2858,7 @@ function renderShell(content) {
       </div>
     </header>
     ${renderDatalists()}
+    ${storeState.blocked ? `<section class="storage-warning" role="alert"><h2>Dados preservados — recuperação necessária</h2><p>Não foi possível abrir os dados salvos. O conteúdo original foi preservado e não será substituído por novos casos.</p><p>${escapeHtml(String(storeState.error?.message || 'Armazenamento indisponível.'))}</p><div class="button-row"><button class="button secondary" data-action="download-storage-original">Baixar dados originais</button>${storeState.recoveryAvailable ? '<button class="button" data-action="recover-storage">Recuperar cópia anterior</button>' : ''}</div></section>` : ''}
     ${content}
   `;
   bindActions();
@@ -3133,7 +3126,7 @@ function renderDashboard() {
         </div>
         <div class="button-row">
           <button class="button secondary active-secondary" data-action="import-json">${t("importJson")}</button>
-          <button class="button secondary" data-action="reset-local-data">${t("resetLocalData")}</button>
+          <button class="button secondary" data-action="reset-local-data" ${storeState.blocked ? "disabled" : ""}>${t("resetLocalData")}</button>
           <button class="button secondary active-secondary" data-action="new-investigation">${t("newInvestigation")}</button>
           <input class="visually-hidden" type="file" accept="application/json,.json" data-role="json-import">
         </div>
@@ -4363,8 +4356,8 @@ function renderOverview(item) {
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
-    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" required placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label class="button secondary" for="original-attachment-file">Anexar original (até 20 MB)</label><input id="original-attachment-file" type="file" class="visually-hidden" data-role="original-attachment-file"><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save note" : locale === "es" ? "Guardar nota" : "Salvar nota"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
-    ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label for="original-attachment-file">Original (até 20 MB)</label><input id="original-attachment-file" type="file" data-role="original-attachment-file"><span data-role="attachment-notice" role="status" aria-live="polite"></span><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save material" : locale === "es" ? "Guardar material" : "Salvar material"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.attachmentId ? `<p class="muted">Original: ${escapeHtml(String(note.originalAttachment?.name || 'Arquivo vinculado'))}</p>${note.attachmentStatus === 'missing' ? '<p role="status">Original ausente nesta cópia. Consulte o backup completo.</p>' : `<button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(note.attachmentId))}">Abrir original vinculado</button>`}${note.originalAttachment?.sha256 ? `<details><summary>Identificação do original</summary><p class="file-checksum">SHA-256: ${escapeHtml(note.originalAttachment.sha256)}</p><p>Entrada: ${escapeHtml(String(note.originalAttachment.createdAt || note.createdAt))} · Registro v${Number(note.version) || 1}</p></details>` : ''}` : ''}${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
       <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
@@ -6878,37 +6871,67 @@ function bindQuickNotes() {
   document.querySelectorAll('[data-role="quick-note"]').forEach(form => form.addEventListener('submit', event => {
     event.preventDefault();
     const input = form.querySelector('textarea[name="note"]');
-    const text = input?.value.trim();
-    if (!text) return;
+    const item = getCurrentInvestigation();
+    const attachment = (item.localAttachments || []).find(entry => entry.id === form.dataset.attachmentId);
+    const text = input?.value.trim() || (attachment ? attachment.name : '');
+    if (!text) { input.setCustomValidity('Escreva uma anotação ou anexe um original.'); input.reportValidity(); input.addEventListener('input', () => input.setCustomValidity(''), {once:true}); return; }
     const materialKind = form.querySelector('[name="materialKind"]')?.value || 'note';
     const materialOrigin = form.querySelector('[name="materialOrigin"]')?.value.trim() || null;
-    const item = getCurrentInvestigation();
     const normalized = text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
-    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized && String(note.materialOrigin || '').trim().toLocaleLowerCase() === String(materialOrigin || '').trim().toLocaleLowerCase() && String(note.materialKind || 'note') === materialKind)) {
+    if ((item.reporterNotes || []).some(note => String(note.text || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase() === normalized && String(note.materialOrigin || '').trim().toLocaleLowerCase() === String(materialOrigin || '').trim().toLocaleLowerCase() && String(note.materialKind || 'note') === materialKind && (note.attachmentId || '') === (attachment?.id || ''))) {
       input.setCustomValidity(state.locale === 'en' ? 'This note is already saved.' : state.locale === 'es' ? 'Esta nota ya está guardada.' : 'Esta anotação já foi salva.');
       input.reportValidity();
       input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
       return;
     }
-    item.reporterNotes = [...(item.reporterNotes || []), { id: 'note-' + Date.now() + '-' + Math.random().toString(36).slice(2,8), createdAt: new Date().toISOString(), text, materialKind, materialOrigin, verificationStatus: 'unverified' }];
-    touchInvestigation(item);
+    const previousNotes = item.reporterNotes || [];
+    item.reporterNotes = [...previousNotes, createMaterialRecord({text, kind:materialKind, origin:materialOrigin, attachment})];
+    item.updatedAt = todayIsoDate();
+    if (!saveInvestigations()) { item.reporterNotes = previousNotes; return; }
     renderInvestigation();
   }));
 }
 
 function bindActions() {
+  document.querySelectorAll('[data-action="download-storage-original"]').forEach(button => button.addEventListener('click', () => {
+    const raw = readLocalStorage(STORAGE_KEY);
+    if (!raw) { window.alert('Os dados originais não estão acessíveis neste navegador.'); return; }
+    const url = URL.createObjectURL(new Blob([raw], { type:'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'evidence-desk-dados-originais.json';
+    document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }));
+  document.querySelectorAll('[data-action="recover-storage"]').forEach(button => button.addEventListener('click', () => {
+    if (!window.confirm('Recuperar a última cópia válida? Ela pode não conter as edições mais recentes. O conteúdo atual será preservado separadamente neste navegador.')) return;
+    const result = recoverInvestigationStore(investigationStorage(), STORAGE_KEY);
+    if (!result.saved) { window.alert('Recuperação não concluída: ' + result.error.message); return; }
+    storeState = loadInvestigationStore(investigationStorage(), STORAGE_KEY, seedInvestigations);
+    investigations = storeState.investigations; state.currentId = investigations[0]?.id || null;
+    state.view = 'dashboard'; saveUiState(); renderDashboard();
+  }));
   document.querySelectorAll('[data-role="original-attachment-file"]').forEach(input => input.addEventListener('change', async () => {
     const file = input.files?.[0];
     if (!file) return;
     const item = getCurrentInvestigation();
+    const form = input.closest('[data-role="quick-note"]');
+    const notice = form.querySelector('[data-role="attachment-notice"]');
+    const submit = form.querySelector('[type="submit"]');
+    input.disabled = true; submit.disabled = true;
+    notice.textContent = 'Preservando original…';
     try {
       const metadata = await storeAttachment(item.id, file);
-      item.localAttachments = [...(item.localAttachments || []), metadata];
-      touchInvestigation(item);
-      renderInvestigation();
+      const previous = item.localAttachments || [];
+      item.localAttachments = [...previous, metadata];
+      if (!saveInvestigations()) {
+        item.localAttachments = previous;
+        await deleteAttachment(metadata.id, item.id);
+        throw new Error('Não foi possível salvar os metadados no navegador. Seu texto foi mantido.');
+      }
+      form.dataset.attachmentId = metadata.id;
+      form.querySelector('textarea[name="note"]').setCustomValidity('');
+      notice.textContent = 'Original preservado: ' + metadata.name + '. Salve o material para vinculá-lo à anotação.';
     } catch (error) {
-      window.alert('Anexo não salvo: ' + error.message);
-    } finally { input.value = ''; }
+      notice.textContent = 'Anexo não salvo: ' + error.message;
+    } finally { input.value = ''; input.disabled = false; submit.disabled = false; }
   }));
   document.querySelectorAll('[data-action="download-local-attachment"]').forEach(button => button.addEventListener('click', async () => {
     const item = getCurrentInvestigation();
@@ -6985,13 +7008,15 @@ function bindActions() {
         importedId = imported.id;
         if (payload.schema === 'evidence-desk-complete-backup-v1') {
           restoredAttachments = await restoreAttachmentBundle(imported.id, payload.attachments);
+          imported.reporterNotes = remapMaterialAttachments(imported.reporterNotes || [], imported.localAttachments || [], restoredAttachments);
           imported.localAttachments = restoredAttachments;
         } else if ((imported.localAttachments || []).length) {
+          imported.reporterNotes = remapMaterialAttachments(imported.reporterNotes || [], imported.localAttachments || [], []);
           imported.localAttachments = [];
           window.alert('O JSON importado não contém os arquivos originais. Os metadados de anexos foram removidos desta cópia para evitar referências inválidas.');
         }
         const nextInvestigations = [imported, ...investigations];
-        if (!writeLocalStorage(STORAGE_KEY, JSON.stringify(nextInvestigations))) {
+        if (!saveInvestigationStore(investigationStorage(), STORAGE_KEY, nextInvestigations).saved) {
           throw new Error('Não há espaço para salvar a importação neste navegador. Os casos existentes foram preservados.');
         }
         investigations = nextInvestigations;

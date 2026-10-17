@@ -1,7 +1,7 @@
 // Validate portable investigations before touching browser storage or attachments.
 const schemas = new Set(['evidence-desk-investigation-v0.1', 'evidence-desk-complete-backup-v1']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'methodRules'];
+const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'reporterNotes', 'methodRules'];
 export function validateInvestigationImport(payload, defaults = {}) {
   if (!object(payload)) throw new Error('O arquivo deve conter uma investigação.');
   if ('schema' in payload && !schemas.has(payload.schema)) throw new Error('Versão de backup não reconhecida.');

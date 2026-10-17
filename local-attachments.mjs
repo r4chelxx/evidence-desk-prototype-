@@ -70,7 +70,7 @@ export async function exportAttachmentBundle(investigationId, metadata = []) {
     const bytes = new Uint8Array(buffer);
     let binary = '';
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
-    files.push({ name: record.name, type: record.type, size: record.size, createdAt: record.createdAt, lastModified: record.lastModified, sha256, base64: btoa(binary) });
+    files.push({ originalId: record.id, name: record.name, type: record.type, size: record.size, createdAt: record.createdAt, lastModified: record.lastModified, sha256, base64: btoa(binary) });
   }
   return files;
 }
@@ -87,7 +87,8 @@ export async function restoreAttachmentBundle(investigationId, files = []) {
       if (bytes.length !== file.size) throw new Error('Tamanho do anexo não corresponde ao backup: ' + file.name);
       const blob = new File([bytes], file.name, { type: file.type || 'application/octet-stream', ...(Number.isFinite(file.lastModified) ? {lastModified: file.lastModified} : {}) });
       if (file.sha256 && file.sha256 !== await checksum(blob)) throw new Error('Integridade do anexo não corresponde ao backup: ' + file.name);
-      restored.push(await storeAttachment(investigationId, blob));
+      const metadata = await storeAttachment(investigationId, blob);
+      restored.push({ ...metadata, ...(typeof file.originalId === 'string' ? { originalId: file.originalId } : {}), ...(typeof file.createdAt === 'string' ? { originalCreatedAt: file.createdAt } : {}) });
     }
     return restored;
   } catch (error) {

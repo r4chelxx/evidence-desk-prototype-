@@ -60,3 +60,24 @@ Testar integridade e vínculos → motor puro e testes do simulador → UI conte
 - Importação aceita o formato legado e os dois esquemas existentes, rejeita versões desconhecidas e formatos incompatíveis antes de salvar. Mantém campos de extensão e completa campos opcionais conhecidos.
 - Se o navegador não conseguir salvar uma importação, os casos existentes permanecem e os anexos dessa tentativa são removidos.
 - Validação visual e testes manuais completos de recuperação no navegador continuam pendentes; esquema/migrações de todo o armazenamento ainda não estão concluídos.
+
+## Continuação em paralelo — 17/10/2026
+
+### Integrado nesta rodada
+- [x] Envelope versionado do armazenamento local, aceitando listas legadas sem substituir os dados por exemplos. A primeira gravação válida migra o envelope sem alterar os casos.
+- [x] Bloqueio de gravação quando o armazenamento existente está corrompido ou usa versão desconhecida. Aviso persistente com download dos dados originais.
+- [x] Cópia local anterior válida, quando houver espaço; recuperação explícita preserva o conteúdo substituído. Não é backup externo, contínuo ou garantido contra limpeza do navegador.
+- [x] “Adicionar exemplos” preserva os casos existentes em vez de apagar o armazenamento.
+- [x] Captura de material com texto e/ou original, vínculo ao arquivo, versão, data, SHA-256 e estado não verificado. Anexar preserva o texto ainda não salvo.
+- [x] Restauração de backup completo remapeia vínculos para os novos IDs locais. JSON sem bytes apresenta o original vinculado como ausente.
+- [x] Testes dos fluxos de captura, falha de gravação, recuperação, legado e integridade: 68 testes locais aprovados.
+
+### Próximas entregas preservadas
+1. Rascunho persistente da entrada de materiais e proteção contra sair com texto não salvo.
+2. Checklist de LAI por item, conectado à lacuna e à afirmação, com procedência.
+3. Tela contextual da afirmação e explicação das mudanças após novo material.
+4. Fila limitada de sugestões e memória de rejeições.
+5. Revisão da navegação para quatro destinos e validação móvel, sem considerar a organização atual concluída.
+6. Exportação cifrada e sinalização de dados sensíveis.
+
+A migração aqui cobre o envelope local; não é uma migração completa de todos os modelos do roadmap. Recuperação automática externa, OCR local, colaboração e testes com jornalistas continuam pendentes.

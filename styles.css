@@ -3000,3 +3000,7 @@ button:disabled {
 .create-optional .form-grid {margin-top:.5rem;}
 
 .storage-warning {position:sticky;top:0;z-index:9999;padding:.8rem 1rem;background:#fff3d6;color:#5d3900;border-bottom:2px solid #b7791f;font-weight:600;text-align:center;}
+
+.file-checksum { overflow-wrap: anywhere; font-size: .85rem; }
+.quick-note-actions input[type="file"] { max-width: 100%; }
+.storage-warning .button-row { flex-wrap: wrap; }
