@@ -1,4 +1,5 @@
-import { storeAttachment, readAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
+import { validateInvestigationImport } from "./investigation-import.mjs";
+import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
 import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
@@ -2532,24 +2533,19 @@ function addClaimToCurrent() {
 }
 
 function normalizeImportedInvestigation(payload) {
-  const item = payload?.investigation || payload;
-  if (!item || typeof item !== "object") throw new Error("Invalid investigation payload");
-  if (!item.title || !item.country || !item.language || !item.centralQuestion) {
-    throw new Error("Missing required investigation fields");
-  }
+  const item = validateInvestigationImport(payload);
+  const defaults = createEmptyInvestigation({
+    title: item.title, country: item.country, language: item.language,
+    centralQuestion: item.centralQuestion, jurisdiction: '', topic: '',
+    territory: '', period: '', description: '',
+  });
+  validateInvestigationImport(payload, defaults);
   return {
-    ...createEmptyInvestigation({
-      title: item.title,
-      country: item.country,
-      jurisdiction: item.jurisdiction || item.country,
-      language: item.language,
-      topic: item.topic || "",
-      territory: item.territory || "",
-      period: item.period || "",
-      centralQuestion: item.centralQuestion,
-      description: item.description || "",
-    }),
+    ...defaults,
     ...item,
+    freshness: { ...defaults.freshness, ...item.freshness },
+    accessLaw: { ...defaults.accessLaw, ...item.accessLaw },
+    languagePlan: { ...defaults.languagePlan, ...item.languagePlan },
     id: item.id ? `${item.id}-${Date.now().toString(36)}` : `${slugify(item.title)}-${Date.now().toString(36)}`,
     updatedAt: todayIsoDate(),
   };
@@ -6980,26 +6976,33 @@ function bindActions() {
     input.addEventListener("change", async () => {
       const file = input.files?.[0];
       if (!file) return;
+      let restoredAttachments = [];
+      let importedId;
       try {
         const text = await file.text();
         const payload = JSON.parse(text);
         const imported = normalizeImportedInvestigation(payload);
+        importedId = imported.id;
         if (payload.schema === 'evidence-desk-complete-backup-v1') {
-          const attachments = await restoreAttachmentBundle(imported.id, payload.attachments);
-          imported.localAttachments = attachments;
+          restoredAttachments = await restoreAttachmentBundle(imported.id, payload.attachments);
+          imported.localAttachments = restoredAttachments;
         } else if ((imported.localAttachments || []).length) {
           imported.localAttachments = [];
           window.alert('O JSON importado não contém os arquivos originais. Os metadados de anexos foram removidos desta cópia para evitar referências inválidas.');
         }
-        investigations = [imported, ...investigations];
-        saveInvestigations();
+        const nextInvestigations = [imported, ...investigations];
+        if (!writeLocalStorage(STORAGE_KEY, JSON.stringify(nextInvestigations))) {
+          throw new Error('Não há espaço para salvar a importação neste navegador. Os casos existentes foram preservados.');
+        }
+        investigations = nextInvestigations;
         state.currentId = imported.id;
         state.currentTab = "overview";
         state.view = "investigation";
         saveUiState();
         renderInvestigation();
       } catch (error) {
-        state.draftErrors = [t("importJsonError")];
+        await Promise.allSettled(restoredAttachments.map(entry => deleteAttachment(entry.id, importedId)));
+        state.draftErrors = [t("importJsonError") + ' ' + error.message];
         state.view = "new-investigation";
         saveUiState();
         renderNewInvestigation();

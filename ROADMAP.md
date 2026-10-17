@@ -52,3 +52,11 @@ Material entra → evidências e limites são apresentados → mudanças são ex
 Testar integridade e vínculos → motor puro e testes do simulador → UI contextual → captura única e navegação → anexos/proveniência → independência de fontes e mudanças → testes com jornalistas.
 
 **Não afirmar como pronto:** IA pública hospedada, OCR/PDF estruturado, colaboração, backup automático universal ou originalidade comprovada sem benchmarking.
+
+## Validação técnica — 17/10/2026
+- Testes automatizados executados no Node: 49 aprovados. Workflow `Tests` adicionado; confirmar a execução de cada novo commit no GitHub.
+- Contradições e limitações registradas continuam visíveis com origem incompleta; suporte positivo continua exigindo procedência.
+- Anexos novos recebem SHA-256; backup verifica o original e restauração rejeita conteúdo divergente. Backups antigos sem hash continuam aceitos. O hash verifica integridade de bytes, não autenticidade ou veracidade do conteúdo.
+- Importação aceita o formato legado e os dois esquemas existentes, rejeita versões desconhecidas e formatos incompatíveis antes de salvar. Mantém campos de extensão e completa campos opcionais conhecidos.
+- Se o navegador não conseguir salvar uma importação, os casos existentes permanecem e os anexos dessa tentativa são removidos.
+- Validação visual e testes manuais completos de recuperação no navegador continuam pendentes; esquema/migrações de todo o armazenamento ainda não estão concluídos.
