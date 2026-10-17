@@ -1,11 +1,12 @@
-import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-lai-items1";
-import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-lai-items1";
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-lai-items1";
-import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-lai-items1";
-import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-lai-items1";
-import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-lai-items1";
-import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-lai-items1";
-import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-lai-items1";
+import { createClaimRequirement, updateClaimRequirement, assessClaimRequirements } from "./claim-requirements.mjs?v=20261017-reverse1";
+import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
+import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-reverse1";
+import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-reverse1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-reverse1";
+import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-reverse1";
+import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-reverse1";
+import { simulateEvidenceRemoval, simulateSourceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-reverse1";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261015-qa41';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261015-qa41';
@@ -74,6 +75,7 @@ const state = {
   currentId: savedCurrentId,
   currentTab: savedUiState.currentTab || "overview",
   laiSelections: savedUiState.laiSelections || {},
+  reverseSelections: savedUiState.reverseSelections || {},
   locale: savedUiState.locale || "pt",
   filters: {
     status: "all",
@@ -2098,6 +2100,7 @@ function saveUiState() {
       locale: state.locale,
       filters: state.filters,
       laiSelections: state.laiSelections,
+      reverseSelections: state.reverseSelections,
     })
   );
 }
@@ -4352,31 +4355,46 @@ function renderSourceDependence(item) {
 }
 function renderRobustnessSimulator(item) {
   const adapted = adaptLegacyInvestigation(item);
-  const evidence = adapted.evidence;
-  if (!evidence.length) return '<section class="panel"><h3>Simulador de robustez</h3><p class="muted">Ainda não há evidências com fonte identificada para simular. Anotações e necessidades de prova não contam como evidência.</p></section>';
   const esc = value => escapeHtml(String(value ?? ''));
-  const options = evidence.map(e => '<option value="' + esc(e.id) + '">' + esc(e.title || e.description || e.id) + '</option>').join('');
-  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Simulação · sem alterar dados</p><h3>Simulador de robustez</h3></div></div><p>Retire provisoriamente uma evidência da análise e veja quais vínculos documentais seriam afetados.</p><label>Evidência a retirar da simulação<select data-robustness-evidence><option value="">Selecione uma evidência</option>' + options + '</select></label><button class="button secondary" type="button" data-action="simulate-robustness">Simular retirada</button><div data-robustness-result aria-live="polite"></div><p class="muted">O cenário não altera documentos nem aprova ou reprova afirmações. Só considera vínculos explícitos.</p></section>';
+  if (!adapted.evidence.length && !adapted.sources.length) return '<section class="panel"><h3>Simulador de robustez</h3><p>Cadastre uma fonte e evidências documentadas para testar impactos. Anotações e necessidades de prova não contam como evidência.</p></section>';
+  const documents = adapted.evidence.map(e => '<option value="evidence:' + esc(e.id) + '">' + esc(e.title || e.description || e.id) + '</option>').join('');
+  const sources = adapted.sources.map(source => '<option value="source:' + esc(source.id) + '">' + esc(source.title || source.id) + '</option>').join('');
+  return '<section class="panel"><div class="section-header"><div><p class="eyebrow">Simulação · sem alterar dados</p><h3>Simulador de robustez</h3></div></div><p>Retire provisoriamente uma evidência ou uma fonte inteira, incluindo as evidências ligadas a ela.</p><label>Elemento a retirar da simulação<select data-robustness-target><option value="">Selecione evidência ou fonte</option>' + (documents ? '<optgroup label="Evidências documentadas">' + documents + '</optgroup>' : '') + (sources ? '<optgroup label="Fontes e suas evidências">' + sources + '</optgroup>' : '') + '</select></label><button class="button secondary" type="button" data-action="simulate-robustness">Simular retirada</button><div data-robustness-result aria-live="polite"></div><p class="muted">Nada é excluído da investigação. O cenário só considera vínculos explícitos e nunca certifica uma afirmação.</p></section>';
+}
+
+function describeRequirementRemoval(item, adapted, removedEvidenceIds) {
+  const removed = new Set(removedEvidenceIds);
+  const scenario = {...adapted,evidence:adapted.evidence.filter(entry => !removed.has(entry.id))};
+  return (item.claims || []).flatMap((claim,index) => {
+    const requirements = claim.requirements || [];
+    const before = assessClaimRequirements(requirements,adapted).requirements;
+    const after = assessClaimRequirements(requirements,scenario).requirements;
+    return before.flatMap((audit,i) => audit.status === after[i].status && audit.linkedEvidenceIds.length === after[i].linkedEvidenceIds.length ? [] : [{claimId:claim.id || 'claim-' + index,statement:claim.statement || claim.text || '',requirement:requirements[i].text,before:audit,after:after[i]}]);
+  });
 }
 
 function bindRobustnessSimulator() {
   document.querySelectorAll('[data-action="simulate-robustness"]').forEach(button => button.addEventListener('click', () => {
     const container = document.querySelector('[data-robustness-result]');
-    const id = document.querySelector('[data-robustness-evidence]')?.value;
+    const selection = document.querySelector('[data-robustness-target]')?.value || '';
     if (!container) return;
-    if (!id) { container.textContent = 'Selecione uma evidência para simular.'; return; }
-    const item = getCurrentInvestigation();
-    const result = simulateEvidenceRemoval(adaptLegacyInvestigation(item), id);
-    if (!result.found) { container.textContent = 'Evidência não encontrada. Nenhum dado foi alterado.'; return; }
-    if (!result.affectedClaims.length) { container.textContent = 'Nenhuma afirmação com vínculo explícito foi afetada neste cenário.'; return; }
+    if (!/^(evidence|source):.+/.test(selection)) { container.textContent = 'Selecione uma evidência ou fonte para simular.'; return; }
+    const item = getCurrentInvestigation(); const adapted = adaptLegacyInvestigation(item);
+    const sourceMode = selection.startsWith('source:'); const id = selection.slice(selection.indexOf(':') + 1);
+    const result = sourceMode ? simulateSourceRemoval(adapted, id) : simulateEvidenceRemoval(adapted, id);
+    if (!result.found) { container.textContent = 'Elemento não encontrado. Nenhum dado foi alterado.'; return; }
+    const prefix = sourceMode ? 'Cenário hipotético: fonte e ' + result.removedEvidenceIds.length + ' evidência(s) retiradas da análise. ' : 'Cenário hipotético: uma evidência retirada da análise. ';
+    const requirementChanges = describeRequirementRemoval(item,adapted,sourceMode ? result.removedEvidenceIds : [id]);
+    if (!result.affectedClaims.length && !requirementChanges.length) { container.textContent = prefix + 'Nenhuma afirmação com vínculo explícito foi afetada. Isso não demonstra robustez nem independência quando faltam vínculos documentais.'; return; }
     const esc = value => escapeHtml(String(value ?? ''));
-    const claims = adaptLegacyInvestigation(item).claims;
-    container.innerHTML = '<h4>Afirmações afetadas (' + result.affectedClaims.length + ')</h4><ul>' + result.affectedClaims.map(change => {
-      const claim = claims.find(c => c.id === change.claimId);
-      return '<li><strong>' + esc(claim?.statement || change.claimId) + '</strong><p>Vínculos de apoio: ' + change.before.supporting + ' → ' + change.after.supporting + '. Estado documental: ' + esc(change.before.status) + ' → ' + esc(change.after.status) + '.</p></li>';
-    }).join('') + '</ul>';
+    const statuses = {'needs-evidence':'Precisa de evidência','contradicted':'Com contradição registrada','qualified':'Exige ressalvas','review-required':'Exige revisão editorial'};
+    container.innerHTML = '<p>' + esc(prefix) + '</p><h4>Afirmações afetadas (' + result.affectedClaims.length + ')</h4><ul>' + result.affectedClaims.map(change => {
+      const claim = adapted.claims.find(c => c.id === change.claimId);
+      return '<li><strong>' + esc(claim?.statement || change.claimId) + '</strong><p>Apoios: ' + change.before.supporting + ' → ' + change.after.supporting + ' · Contradições: ' + change.before.contradictory + ' → ' + change.after.contradictory + ' · Limitações: ' + change.before.limiting + ' → ' + change.after.limiting + '.</p><p>' + esc(statuses[change.before.status] || change.before.status) + ' → ' + esc(statuses[change.after.status] || change.after.status) + '.</p></li>';
+    }).join('') + '</ul>' + (requirementChanges.length ? '<h4>Requisitos documentais afetados (' + requirementChanges.length + ')</h4><ul>' + requirementChanges.map(change => '<li><strong>' + esc(change.statement || change.claimId) + '</strong><p>' + esc(change.requirement) + ': ' + change.before.linkedEvidenceIds.length + ' → ' + change.after.linkedEvidenceIds.length + ' documento(s) com procedência. A cobertura exige nova revisão; a investigação original permanece intacta.</p></li>').join('') + '</ul>' : '') + '<p>Retirar uma contradição do cenário não elimina a necessidade de confrontá-la na investigação real.</p>';
   }));
 }
+
 function renderClaimGapDependencies(item) {
   const claims = Array.isArray(item.claims) ? item.claims : [];
   const gaps = Array.isArray(item.gaps) ? item.gaps : [];
@@ -5659,18 +5677,18 @@ function renderActionPlan(item) {
             <article class="panel action-card">
               <div class="card-footer top">
                 <div>
-                  <p class="eyebrow">${t("priorityPrefix")}: ${action.priority} / ${action.source}</p>
-                  <h3>${action.action}</h3>
+                  <p class="eyebrow">${t("priorityPrefix")}: ${escapeHtml(String(action.priority || ''))} / ${escapeHtml(String(action.source || ''))}</p>
+                  <h3>${escapeHtml(String(action.action || ''))}</h3>
                 </div>
-                <span class="pill ${statusClass(action.status)}">${action.status}</span>
+                <span class="pill ${statusClass(action.status)}">${escapeHtml(String(action.status || ''))}</span>
               </div>
               <dl class="detail-list grid">
-                <div><dt>${t("owner")}</dt><dd>${action.owner}</dd></div>
-                <div><dt>${t("dueCheckpoint")}</dt><dd>${action.dueDate || t("noDate")}</dd></div>
-                <div><dt>${t("type")}</dt><dd>${action.type}</dd></div>
+                <div><dt>${t("owner")}</dt><dd>${escapeHtml(String(action.owner || ''))}</dd></div>
+                <div><dt>${t("dueCheckpoint")}</dt><dd>${escapeHtml(String(action.dueDate || t("noDate")))}</dd></div>
+                <div><dt>${t("type")}</dt><dd>${escapeHtml(String(action.type || ''))}</dd></div>
               </dl>
-              <p class="muted"><strong>${t("whyItMatters")}:</strong> ${action.rationale}</p>
-              <p><strong>${t("output")}:</strong> ${action.output}</p>
+              <p class="muted"><strong>${t("whyItMatters")}:</strong> ${escapeHtml(String(action.rationale || ''))}</p>
+              <p><strong>${t("output")}:</strong> ${escapeHtml(String(action.output || ''))}</p>
             </article>
           `,
         )
@@ -6072,9 +6090,115 @@ function renderGapAddForm() {
   });
 }
 
+function renderReverseInvestigation(item) {
+  const claims = item.claims || [];
+  if (!claims.length) return '<section class="panel"><h3>O que é necessário verificar?</h3><p>Registre uma afirmação para planejar seus requisitos documentais.</p></section>';
+  const requestedId = state.reverseSelections[item.id];
+  let claimIndex = claims.findIndex((claim,index) => (claim.id || 'claim-' + index) === requestedId);
+  if (claimIndex < 0) claimIndex = 0;
+  const claim = claims[claimIndex]; const claimId = claim.id || 'claim-' + claimIndex;
+  const requirements = claim.requirements || [];
+  const adapted = adaptLegacyInvestigation(item);
+  const assessment = assessClaimRequirements(requirements, adapted);
+  const esc = value => escapeHtml(String(value ?? ''));
+  const labels = {open:'Em aberto',partial:'Documentação parcial',documented:'Documentado pela repórter'};
+  return `<section class="panel reverse-investigation"><p class="eyebrow">Investigação reversa · revisão humana</p><h3>O que é necessário verificar?</h3>
+    <p>Parta da afirmação e registre os documentos, dados ou checagens necessários. Requisitos são planejamento, não provas.</p>
+    <label>Afirmação em análise<select data-reverse-claim>${claims.map((entry,index) => `<option value="${esc(entry.id || 'claim-' + index)}" ${index === claimIndex ? 'selected' : ''}>${esc(entry.statement || entry.text || 'Afirmação ' + (index+1))}</option>`).join('')}</select></label><p role="status" data-reverse-notice></p>
+    <p class="muted">${assessment.counts.open} em aberto · ${assessment.counts.partial} parciais · ${assessment.counts.documented} documentados pela repórter. Nenhuma aprovação editorial é automática.</p>
+    <form data-role="requirement-add" data-claim-id="${esc(claimId)}"><label>Requisito a verificar<textarea name="requirementText" rows="2" maxlength="6000" required placeholder="Ex.: localizar os contratos originais do período investigado"></textarea></label><label>Tipo de verificação<select name="requirementKind"><option value="document">Documento</option><option value="data">Dados</option><option value="interview">Entrevista</option><option value="verification">Checagem</option></select></label><button class="button secondary" type="submit">Adicionar requisito</button><p role="status" data-requirement-notice></p></form>
+    <div class="stack">${requirements.map((requirement,index) => {
+      const audit = assessment.requirements[index];
+      const task = (item.actionItems || []).find(action => action.originRequirementId === requirement.id && action.target_claim_id === claimId);
+      const options = [...adapted.evidence.map(e => ({id:e.id,label:e.title || e.description || e.id})), ...audit.missingEvidenceIds.filter(id => !adapted.evidence.some(e => e.id === id)).map(id => ({id,label:'Vínculo ausente: ' + id}))];
+      return `<details class="requirement-card"><summary>${esc(requirement.text)} · ${esc(labels[audit.status])}</summary>
+        <form data-role="requirement-review" data-claim-id="${esc(claimId)}" data-requirement-id="${esc(requirement.id)}">
+          <label>Cobertura registrada<select name="requirementStatus">${Object.entries(labels).map(([key,label]) => `<option value="${key}" ${requirement.status === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+          <fieldset><legend>Evidências documentadas vinculadas</legend>${options.length ? options.map(e => `<label><input type="checkbox" name="requirementEvidence" value="${esc(e.id)}" ${(requirement.evidenceIds || []).includes(e.id) ? 'checked' : ''}> ${esc(e.label)}</label>`).join('') : '<p class="muted">Ainda não há evidências documentadas com fonte identificada. Anotações e provas planejadas não entram nesta lista.</p>'}</fieldset>
+          ${audit.missingEvidenceIds.length ? '<p class="muted">Há vínculos ausentes ou sem procedência válida. O requisito continua pendente de revisão.</p>' : ''}
+          <label>Notas e critérios de verificação<textarea name="requirementNotes" rows="2" maxlength="12000">${esc(requirement.notes)}</textarea></label>
+          <div class="button-row"><button class="button secondary" type="submit">Salvar revisão do requisito</button>${task ? '<span class="pill neutral">Tarefa de apuração vinculada</span>' : '<button class="button secondary" type="button" data-action="requirement-task">Criar tarefa de apuração</button>'}</div><p role="status" data-requirement-notice></p>
+        </form></details>`;
+    }).join('')}</div>
+  </section>`;
+}
+
+function bindReverseInvestigation() {
+  document.querySelectorAll('[data-reverse-claim]').forEach(picker => picker.addEventListener('change', () => {
+    const item = getCurrentInvestigation();
+    const dirtyAdd = [...document.querySelectorAll('[data-role="requirement-add"]')].some(form => form.querySelector('[name="requirementText"]').value.trim());
+    const dirtyReview = [...document.querySelectorAll('[data-role="requirement-review"]')].some(form => {
+      const claim = (item.claims || []).find((c,i) => (c.id || 'claim-' + i) === form.dataset.claimId);
+      const requirement = claim?.requirements?.find(r => r.id === form.dataset.requirementId);
+      if (!requirement) return false;
+      const evidenceIds = [...form.querySelectorAll('[name="requirementEvidence"]:checked')].map(input => input.value).sort();
+      return form.querySelector('[name="requirementStatus"]').value !== requirement.status || form.querySelector('[name="requirementNotes"]').value !== requirement.notes || JSON.stringify(evidenceIds) !== JSON.stringify([...requirement.evidenceIds].sort());
+    });
+    if (dirtyAdd || dirtyReview) {
+      const ids = (item.claims || []).map((claim,index) => claim.id || 'claim-' + index);
+      picker.value = ids.includes(state.reverseSelections[item.id]) ? state.reverseSelections[item.id] : (ids[0] || '');
+      const notice = document.querySelector('[data-reverse-notice]');
+      if (notice) notice.textContent = 'Salve ou remova as alterações pendentes antes de trocar a afirmação. Seu preenchimento foi mantido.';
+      return;
+    }
+    state.reverseSelections[state.currentId] = picker.value; saveUiState(); renderInvestigation();
+  }));
+  function selected(form) {
+    const item = getCurrentInvestigation();
+    const index = (item.claims || []).findIndex((claim,i) => (claim.id || 'claim-' + i) === form.dataset.claimId);
+    return {item,claim:item.claims[index],claimId:form.dataset.claimId};
+  }
+  function commit(item,claim,requirements,eventText,form) {
+    const old = claim.requirements; const log = item.transparencyLog || [];
+    claim.requirements = requirements;
+    item.transparencyLog = [...log,{date:todayIsoDate(),actor:'Repórter',origin:'claim-requirements',event:eventText,status:'Planejamento e revisão manual',nextStep:'Conferir os documentos originais e as limitações antes de publicar.'}];
+    if (!saveInvestigations()) {
+      claim.requirements = old; item.transparencyLog = log;
+      form.querySelector('[data-requirement-notice]').textContent = 'Não foi possível salvar. Seu preenchimento foi mantido.';
+      return false;
+    }
+    return true;
+  }
+  document.querySelectorAll('[data-role="requirement-add"]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault(); const {item,claim} = selected(form); if (!claim) return;
+    try {
+      const text = form.querySelector('[name="requirementText"]').value;
+      if ((claim.requirements || []).some(requirement => requirement.text.trim() === text.trim())) throw new Error('Este requisito já foi registrado para a afirmação.');
+      const requirement = createClaimRequirement({text,kind:form.querySelector('[name="requirementKind"]').value});
+      if (commit(item,claim,[...(claim.requirements || []),requirement],'Requisito registrado para a afirmação: ' + text,form)) renderInvestigation();
+    } catch (error) { form.querySelector('[data-requirement-notice]').textContent = error.message; }
+  }));
+  document.querySelectorAll('[data-role="requirement-review"]').forEach(form => {
+    function readPatch() {
+      return {status:form.querySelector('[name="requirementStatus"]').value,notes:form.querySelector('[name="requirementNotes"]').value,evidenceIds:[...form.querySelectorAll('[name="requirementEvidence"]:checked')].map(input => input.value)};
+    }
+    form.addEventListener('submit', event => {
+      event.preventDefault(); const {item,claim} = selected(form); if (!claim) return;
+      const index = (claim.requirements || []).findIndex(r => r.id === form.dataset.requirementId); if (index < 0) return;
+      try {
+        const next = updateClaimRequirement(claim.requirements[index],readPatch());
+        const audit = assessClaimRequirements([next],adaptLegacyInvestigation(item)).requirements[0];
+        if (next.status === 'documented' && audit.status !== 'documented') throw new Error('Vincule evidências existentes com fonte identificada antes de registrar cobertura documental.');
+        if (commit(item,claim,claim.requirements.map((r,i) => i === index ? next : r),'Revisão manual do requisito: ' + next.text + ' · ' + next.status,form)) renderInvestigation();
+      } catch (error) { form.querySelector('[data-requirement-notice]').textContent = error.message; }
+    });
+    form.querySelector('[data-action="requirement-task"]')?.addEventListener('click', () => {
+      const {item,claim,claimId} = selected(form); const requirement = claim?.requirements?.find(r => r.id === form.dataset.requirementId); if (!requirement) return;
+      const patch = readPatch();
+      if (patch.status !== requirement.status || patch.notes !== requirement.notes || JSON.stringify([...patch.evidenceIds].sort()) !== JSON.stringify([...requirement.evidenceIds].sort())) { form.querySelector('[data-requirement-notice]').textContent = 'Salve a revisão do requisito antes de criar a tarefa. Seu preenchimento foi mantido.'; return; }
+      if ((item.actionItems || []).some(action => action.originRequirementId === requirement.id && action.target_claim_id === claimId)) return;
+      const old = item.actionItems || [];
+      item.actionItems = [...old,{id:'task-' + requirement.id,originRequirementId:requirement.id,target_claim_id:claimId,action:'Verificar requisito: ' + requirement.text,source:'Investigação reversa',priority:'A definir',status:'Planejada',owner:'Repórter',dueDate:'',type:requirement.kind,rationale:'Requisito explicitamente registrado para a afirmação; não constitui evidência.',output:'Documento, referência ou checagem rastreável, com limites registrados.'}];
+      if (!commit(item,claim,claim.requirements,'Tarefa de apuração criada para o requisito: ' + requirement.text,form)) { item.actionItems = old; return; }
+      renderInvestigation();
+    });
+  });
+}
+
 function renderClaims(item) {
   return `
     ${renderClaimAddForm()}
+    ${renderReverseInvestigation(item)}
     ${renderClaimsDashboard(item)}
     ${renderClaimDecisionBoard(item)}
     ${renderRobustnessSimulator(item)}
@@ -7115,6 +7239,7 @@ function bindActions() {
   bindSilenceTracking();
   bindLaiItemChecklist();
   bindRobustnessSimulator();
+  bindReverseInvestigation();
   document.querySelectorAll('[data-action="save-source-origin"]').forEach(button => button.addEventListener('click', () => {
     const index = Number(button.dataset.sourceIndex);
     const item = getCurrentInvestigation();

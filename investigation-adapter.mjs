@@ -1,4 +1,4 @@
-import { analyzeInvestigation } from "./investigation-intelligence.mjs";
+import { analyzeInvestigation } from "./investigation-intelligence.mjs?v=20261017-reverse1";
 
 // Conservative adapter: legacy evidence blocks describe evidence needs, not verified evidence.
 const arr = value => Array.isArray(value) ? value : [];

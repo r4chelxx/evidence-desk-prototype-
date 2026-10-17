@@ -3011,3 +3011,11 @@ button:disabled {
 .checklist-item label { display: grid; gap: .35rem; }
 .checklist-item h4 { overflow-wrap: anywhere; }
 .checklist-item input, .checklist-item textarea, .checklist-item select { width: 100%; min-width: 0; }
+
+.reverse-investigation { display: grid; gap: .8rem; }
+.reverse-investigation label { display: grid; gap: .35rem; }
+.requirement-card { border-top: 1px solid var(--border, #ddd); padding-block: .8rem; }
+.requirement-card summary { cursor: pointer; overflow-wrap: anywhere; }
+.requirement-card form { display: grid; gap: .7rem; padding-top: .7rem; }
+.requirement-card fieldset label { display: block; }
+.requirement-card input[type="checkbox"] { width: auto; }

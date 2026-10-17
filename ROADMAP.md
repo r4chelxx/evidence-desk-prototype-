@@ -13,8 +13,8 @@
 | Diferencial | Entrega completa esperada | Situação conservadora em 17/10 |
 | --- | --- | --- |
 | Detector de silêncios | Pedido × resposta × anexos × períodos; itens não atendidos, justificativas, impacto e rascunho de complementação/recurso | Parcial: registros manuais, lacunas e vínculos; checklist granular e validação completa pendentes |
-| Investigação reversa | Afirmação → requisitos verificáveis → documentos/fontes/perguntas/tarefas; mostrar saltos inferenciais | Consolidação funcional pendente; cadastro de afirmações e sugestões genéricas não concluem esta entrega |
-| Simulador de robustez | Retirar provisoriamente evidência **ou fonte**, comparar efeitos e ressalvas sem alterar o caso | Motor de retirada de evidência e interface inicial existem; retirada por fonte e validação integrada completa pendentes |
+| Investigação reversa | Afirmação → requisitos verificáveis → documentos/fontes/perguntas/tarefas; mostrar saltos inferenciais | Requisitos manuais por afirmação, cobertura documental conservadora e criação explícita de tarefas integrados; decomposição assistida e validação completa continuam pendentes |
+| Simulador de robustez | Retirar provisoriamente evidência **ou fonte**, comparar efeitos e ressalvas sem alterar o caso | Retirada de evidência ou fonte inteira com impactos nos vínculos e requisitos integrada e testada; validação completa com jornalistas permanece pendente |
 | Detector de dependência | Rastrear origem primária; separar citações repetidas de corroboradores independentes | Regras e interface inicial para origens declaradas existem; não equivalem a detecção semântica ou independência comprovada |
 | Radar de caminhos | Próximas ações com justificativa, material de origem, impacto estimado, esforço e dependências; converter em tarefa/pedido/pergunta/verificação | Propostas iniciais por regras existem; priorização completa, conversão integrada e decisões rastreáveis pendentes |
 
@@ -221,3 +221,13 @@ A migração aqui cobre o envelope local; não é uma migração completa de tod
 - **Ainda parcial:** detector de silêncios completo (comparação automática de anexos/períodos/versões e rascunhos de recurso), investigação reversa, retirada de fonte inteira no simulador, radar priorizado e demais frentes do roadmap mestre permanecem pendentes.
 
 - Conferência adicional: textos do checklist são exibidos como texto no diário, sem interpretar marcação HTML de documentos.
+
+## Rodada — investigação reversa e simulação por fonte (17/10/2026)
+- Requisitos de documentos/dados/entrevistas/checagens ligados a uma afirmação selecionada; criação e revisão são manuais, com cobertura em aberto/parcial/documentada e notas.
+- Evidências vinculadas exigem documento existente e fonte identificada. Referências ausentes, ambíguas, planejadas ou explicitamente não verificadas não dão cobertura. Vínculo não produz aprovação editorial.
+- Requisito pode virar tarefa de apuração por ação explícita e sem duplicação; autoria e decisão entram no diário. Alterações pendentes impedem troca de afirmação ou criação de tarefa sem salvar.
+- Simulador permite retirar uma fonte inteira e todas as evidências associadas apenas do cenário hipotético. Mostra apoio, contradição e limitação antes/depois; separa perda de cobertura de requisitos de perda de apoio à afirmação.
+- Fonte sem vínculos documentais não é interpretada como prova de robustez. Retirar uma contradição não elimina o dever de confrontá-la na investigação real.
+- Importação valida requisitos e preserva o caso em erro; textos dos requisitos e tarefas são tratados como texto, sem interpretar marcação de documentos.
+- 126 testes automatizados locais aprovados, com regressões de procedência, não mutação, falha de gravação, mudança de seleção e criação explícita de tarefas.
+- **Ainda pendente:** decomposição assistida de afirmações, seleção de trechos no visualizador, explicação automática de mudanças após material novo, radar priorizado e UX consolidada. As entregas manuais desta rodada não concluem esses diferenciais completos.

@@ -1,5 +1,5 @@
 // Browser persistence is deliberately separate from portable single-case backups.
-import { validateInvestigationImport } from './investigation-import.mjs?v=20261017-lai-items1';
+import { validateInvestigationImport } from './investigation-import.mjs?v=20261017-reverse1';
 
 export const INVESTIGATION_STORE_SCHEMA = 'evidence-desk-investigations';
 export const INVESTIGATION_STORE_VERSION = 1;

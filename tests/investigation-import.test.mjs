@@ -32,3 +32,12 @@ test('portable imports preserve valid request item checklists and reject malform
  assert.throws(()=>validateInvestigationImport({...data,requests:[{itemChecklist:[{...entry,status:'invented'}]}]}));
  assert.throws(()=>validateInvestigationImport({...data,requests:[{itemChecklist:[entry,entry]}]}));
 });
+
+test('claim requirements survive portable import but invalid or duplicate requirements do not', async()=> {
+ const {createClaimRequirement} = await import('../claim-requirements.mjs');
+ const requirement=createClaimRequirement({text:'Documento original'});
+ const data={...item,claims:[{text:'Afirmação',requirements:[requirement]}]};
+ assert.equal(validateInvestigationImport(data).claims[0].requirements[0].text,'Documento original');
+ assert.throws(()=>validateInvestigationImport({...item,claims:[{requirements:[requirement,requirement]}]}));
+ assert.throws(()=>validateInvestigationImport({...item,claims:[{requirements:[{...requirement,status:'proven'}]}]}));
+});

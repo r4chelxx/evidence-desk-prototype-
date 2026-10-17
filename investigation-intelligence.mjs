@@ -102,6 +102,29 @@ export function simulateEvidenceRemoval(caseData = {}, evidenceId = '') {
   });
   return { found: true, evidenceId: id, hypothetical: true, affectedClaims };
 }
+
+export function simulateSourceRemoval(caseData = {}, sourceId = '') {
+  const id = key(sourceId);
+  if (!id || !list(caseData.sources).some(source => key(source?.id) === id)) {
+    return { found: false, sourceId: id, hypothetical: true, removedEvidenceIds: [], affectedClaims: [] };
+  }
+  const removedEvidenceIds = unique(list(caseData.evidence).filter(evidence => key(evidence?.source_id) === id).map(evidence => key(evidence?.id)));
+  const before = auditClaims(caseData);
+  // Removing only provenance would retain recorded contradictory/limiting evidence.
+  // Remove the source's evidence in this hypothetical snapshot as well; keep the
+  // original relations so lost support remains visible as unresolved evidence.
+  const after = auditClaims({
+    ...caseData,
+    sources: list(caseData.sources).filter(source => key(source?.id) !== id),
+    evidence: list(caseData.evidence).filter(evidence => key(evidence?.source_id) !== id),
+  });
+  const affectedClaims = before.flatMap((old, index) => {
+    const now = after[index];
+    return old.supporting === now.supporting && old.contradictory === now.contradictory && old.limiting === now.limiting && old.status === now.status ? [] : [{ claimId: old.claimId, before: old, after: now, lostSupportingLinks: old.supporting - now.supporting }];
+  });
+  return { found: true, sourceId: id, hypothetical: true, removedEvidenceIds, affectedClaims };
+}
+
 export function suggestNextSteps(caseData = {}) {
   const actions = [];
   for (const gap of list(caseData.gaps)) {
