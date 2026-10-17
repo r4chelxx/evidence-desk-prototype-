@@ -39,3 +39,25 @@ test('file-only capture is allowed and a failed note save does not clear the for
  const failed=setup(false); failed.handlers.submit({preventDefault(){}});
  assert.equal(failed.item.reporterNotes.length,0); assert.equal(failed.textarea.value,'Trecho ainda não salvo'); assert.equal(failed.renders,0);
 });
+
+test('missing current case returns to the dashboard before reading case fields', () => {
+ const start = source.indexOf('function renderInvestigation() {');
+ const end = source.indexOf('\nfunction ', start + 1);
+ let dashboards=0; const state={view:'investigation'};
+ const context=vm.createContext({getCurrentInvestigation:()=>undefined, state, renderDashboard:()=>{dashboards++;}});
+ vm.runInContext(source.slice(start,end)+'\nrenderInvestigation();',context);
+ assert.equal(dashboards,1); assert.equal(state.view,'dashboard');
+});
+test('text import appends to the current draft and rejects overflow without truncation', async () => {
+ const start=source.indexOf('function bindQuickNoteImport() {');
+ const end=source.indexOf('\nfunction ',start+1);
+ let change; const messages=[];
+ const textarea={value:'Rascunho',maxLength:100,focus(){},setCustomValidity(){}};
+ const form={querySelector(selector){return selector.includes('textarea') ? textarea : {value:''};}};
+ const input={files:[{name:'a.txt',size:5,text:async()=>'Texto'}],value:'a.txt',closest:()=>form,addEventListener(_name,fn){change=fn;}};
+ const context=vm.createContext({document:{querySelectorAll:()=>[input]},window:{alert:message=>messages.push(message)}});
+ vm.runInContext(source.slice(start,end)+'\nbindQuickNoteImport();',context);
+ await change(); assert.equal(textarea.value,'Rascunho\n\n[a.txt]\nTexto');
+ const before=textarea.value; textarea.maxLength=before.length; await change();
+ assert.equal(textarea.value,before); assert.equal(messages.length,1);
+});

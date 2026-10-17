@@ -1,9 +1,9 @@
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs";
-import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs";
-import { validateInvestigationImport } from "./investigation-import.mjs";
-import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs";
-import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs";
-import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-recovery1";
+import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-recovery1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-recovery1";
+import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-recovery1";
+import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-recovery1";
+import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-recovery1";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261015-qa41';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261015-qa41';
@@ -68,7 +68,7 @@ const savedCurrentId = investigations.some((item) => item.id === savedUiState.cu
   : (investigations[0]?.id || null);
 
 const state = {
-  view: savedUiState.view || "dashboard",
+  view: savedCurrentId && !storeState.blocked ? (savedUiState.view || "dashboard") : "dashboard",
   currentId: savedCurrentId,
   currentTab: savedUiState.currentTab || "overview",
   laiSelections: savedUiState.laiSelections || {},
@@ -3321,6 +3321,7 @@ function validateDraft() {
 
 function renderInvestigation() {
   const item = getCurrentInvestigation();
+  if (!item) { state.view = 'dashboard'; renderDashboard(); return; }
   const tabGroups = [
     {
       label: t("navGroupStart"),
@@ -6849,12 +6850,14 @@ function bindQuickNoteImport() {
       const content = await file.text();
       const excerpt = content.trim();
       if (!excerpt) throw new Error('Arquivo vazio');
-      if (('[' + file.name + ']\n' + excerpt).length > Number(textarea.maxLength || 6000)) {
+      const combined = [textarea.value, '[' + file.name + ']\n' + excerpt].filter(Boolean).join('\n\n');
+      if (combined.length > Number(textarea.maxLength || 6000)) {
         window.alert('O arquivo ultrapassa o limite do formulário. Nenhum trecho foi importado ou descartado. Divida o material ou preserve o arquivo original antes de continuar.');
         input.value = '';
         return;
       }
-      textarea.value = '[' + file.name + ']\n' + excerpt;
+      textarea.value = combined;
+      textarea.setCustomValidity('');
       const kind = form?.querySelector('[name="materialKind"]');
       if (kind) kind.value = 'document';
       const origin = form?.querySelector('[name="materialOrigin"]');

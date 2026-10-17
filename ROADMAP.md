@@ -70,7 +70,7 @@ Testar integridade e vínculos → motor puro e testes do simulador → UI conte
 - [x] “Adicionar exemplos” preserva os casos existentes em vez de apagar o armazenamento.
 - [x] Captura de material com texto e/ou original, vínculo ao arquivo, versão, data, SHA-256 e estado não verificado. Anexar preserva o texto ainda não salvo.
 - [x] Restauração de backup completo remapeia vínculos para os novos IDs locais. JSON sem bytes apresenta o original vinculado como ausente.
-- [x] Testes dos fluxos de captura, falha de gravação, recuperação, legado e integridade: 68 testes locais aprovados.
+- [x] Testes dos fluxos de captura, falha de gravação, recuperação, legado e integridade: 70 testes locais aprovados.
 
 ### Próximas entregas preservadas
 1. Rascunho persistente da entrada de materiais e proteção contra sair com texto não salvo.
@@ -81,3 +81,5 @@ Testar integridade e vínculos → motor puro e testes do simulador → UI conte
 6. Exportação cifrada e sinalização de dados sensíveis.
 
 A migração aqui cobre o envelope local; não é uma migração completa de todos os modelos do roadmap. Recuperação automática externa, OCR local, colaboração e testes com jornalistas continuam pendentes.
+
+- Revisão cruzada adicional: tela de recuperação acessível mesmo com caso atual ausente; importação de texto acrescenta ao rascunho e não o substitui; URLs dos arquivos atualizadas para evitar cache da versão anterior.
