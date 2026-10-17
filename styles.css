@@ -3004,3 +3004,10 @@ button:disabled {
 .file-checksum { overflow-wrap: anywhere; font-size: .85rem; }
 .quick-note-actions input[type="file"] { max-width: 100%; }
 .storage-warning .button-row { flex-wrap: wrap; }
+
+.lai-item-checklist { margin-block: 1rem; }
+.lai-item-checklist summary { font-weight: 600; cursor: pointer; }
+.checklist-item { margin-block: .75rem; display: grid; gap: .65rem; min-width: 0; }
+.checklist-item label { display: grid; gap: .35rem; }
+.checklist-item h4 { overflow-wrap: anywhere; }
+.checklist-item input, .checklist-item textarea, .checklist-item select { width: 100%; min-width: 0; }

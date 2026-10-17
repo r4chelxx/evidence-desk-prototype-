@@ -209,3 +209,13 @@ Testar integridade e vínculos → motor puro e testes do simulador → UI conte
 A migração aqui cobre o envelope local; não é uma migração completa de todos os modelos do roadmap. Recuperação automática externa, OCR local, colaboração e testes com jornalistas continuam pendentes.
 
 - Revisão cruzada adicional: tela de recuperação acessível mesmo com caso atual ausente; importação de texto acrescenta ao rascunho e não o substitui; URLs dos arquivos atualizadas para evitar cache da versão anterior.
+
+## Rodada de implementação — rascunhos e checklist de LAI (17/10/2026)
+- Rascunhos de material separados por investigação: texto, tipo, origem e referência ao original; recuperação ao voltar/recarregar. Rascunhos não integram a exportação do caso até registrar o material.
+- Falha ao persistir mantém o rascunho na sessão e ativa proteção ao sair da página; versões inválidas não são substituídas silenciosamente. Limpeza do rascunho exige ação explícita e preserva materiais/originais já registrados.
+- Checklist manual por item solicitado, dentro do pedido: a conferir, atendido, parcial, não localizado ou negado. Trecho, localizador, notas e afirmação potencialmente afetada ficam registrados.
+- Marcar atendido exige trecho, referência ou nota de conferência. Nada vira evidência ou afirmação sustentada automaticamente.
+- Item parcial/ausente/negado pode virar lacuna por ação explícita. Encerramento também é explícito após conferência como atendido. As ações entram no diário de transparência.
+- Falha de gravação reverte o registro em memória e mantém o formulário. Acompanhar/encerrar exige salvar alterações do item primeiro.
+- 97 testes automatizados locais aprovados, incluindo fluxos reais de interface em ambiente simulado, persistência de rascunho, rollback e proteção de preenchimento.
+- **Ainda parcial:** detector de silêncios completo (comparação automática de anexos/períodos/versões e rascunhos de recurso), investigação reversa, retirada de fonte inteira no simulador, radar priorizado e demais frentes do roadmap mestre permanecem pendentes.

@@ -1,3 +1,4 @@
+import { summarizeChecklist } from './lai-item-checklist.mjs?v=20261017-lai-items1';
 // Validate portable investigations before touching browser storage or attachments.
 const schemas = new Set(['evidence-desk-investigation-v0.1', 'evidence-desk-complete-backup-v1']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -25,6 +26,7 @@ export function validateInvestigationImport(payload, defaults = {}) {
   check(item, defaults, 'investigation');
   for (const field of objectLists) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => !object(entry)))) throw new Error('Lista de registros inválida: ' + field);
   for (const field of ['secondaryQuestions', 'nextReviewItems']) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => typeof entry !== 'string'))) throw new Error('Lista de textos inválida: ' + field);
+  for (const request of item.requests || []) if ('itemChecklist' in request) summarizeChecklist(request.itemChecklist);
   if ('id' in item && typeof item.id !== 'string') throw new Error('Identificador inválido.');
   if (payload.schema === 'evidence-desk-complete-backup-v1' && !Array.isArray(payload.attachments)) throw new Error('Lista de anexos ausente no backup completo.');
   return item;

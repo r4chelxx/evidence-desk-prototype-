@@ -1,9 +1,11 @@
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-recovery1";
-import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-recovery1";
-import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-recovery1";
-import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-recovery1";
-import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-recovery1";
-import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-recovery1";
+import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-lai-items1";
+import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-lai-items1";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-lai-items1";
+import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-lai-items1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-lai-items1";
+import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-lai-items1";
+import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-lai-items1";
+import { simulateEvidenceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-lai-items1";
 import { investigations as seedInvestigations, mvpCoverage, prototypeLimits, qaModel, roadmap, testPlan } from "./data.js?v=20261015-qa41";
 import { getDeadlineInfo, LAI_REFERENCE, parseDate } from './lai-deadlines.mjs?v=20261015-qa41';
 import { configureService, getServiceUrl, connectService, disconnectService, serviceFetch } from './lai-service.mjs?v=20261015-qa41';
@@ -3624,6 +3626,94 @@ function renderPlanAddForms() {
   });
 }
 
+function renderLaiItemChecklist(item, request, requestIndex) {
+  const entries = Array.isArray(request.itemChecklist) ? request.itemChecklist : [];
+  const labels = {pending:'A conferir',answered:'Atendido',partial:'Parcial',missing:'Não localizado',denied:'Negado'};
+  let summary;
+  try { summary = summarizeChecklist(entries); } catch { return '<p role="alert">O checklist salvo não pôde ser lido. Exporte a investigação antes de revisar estes dados.</p>'; }
+  return `<details class="lai-item-checklist" ${entries.length ? "open" : ""}><summary>Conferir itens solicitados (${summary.answered}/${summary.total} atendidos)</summary>
+    <p class="muted">Copie um item do pedido original e confira a resposta. A avaliação é manual; uma ausência não demonstra irregularidade. Referências e trechos devem ser conferidos no original.</p>
+    <form data-role="checklist-add" data-request-index="${requestIndex}"><label>Item solicitado<textarea name="requestedText" rows="2" maxlength="12000" required placeholder="Copie um item do pedido, sem dividir o texto automaticamente"></textarea></label><button type="submit" class="button secondary">Adicionar item à conferência</button><p role="status" data-checklist-notice></p></form>
+    <p class="muted">${summary.pending} a conferir · ${summary.partial} parciais · ${summary.missing} não localizados · ${summary.denied} negados</p>
+    ${entries.map(entry => {
+      const gap = (item.gaps || []).find(g => g.originChecklistItemId === entry.id);
+      return `<form class="panel checklist-item" data-role="checklist-review" data-request-index="${requestIndex}" data-item-id="${escapeHtml(entry.id)}">
+        <h4>${escapeHtml(entry.requestedText)}</h4><label>Situação<select name="status">${Object.entries(labels).map(([key,label]) => `<option value="${key}" ${entry.status === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+        <label>Trecho da resposta ou justificativa da negativa<textarea name="responseExcerpt" rows="3" maxlength="20000">${escapeHtml(entry.responseExcerpt)}</textarea></label>
+        <label>Referência: protocolo, arquivo, página ou linha<input name="locator" maxlength="2000" value="${escapeHtml(entry.locator)}"></label>
+        <label>Notas da conferência<textarea name="notes" rows="2" maxlength="12000">${escapeHtml(entry.notes)}</textarea></label>
+        <label>Afirmação potencialmente afetada (opcional)<select name="targetClaimId"><option value="">Não vincular</option>${(item.claims || []).map((claim,index) => `<option value="${escapeHtml(claim.id || 'claim-' + index)}" ${entry.targetClaimId === (claim.id || 'claim-' + index) ? 'selected' : ''}>${escapeHtml(String(claim.statement || claim.text || 'Afirmação ' + (index+1)))}</option>`).join('')}</select></label>
+        <p class="muted">${entry.reviewedAt ? 'Última conferência: ' + escapeHtml(entry.reviewedAt) : 'Item ainda não conferido.'}</p>
+        <div class="button-row"><button type="submit" class="button secondary">Salvar conferência do item</button>${canTrackGap(entry) && !gap ? '<button type="button" class="button secondary" data-action="track-checklist-gap">Acompanhar como lacuna</button>' : gap ? `<span class="pill neutral">${gap.status === 'Resolvida' ? 'Lacuna encerrada' : 'Lacuna vinculada'}</span>${entry.status === 'answered' && gap.status !== 'Resolvida' ? '<button type="button" class="button secondary" data-action="close-checklist-gap">Encerrar lacuna vinculada</button>' : ''}` : ''}</div><p role="status" data-checklist-notice></p>
+      </form>`;
+    }).join('')}
+  </details>`;
+}
+
+function bindLaiItemChecklist() {
+  function commit(item, request, nextEntries, eventText, form) {
+    const oldEntries = request.itemChecklist;
+    const oldLog = item.transparencyLog || [];
+    request.itemChecklist = nextEntries;
+    item.transparencyLog = [...oldLog, {date:todayIsoDate(),actor:'Repórter',origin:'lai-item-checklist',event:eventText,status:'Conferência manual',nextStep:'Revisar a documentação e os limites antes de usar editorialmente.'}];
+    if (!saveInvestigations()) {
+      request.itemChecklist = oldEntries; item.transparencyLog = oldLog;
+      form.querySelector('[data-checklist-notice]').textContent = 'Não foi possível salvar. Seu preenchimento permanece aqui.';
+      return false;
+    }
+    return true;
+  }
+  document.querySelectorAll('[data-role="checklist-add"]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault();
+    const item = getCurrentInvestigation(); const request = item.requests[Number(form.dataset.requestIndex)];
+    if (!request) return;
+    try {
+      const text = form.querySelector('[name="requestedText"]').value;
+      const entries = request.itemChecklist || [];
+      if (entries.some(entry => entry.requestedText.trim() === text.trim())) throw new Error('Este item já está na conferência.');
+      const entry = createChecklistItem({requestedText:text});
+      if (commit(item, request, [...entries,entry], 'Item solicitado registrado para conferência: ' + text, form)) renderInvestigation();
+    } catch (error) { form.querySelector('[data-checklist-notice]').textContent = error.message; }
+  }));
+  document.querySelectorAll('[data-role="checklist-review"]').forEach(form => {
+    function current() {
+      const item = getCurrentInvestigation(); const request = item.requests[Number(form.dataset.requestIndex)];
+      const index = (request?.itemChecklist || []).findIndex(entry => entry.id === form.dataset.itemId);
+      return {item,request,index,entry:request?.itemChecklist?.[index]};
+    }
+    form.addEventListener('submit', event => {
+      event.preventDefault(); const {item,request,index,entry} = current(); if (!entry) return;
+      try {
+        const patch = Object.fromEntries(['status','responseExcerpt','locator','notes','targetClaimId'].map(name => [name,form.querySelector('[name="' + name + '"]').value]));
+        patch.targetClaimId ||= null;
+        if (patch.targetClaimId && !(item.claims || []).some((claim,i) => (claim.id || 'claim-' + i) === patch.targetClaimId)) throw new Error('A afirmação vinculada não foi encontrada.');
+        const updated = updateChecklistItem(entry,patch); const next = request.itemChecklist.map((value,i) => i === index ? updated : value);
+        if (commit(item,request,next,'Conferência do item: ' + entry.requestedText + ' · ' + updated.status,form)) renderInvestigation();
+      } catch (error) { form.querySelector('[data-checklist-notice]').textContent = error.message; }
+    });
+    function requireSavedReview(entry) {
+      const dirty = ['status','responseExcerpt','locator','notes','targetClaimId'].some(name => (form.querySelector('[name="' + name + '"]').value || null) !== (entry[name] || null));
+      if (dirty) form.querySelector('[data-checklist-notice]').textContent = 'Salve a conferência do item antes de acompanhar ou encerrar a lacuna. Seu preenchimento foi mantido.';
+      return !dirty;
+    }
+    form.querySelector('[data-action="track-checklist-gap"]')?.addEventListener('click', () => {
+      const {item,request,entry} = current(); if (!entry || !canTrackGap(entry) || !requireSavedReview(entry)) return;
+      if ((item.gaps || []).some(gap => gap.originChecklistItemId === entry.id)) return;
+      const oldGaps = item.gaps || [];
+      item.gaps = [...oldGaps,{id:'gap-' + entry.id,description:'Conferir atendimento do item: ' + entry.requestedText,status:'Aberta',originChecklistItemId:entry.id,originRequestTitle:request.title,originRequestIndex:Number(form.dataset.requestIndex),target_claim_id:entry.targetClaimId,basisExcerpt:entry.responseExcerpt,locator:entry.locator,provenance:'Avaliação manual do item solicitado; não é conclusão de irregularidade',nextStep:'Conferir resposta e anexos; avaliar complementação ou recurso conforme a jurisdição.'}];
+      if (!commit(item,request,request.itemChecklist,'Lacuna acompanhada a partir do item: ' + entry.requestedText,form)) { item.gaps=oldGaps; return; }
+      renderInvestigation();
+    });
+    form.querySelector('[data-action="close-checklist-gap"]')?.addEventListener('click', () => {
+      const {item,request,entry} = current(); if (!entry || entry.status !== 'answered' || !requireSavedReview(entry)) return;
+      const oldGaps = item.gaps || [];
+      item.gaps = oldGaps.map(gap => gap.originChecklistItemId === entry.id ? {...gap,status:'Resolvida',resolvedAt:new Date().toISOString()} : gap);
+      if (!commit(item,request,request.itemChecklist,'Encerramento manual da lacuna do item: ' + entry.requestedText,form)) { item.gaps=oldGaps; return; }
+      renderInvestigation();
+    });
+  });
+}
+
 function renderSilenceDetector(item) {
   const comparisons = Array.isArray(item.requestComparisons) ? item.requestComparisons : [];
   const issues = comparisons.flatMap((entry, index) => {
@@ -3862,6 +3952,7 @@ function renderLaiAssistant(item) {
         <p>${escapeHtml(request.agency)} · ${escapeHtml(request.protocol)}</p>
         <details><summary>Ver pedido original</summary><p>${escapeHtml(request.requestedItems)}</p></details>
         ${renderLaiDeadline(request)}
+        ${renderLaiItemChecklist(item, request, index)}
         ${review ? `<p class="pill">${escapeHtml(review.label)}</p><p>${escapeHtml(review.nextStep)}</p><details><summary>Ver última conferência</summary><p>${escapeHtml(review.date)}</p><p>${escapeHtml(review.response)}</p>${review.attachments ? `<details><summary>Anexos usados nesta conferência</summary><textarea rows="6" readonly>${escapeHtml(review.attachments)}</textarea>${(review.importedFiles || []).map(file => `<p>${escapeHtml(file.fileName)} · SHA-256: ${escapeHtml(file.sha256)}</p>`).join('')}${review.importedTextEdited ? '<p>O texto foi editado após a importação. O checksum identifica o arquivo original.</p>' : ''}</details>` : ''}<p>${escapeHtml(review.notes)}</p>${review.analysis ? `<p>Conferência assistida por IA, salva pela repórter.</p><p>${escapeHtml(review.analysis.summary)}</p>${review.analysis.draft ? `<label>Texto-base salvo<textarea rows="6" readonly>${escapeHtml(review.analysis.draft)}</textarea></label>` : ''}` : ''}</details>` : '<p>Resposta ainda não conferida neste fluxo.</p>'}
         <details><summary>Registrar resposta ou ocorrência</summary>
           <label>Data da ocorrência<input type="date" data-lai-date value="${todayIsoDate()}"></label>
@@ -4357,7 +4448,7 @@ function renderOverview(item) {
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
-    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label for="original-attachment-file">Original (até 20 MB)</label><input id="original-attachment-file" type="file" data-role="original-attachment-file"><span data-role="attachment-notice" role="status" aria-live="polite"></span><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save material" : locale === "es" ? "Guardar material" : "Salvar material"}</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div></form>
+    <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label for="original-attachment-file">Original (até 20 MB)</label><input id="original-attachment-file" type="file" data-role="original-attachment-file"><span data-role="attachment-notice" role="status" aria-live="polite"></span><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save material" : locale === "es" ? "Guardar material" : "Salvar material"}</button><button type="button" class="button secondary" data-action="discard-material-draft">Limpar rascunho</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div><p data-role="material-draft-notice" class="muted" role="status" aria-live="polite"></p></form>
     ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.attachmentId ? `<p class="muted">Original: ${escapeHtml(String(note.originalAttachment?.name || 'Arquivo vinculado'))}</p>${note.attachmentStatus === 'missing' ? '<p role="status">Original ausente nesta cópia. Consulte o backup completo.</p>' : `<button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(note.attachmentId))}">Abrir original vinculado</button>`}${note.originalAttachment?.sha256 ? `<details><summary>Identificação do original</summary><p class="file-checksum">SHA-256: ${escapeHtml(note.originalAttachment.sha256)}</p><p>Entrada: ${escapeHtml(String(note.originalAttachment.createdAt || note.createdAt))} · Registro v${Number(note.version) || 1}</p></details>` : ''}` : ''}${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
@@ -6862,6 +6953,7 @@ function bindQuickNoteImport() {
       if (kind) kind.value = 'document';
       const origin = form?.querySelector('[name="materialOrigin"]');
       if (origin && !origin.value.trim()) origin.value = file.name;
+      captureMaterialDraft(form);
       textarea.focus();
     } catch {
       window.alert('Não foi possível ler este arquivo.');
@@ -6870,12 +6962,61 @@ function bindQuickNoteImport() {
   }));
 }
 
+const materialDraftMemory = new Map();
+const unsavedMaterialCases = new Set();
+function captureMaterialDraft(form) {
+  const id = form.dataset.materialCase;
+  if (!id) return;
+  const draft = {
+    text: form.querySelector('textarea[name="note"]').value,
+    kind: form.querySelector('[name="materialKind"]').value,
+    origin: form.querySelector('[name="materialOrigin"]').value,
+    attachmentId: form.dataset.attachmentId || null,
+  };
+  materialDraftMemory.set(id, draft);
+  const result = saveMaterialDraft(investigationStorage(), id, draft);
+  const status = form.querySelector('[data-role="material-draft-notice"]');
+  if (result.saved) unsavedMaterialCases.delete(id); else unsavedMaterialCases.add(id);
+  if (status) status.textContent = result.saved
+    ? (hasMaterialDraft(draft) ? 'Rascunho salvo neste navegador. Ele será retomado ao voltar; registre o material para incluí-lo no backup.' : '')
+    : 'Rascunho apenas nesta sessão: não foi possível salvá-lo no navegador. Copie seu texto antes de sair.';
+}
+function restoreMaterialDraft(form, item) {
+  form.dataset.materialCase = item.id;
+  const loaded = loadMaterialDraft(investigationStorage(), item.id);
+  const draft = materialDraftMemory.get(item.id) || loaded.draft;
+  const status = form.querySelector('[data-role="material-draft-notice"]');
+  if (draft && hasMaterialDraft(draft)) {
+    form.querySelector('textarea[name="note"]').value = draft.text;
+    form.querySelector('[name="materialKind"]').value = draft.kind;
+    form.querySelector('[name="materialOrigin"]').value = draft.origin;
+    if (draft.attachmentId) {
+      form.dataset.attachmentId = draft.attachmentId;
+      const attachment = (item.localAttachments || []).find(entry => entry.id === draft.attachmentId);
+      form.querySelector('[data-role="attachment-notice"]').textContent = attachment
+        ? 'Original do rascunho: ' + attachment.name
+        : 'O original do rascunho não está disponível. Anexe-o novamente antes de salvar.';
+    }
+    if (status) status.textContent = unsavedMaterialCases.has(item.id)
+      ? 'Rascunho recuperado desta sessão; ainda não está salvo no navegador.'
+      : 'Rascunho recuperado. O material ainda não foi registrado na investigação.';
+  } else if (status && !['empty','loaded'].includes(loaded.status)) {
+    status.textContent = 'O rascunho anterior não pôde ser aberto e foi preservado. Copie qualquer novo texto antes de sair.';
+  }
+  form.querySelectorAll('textarea[name="note"], [name="materialKind"], [name="materialOrigin"]').forEach(field => {
+    field.addEventListener('input', () => captureMaterialDraft(form));
+    field.addEventListener('change', () => captureMaterialDraft(form));
+  });
+}
+
 function bindQuickNotes() {
+  document.querySelectorAll('[data-role="quick-note"]').forEach(form => restoreMaterialDraft(form, getCurrentInvestigation()));
   document.querySelectorAll('[data-role="quick-note"]').forEach(form => form.addEventListener('submit', event => {
     event.preventDefault();
     const input = form.querySelector('textarea[name="note"]');
     const item = getCurrentInvestigation();
     const attachment = (item.localAttachments || []).find(entry => entry.id === form.dataset.attachmentId);
+    if (form.dataset.attachmentId && !attachment) { window.alert('O original do rascunho não está disponível. Anexe-o novamente antes de salvar.'); return; }
     const text = input?.value.trim() || (attachment ? attachment.name : '');
     if (!text) { input.setCustomValidity('Escreva uma anotação ou anexe um original.'); input.reportValidity(); input.addEventListener('input', () => input.setCustomValidity(''), {once:true}); return; }
     const materialKind = form.querySelector('[name="materialKind"]')?.value || 'note';
@@ -6890,12 +7031,28 @@ function bindQuickNotes() {
     const previousNotes = item.reporterNotes || [];
     item.reporterNotes = [...previousNotes, createMaterialRecord({text, kind:materialKind, origin:materialOrigin, attachment})];
     item.updatedAt = todayIsoDate();
-    if (!saveInvestigations()) { item.reporterNotes = previousNotes; return; }
+    if (!saveInvestigations()) { item.reporterNotes = previousNotes; captureMaterialDraft(form); return; }
+    const priorDraft = loadMaterialDraft(investigationStorage(), item.id);
+    const cleared = ['empty','loaded'].includes(priorDraft.status) ? clearMaterialDraft(investigationStorage(), item.id) : {saved:false};
+    materialDraftMemory.delete(item.id); unsavedMaterialCases.delete(item.id);
+    if (!cleared.saved) window.alert('Material registrado, mas o rascunho anterior não pôde ser removido do navegador. Ele pode reaparecer ao recarregar.');
     renderInvestigation();
   }));
 }
 
 function bindActions() {
+  document.querySelectorAll('[data-action="discard-material-draft"]').forEach(button => button.addEventListener('click', () => {
+    const form = button.closest('[data-role="quick-note"]');
+    const id = form.dataset.materialCase;
+    if (!window.confirm('Limpar este rascunho? Os materiais já registrados e os arquivos originais da investigação serão mantidos.')) return;
+    const result = clearMaterialDraft(investigationStorage(), id);
+    if (!result.saved) { form.querySelector('[data-role="material-draft-notice"]').textContent = 'Não foi possível limpar o rascunho. Seu preenchimento foi mantido.'; return; }
+    materialDraftMemory.delete(id); unsavedMaterialCases.delete(id);
+    form.reset(); delete form.dataset.attachmentId;
+    form.querySelector('textarea[name="note"]').setCustomValidity('');
+    form.querySelector('[data-role="attachment-notice"]').textContent = '';
+    form.querySelector('[data-role="material-draft-notice"]').textContent = 'Rascunho limpo. Os materiais e originais registrados foram mantidos.';
+  }));
   document.querySelectorAll('[data-action="download-storage-original"]').forEach(button => button.addEventListener('click', () => {
     const raw = readLocalStorage(STORAGE_KEY);
     if (!raw) { window.alert('Os dados originais não estão acessíveis neste navegador.'); return; }
@@ -6930,6 +7087,7 @@ function bindActions() {
         throw new Error('Não foi possível salvar os metadados no navegador. Seu texto foi mantido.');
       }
       form.dataset.attachmentId = metadata.id;
+      captureMaterialDraft(form);
       form.querySelector('textarea[name="note"]').setCustomValidity('');
       notice.textContent = 'Original preservado: ' + metadata.name + '. Salve o material para vinculá-lo à anotação.';
     } catch (error) {
@@ -6955,6 +7113,7 @@ function bindActions() {
   bindQuickNoteImport();
   bindNoteClassification();
   bindSilenceTracking();
+  bindLaiItemChecklist();
   bindRobustnessSimulator();
   document.querySelectorAll('[data-action="save-source-origin"]').forEach(button => button.addEventListener('click', () => {
     const index = Number(button.dataset.sourceIndex);
@@ -7331,6 +7490,11 @@ function bindActions() {
     });
   });
 }
+
+window.addEventListener('beforeunload', event => {
+  if (!unsavedMaterialCases.size) return;
+  event.preventDefault(); event.returnValue = '';
+});
 
 if (state.view === "investigation") {
   renderInvestigation();

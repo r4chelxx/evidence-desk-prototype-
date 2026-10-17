@@ -15,7 +15,7 @@ function setup(saved = true) {
  const form = {dataset:{}, addEventListener(name,fn){handlers[name]=fn;},querySelector(selector){return selector.includes('textarea') ? textarea : selector.includes('attachment-notice') ? notice : selector.includes('submit') ? submit : {value:''};}};
  const input = {files:[{name:'original.txt'}], value:'original.txt', closest(){return form;},addEventListener(name,fn){handlers.attachment=fn;}};
  let renders=0, deleted=0;
- const context = vm.createContext({document:{querySelectorAll(selector){return selector.includes('original-attachment-file') ? [input] : selector.includes('quick-note') ? [form] : [];}},getCurrentInvestigation:()=>item,state:{locale:'pt'},createMaterialRecord,storeAttachment:async()=>({id:'file-1',name:'original.txt',size:12,sha256:'a'.repeat(64)}),deleteAttachment:async()=>{deleted++;},saveInvestigations:()=>saved,todayIsoDate:()=> '2026-10-17',renderInvestigation:()=>{renders++;}});
+ const context = vm.createContext({document:{querySelectorAll(selector){return selector.includes('original-attachment-file') ? [input] : selector.includes('quick-note') ? [form] : [];}},getCurrentInvestigation:()=>item,state:{locale:'pt'},createMaterialRecord,restoreMaterialDraft:()=>{},captureMaterialDraft:()=>{},investigationStorage:()=>null,loadMaterialDraft:()=>({status:'loaded'}),clearMaterialDraft:()=>({saved:true}),materialDraftMemory:new Map(),unsavedMaterialCases:new Set(),storeAttachment:async()=>({id:'file-1',name:'original.txt',size:12,sha256:'a'.repeat(64)}),deleteAttachment:async()=>{deleted++;},saveInvestigations:()=>saved,todayIsoDate:()=> '2026-10-17',renderInvestigation:()=>{renders++;}});
  vm.runInContext(notesCode + '\nbindQuickNotes();\n' + attachmentCode, context);
  return {item,handlers,textarea,form,notice,submit,input,get renders(){return renders;},get deleted(){return deleted;}};
 }
@@ -55,7 +55,7 @@ test('text import appends to the current draft and rejects overflow without trun
  const textarea={value:'Rascunho',maxLength:100,focus(){},setCustomValidity(){}};
  const form={querySelector(selector){return selector.includes('textarea') ? textarea : {value:''};}};
  const input={files:[{name:'a.txt',size:5,text:async()=>'Texto'}],value:'a.txt',closest:()=>form,addEventListener(_name,fn){change=fn;}};
- const context=vm.createContext({document:{querySelectorAll:()=>[input]},window:{alert:message=>messages.push(message)}});
+ const context=vm.createContext({document:{querySelectorAll:()=>[input]},captureMaterialDraft:()=>{},window:{alert:message=>messages.push(message)}});
  vm.runInContext(source.slice(start,end)+'\nbindQuickNoteImport();',context);
  await change(); assert.equal(textarea.value,'Rascunho\n\n[a.txt]\nTexto');
  const before=textarea.value; textarea.maxLength=before.length; await change();

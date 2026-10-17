@@ -23,3 +23,12 @@ test('current demonstration cases remain compatible with portable import', async
  const {investigations} = await import('../data.js');
  for (const investigation of investigations) assert.equal(validateInvestigationImport({schema:'evidence-desk-investigation-v0.1',investigation}), investigation);
 });
+
+test('portable imports preserve valid request item checklists and reject malformed reviews', async()=> {
+ const {createChecklistItem} = await import('../lai-item-checklist.mjs');
+ const entry=createChecklistItem({requestedText:'Anexo por unidade'});
+ const data={...item,requests:[{title:'Pedido',itemChecklist:[entry]}]};
+ assert.equal(validateInvestigationImport(data).requests[0].itemChecklist[0].id,entry.id);
+ assert.throws(()=>validateInvestigationImport({...data,requests:[{itemChecklist:[{...entry,status:'invented'}]}]}));
+ assert.throws(()=>validateInvestigationImport({...data,requests:[{itemChecklist:[entry,entry]}]}));
+});
