@@ -3524,7 +3524,7 @@ function renderMobileFocusCard(item) {
         </div>
         <div>
           <dt>${t("mobileNextDecision")}</dt>
-          <dd>${nextItem?.title || draft.editorQuestion}</dd>
+          <dd>${escapeHtml(String(nextItem?.title || draft.editorQuestion || ""))}</dd>
         </div>
         <div>
           <dt>${t("mobilePublicationBlocker")}</dt>
@@ -5134,7 +5134,7 @@ function renderExecutiveSummary(item) {
             <article class="summary-tile ${tile.tone}">
               <span>${tile.label}</span>
               <strong>${tile.value}</strong>
-              <p>${tile.detail}</p>
+              <p>${escapeHtml(String(tile.detail || ""))}</p>
             </article>
           `,
         )
@@ -5766,11 +5766,11 @@ function renderQueueSection(title, items) {
               (queueItem) => `
                 <article class="row-card">
                   <div>
-                    <p class="eyebrow">${queueItem.meta}</p>
-                    <h3>${queueItem.title}</h3>
-                    <p class="muted">${queueItem.detail}</p>
+                    <p class="eyebrow">${escapeHtml(String(queueItem.meta || ''))}</p>
+                    <h3>${escapeHtml(String(queueItem.title || ''))}</h3>
+                    <p class="muted">${escapeHtml(String(queueItem.detail || ''))}</p>
                   </div>
-                  <span class="pill ${statusClass(queueItem.status)}">${queueItem.status}</span>
+                  <span class="pill ${statusClass(queueItem.status)}">${escapeHtml(String(queueItem.status || ''))}</span>
                 </article>
               `,
             )
@@ -6188,7 +6188,7 @@ function bindReverseInvestigation() {
       if (patch.status !== requirement.status || patch.notes !== requirement.notes || JSON.stringify([...patch.evidenceIds].sort()) !== JSON.stringify([...requirement.evidenceIds].sort())) { form.querySelector('[data-requirement-notice]').textContent = 'Salve a revisão do requisito antes de criar a tarefa. Seu preenchimento foi mantido.'; return; }
       if ((item.actionItems || []).some(action => action.originRequirementId === requirement.id && action.target_claim_id === claimId)) return;
       const old = item.actionItems || [];
-      item.actionItems = [...old,{id:'task-' + requirement.id,originRequirementId:requirement.id,target_claim_id:claimId,action:'Verificar requisito: ' + requirement.text,source:'Investigação reversa',priority:'A definir',status:'Planejada',owner:'Repórter',dueDate:'',type:requirement.kind,rationale:'Requisito explicitamente registrado para a afirmação; não constitui evidência.',output:'Documento, referência ou checagem rastreável, com limites registrados.'}];
+      item.actionItems = [...old,{id:'task-' + claimId + '-' + requirement.id,originRequirementId:requirement.id,target_claim_id:claimId,action:'Verificar requisito: ' + requirement.text,source:'Investigação reversa',priority:'A definir',status:'Planejada',owner:'Repórter',dueDate:'',type:requirement.kind,rationale:'Requisito explicitamente registrado para a afirmação; não constitui evidência.',output:'Documento, referência ou checagem rastreável, com limites registrados.'}];
       if (!commit(item,claim,claim.requirements,'Tarefa de apuração criada para o requisito: ' + requirement.text,form)) { item.actionItems = old; return; }
       renderInvestigation();
     });

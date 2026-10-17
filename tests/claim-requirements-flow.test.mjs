@@ -119,3 +119,16 @@ test('reverse requirement rendering escapes manually authored text, notes and ev
   assert.equal(html.includes('<script>'), false); assert.equal(html.includes('<img src=x'), false);
   assert.match(html, /&lt;img/); assert.match(html, /&lt;\/textarea&gt;/);
 });
+
+test('requirement task wording stays literal across queue, summary and mobile surfaces', () => {
+ const names=['escapeHtml','renderQueueSection','renderExecutiveSummary','renderMobileFocusCard'];
+ const chunks=names.map(name=>{const a=source.indexOf('function '+name+'('); return source.slice(a,source.indexOf('\nfunction ',a+1));}).join('\n');
+ const text='<img src=x onerror=alert(1)>';
+ const queue={deadlineItems:[],reviewItems:[],actionItems:[{title:text,meta:text,status:'Planejada',detail:text}]};
+ const item={hypotheses:[],evidenceBlocks:[],sources:[],requests:[],claims:[],gaps:[],qaChecklist:[]};
+ const ctx=vm.createContext({t:key=>key,statusClass:()=> 'neutral',getEditorialQueue:()=>queue,getStoryDraft:()=>({sections:[],workingThesis:'',editorQuestion:''}),countOpenGaps:()=>0,countOpenClaims:()=>0,countQaBlockers:()=>0,countReviewedResponses:()=>0,countRequestFollowUps:()=>0,countLateRequests:()=>0,queue,item});
+ vm.runInContext(chunks,ctx);
+ for(const expression of ['renderQueueSection("Fila",queue.actionItems)','renderExecutiveSummary(item)','renderMobileFocusCard(item)']) {
+ const html=vm.runInContext(expression,ctx); assert.ok(!html.includes('<img')); assert.ok(html.includes('&lt;img'));
+ }
+});

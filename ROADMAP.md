@@ -229,5 +229,5 @@ A migração aqui cobre o envelope local; não é uma migração completa de tod
 - Simulador permite retirar uma fonte inteira e todas as evidências associadas apenas do cenário hipotético. Mostra apoio, contradição e limitação antes/depois; separa perda de cobertura de requisitos de perda de apoio à afirmação.
 - Fonte sem vínculos documentais não é interpretada como prova de robustez. Retirar uma contradição não elimina o dever de confrontá-la na investigação real.
 - Importação valida requisitos e preserva o caso em erro; textos dos requisitos e tarefas são tratados como texto, sem interpretar marcação de documentos.
-- 126 testes automatizados locais aprovados, com regressões de procedência, não mutação, falha de gravação, mudança de seleção e criação explícita de tarefas.
+- 127 testes automatizados locais aprovados, com regressões de procedência, não mutação, falha de gravação, mudança de seleção e criação explícita de tarefas.
 - **Ainda pendente:** decomposição assistida de afirmações, seleção de trechos no visualizador, explicação automática de mudanças após material novo, radar priorizado e UX consolidada. As entregas manuais desta rodada não concluem esses diferenciais completos.
