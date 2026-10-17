@@ -29,7 +29,7 @@ function form() {
 function setup(db = storage()) {
   let beforeunload;
   const context = vm.createContext({
-    loadMaterialDraft, saveMaterialDraft, hasMaterialDraft, investigationStorage: () => db,
+    proposalDraftMemory: new Map(), loadMaterialDraft, saveMaterialDraft, hasMaterialDraft, investigationStorage: () => db,
     window: { addEventListener(name, handler) { if (name === 'beforeunload') beforeunload = handler; } }
   });
   vm.runInContext(helpers + '\n' + unload, context);

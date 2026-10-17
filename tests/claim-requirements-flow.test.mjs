@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { createClaimRequirement, updateClaimRequirement, assessClaimRequirements } from '../claim-requirements.mjs';
 import { adaptLegacyInvestigation } from '../investigation-adapter.mjs';
+import { suggestClaimRequirements } from '../claim-suggestions.mjs';
 
 const source = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const start = source.indexOf('function renderReverseInvestigation(item) {');
@@ -38,7 +39,7 @@ function setup(withRequirement = true) {
   const state = { currentId: item.id, reverseSelections: {} };
   const context = vm.createContext({
     document: { querySelector: () => reverseNotice, querySelectorAll(selector) { return selector.includes('data-reverse-claim') ? [picker] : selector.includes('requirement-add') ? [add] : selector.includes('requirement-review') && withRequirement ? [review] : []; } },
-    getCurrentInvestigation: () => item, createClaimRequirement, updateClaimRequirement, assessClaimRequirements, adaptLegacyInvestigation,
+    getCurrentInvestigation: () => item, createClaimRequirement, updateClaimRequirement, assessClaimRequirements, adaptLegacyInvestigation, suggestClaimRequirements, proposalDraftMemory: new Map(),
     todayIsoDate: () => '2026-10-17', saveInvestigations: () => saved, renderInvestigation: () => { renders++; }, saveUiState() {}, state,
     escapeHtml: value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;')
   });

@@ -44,7 +44,7 @@ test('missing current case returns to the dashboard before reading case fields',
  const start = source.indexOf('function renderInvestigation() {');
  const end = source.indexOf('\nfunction ', start + 1);
  let dashboards=0; const state={view:'investigation'};
- const context=vm.createContext({getCurrentInvestigation:()=>undefined, state, renderDashboard:()=>{dashboards++;}});
+ const context=vm.createContext({captureProposalEdits:()=>{},getCurrentInvestigation:()=>undefined, state, renderDashboard:()=>{dashboards++;}});
  vm.runInContext(source.slice(start,end)+'\nrenderInvestigation();',context);
  assert.equal(dashboards,1); assert.equal(state.view,'dashboard');
 });

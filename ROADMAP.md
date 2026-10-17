@@ -12,11 +12,11 @@
 ## Cinco diferenciais centrais — permanecem no escopo
 | Diferencial | Entrega completa esperada | Situação conservadora em 17/10 |
 | --- | --- | --- |
-| Detector de silêncios | Pedido × resposta × anexos × períodos; itens não atendidos, justificativas, impacto e rascunho de complementação/recurso | Parcial: registros manuais, lacunas e vínculos; checklist granular e validação completa pendentes |
-| Investigação reversa | Afirmação → requisitos verificáveis → documentos/fontes/perguntas/tarefas; mostrar saltos inferenciais | Requisitos manuais por afirmação, cobertura documental conservadora e criação explícita de tarefas integrados; decomposição assistida e validação completa continuam pendentes |
+| Detector de silêncios | Pedido × resposta × anexos × períodos; itens não atendidos, justificativas, impacto e rascunho de complementação/recurso | Checklist manual granular, lacunas e vínculos integrados; comparação automática de anexos/períodos/versões, recurso e validação completa pendentes |
+| Investigação reversa | Afirmação → requisitos verificáveis → documentos/fontes/perguntas/tarefas; mostrar saltos inferenciais | Requisitos manuais e sugestões iniciais por regras de linguagem, revisão explícita e cobertura documental conservadora integrados; decomposição semântica e validação completa pendentes |
 | Simulador de robustez | Retirar provisoriamente evidência **ou fonte**, comparar efeitos e ressalvas sem alterar o caso | Retirada de evidência ou fonte inteira com impactos nos vínculos e requisitos integrada e testada; validação completa com jornalistas permanece pendente |
 | Detector de dependência | Rastrear origem primária; separar citações repetidas de corroboradores independentes | Regras e interface inicial para origens declaradas existem; não equivalem a detecção semântica ou independência comprovada |
-| Radar de caminhos | Próximas ações com justificativa, material de origem, impacto estimado, esforço e dependências; converter em tarefa/pedido/pergunta/verificação | Propostas iniciais por regras existem; priorização completa, conversão integrada e decisões rastreáveis pendentes |
+| Radar de caminhos | Próximas ações com justificativa, material de origem, impacto estimado, esforço e dependências; converter em tarefa/pedido/pergunta/verificação | Fila limitada priorizada por registros explícitos, justificativa, decisões rastreáveis e conversão em tarefa integradas; estimativas validadas, outras conversões e usabilidade pendentes |
 
 ## Frentes transversais que não podem desaparecer do planejamento
 1. **UX e trabalho em uma tela:** painel de investigações, visão clara do próximo movimento, menos formulários, criação rápida, visualizações elegantes, ajuda “?” acessível por toque/teclado e desktop/mobile. Organização de abas continua em aberto.
@@ -33,7 +33,7 @@
 12. **Expansão condicionada:** colaboração e sincronização segura com conflitos; biblioteca pública/contribuições da comunidade e integrações de coleta constam da visão inicial, mas não são requisitos imediatos nem funcionalidades prontas.
 
 ## Como interpretar o andamento
-- **Implementado e testado em escopo delimitado:** armazenamento local versionado e recuperação, validação de importação, anexos em IndexedDB, hash, backup completo e captura vinculada ao original; 70 testes automáticos aprovados no último commit de código.
+- **Implementado e testado em escopo delimitado:** armazenamento local versionado e recuperação, importação, anexos com hash, captura/rascunhos, checklist manual de LAI, requisitos por afirmação, simulação por fonte e propostas revisáveis; 161 testes automáticos aprovados nesta rodada. O histórico abaixo registra a contagem de cada entrega anterior.
 - **Teste manual realizado:** caso sintético; rascunho preservado ao anexar, salvamento e recarga, vínculo e recuperação do original com bytes idênticos.
 - **Parcial/experimental:** motor investigativo, silêncios, dependência de fontes, simulador e propostas de ação. Código e testes unitários não encerram o recurso completo.
 - **Ainda não validado integralmente:** migração de todos os modelos, recuperação manual no navegador em todos os erros, mobile/acessibilidade, caso real revisado, usabilidade com jornalistas e IA pública sem conta.
@@ -231,3 +231,12 @@ A migração aqui cobre o envelope local; não é uma migração completa de tod
 - Importação valida requisitos e preserva o caso em erro; textos dos requisitos e tarefas são tratados como texto, sem interpretar marcação de documentos.
 - 127 testes automatizados locais aprovados, com regressões de procedência, não mutação, falha de gravação, mudança de seleção e criação explícita de tarefas.
 - **Ainda pendente:** decomposição assistida de afirmações, seleção de trechos no visualizador, explicação automática de mudanças após material novo, radar priorizado e UX consolidada. As entregas manuais desta rodada não concluem esses diferenciais completos.
+
+## Rodada — sugestões revisáveis e radar priorizado (17/10/2026)
+- Até quatro sugestões de requisitos por afirmação: origem primária e padrões básicos de números, comparações, causalidade e atribuição em PT/EN/ES. Cada uma mostra a regra e o texto exato da afirmação de origem. Não é decomposição semântica por IA nem verificação de fatos.
+- Radar na visão geral e na revisão editorial: até quatro propostas de lacunas abertas/requisitos não cobertos, com fatores de prioridade visíveis. Dependências, ciclos, risco, gravidade e esforço só usam registros existentes; esforço ausente aparece como não informado. Prioridade organiza o trabalho, não mede verdade.
+- Editar/aceitar/rejeitar exige decisão explícita. Aceitar requisito cria requisito aberto; aceitar radar cria tarefa rastreável, sem criar evidência, encerrar lacuna ou aprovar afirmação. O diário registra a ação.
+- Memória persistida de aceites/rejeições por impressão digital do registro de origem; alterações relevantes permitem nova proposta. Importação, backup e armazenamento preservam as decisões. Duplicatas e cartões desatualizados são bloqueados.
+- Falhas de gravação revertem a decisão sem apagar o preenchimento. Edições de propostas permanecem na sessão ao navegar, isoladas por investigação e versão da proposta, com aviso ao sair; não são rascunhos persistentes após fechar a sessão.
+- 161 testes automatizados locais aprovados, incluindo handlers reais de interface em ambiente simulado, preservação de edições, rollback, importação e reaparecimento após mudança de origem/dependências.
+- **Continuam pendentes no roadmap completo:** seleção citável no visualizador, explicação de mudanças após novo material, comparações automáticas de LAI/recurso, navegação contextual e validação móvel/acessibilidade, sensíveis/exportação cifrada, IA pública validada, interoperabilidade e testes com jornalistas. Esta rodada não encerra nenhum diferencial completo.

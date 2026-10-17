@@ -3,7 +3,7 @@ import { summarizeChecklist } from './lai-item-checklist.mjs?v=20261017-lai-item
 // Validate portable investigations before touching browser storage or attachments.
 const schemas = new Set(['evidence-desk-investigation-v0.1', 'evidence-desk-complete-backup-v1']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'verifiedEvidence', 'reporterNotes', 'methodRules'];
+const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'verifiedEvidence', 'reporterNotes', 'methodRules', 'claimSuggestionDecisions', 'radarDecisions'];
 export function validateInvestigationImport(payload, defaults = {}) {
   if (!object(payload)) throw new Error('O arquivo deve conter uma investigação.');
   if ('schema' in payload && !schemas.has(payload.schema)) throw new Error('Versão de backup não reconhecida.');
@@ -27,6 +27,9 @@ export function validateInvestigationImport(payload, defaults = {}) {
   check(item, defaults, 'investigation');
   for (const field of objectLists) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => !object(entry)))) throw new Error('Lista de registros inválida: ' + field);
   for (const field of ['secondaryQuestions', 'nextReviewItems']) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => typeof entry !== 'string'))) throw new Error('Lista de textos inválida: ' + field);
+  for (const field of ['claimSuggestionDecisions', 'radarDecisions']) for (const decision of item[field] || []) {
+    if (typeof decision.fingerprint !== 'string' || !decision.fingerprint || !['accepted','rejected'].includes(decision.status)) throw new Error('Decisão de sugestão inválida.');
+  }
   for (const request of item.requests || []) if ('itemChecklist' in request) summarizeChecklist(request.itemChecklist);
   for (const claim of item.claims || []) if ('requirements' in claim) {
     if (!Array.isArray(claim.requirements)) throw new Error('Lista de requisitos inválida.');

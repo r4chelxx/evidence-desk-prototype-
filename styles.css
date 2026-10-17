@@ -3019,3 +3019,12 @@ button:disabled {
 .requirement-card form { display: grid; gap: .7rem; padding-top: .7rem; }
 .requirement-card fieldset label { display: block; }
 .requirement-card input[type="checkbox"] { width: auto; }
+
+.investigation-radar, .claim-suggestions { min-width: 0; }
+.proposal-card { display: grid; gap: .7rem; border: 1px solid var(--border, #ddd); border-radius: .7rem; padding: 1rem; margin-block: .8rem; min-width: 0; }
+.proposal-card h4, .proposal-card blockquote, .proposal-card p { overflow-wrap: anywhere; }
+.proposal-card label { display: grid; gap: .4rem; }
+.proposal-card textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+.proposal-card summary { cursor: pointer; padding-block: .4rem; }
+.proposal-card blockquote { margin-inline: 0; padding-inline-start: .8rem; border-inline-start: 3px solid var(--border, #ddd); white-space: pre-wrap; }
+.proposal-card [data-proposal-notice]:empty { display: none; }

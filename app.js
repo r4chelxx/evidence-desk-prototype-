@@ -1,9 +1,11 @@
 import { createClaimRequirement, updateClaimRequirement, assessClaimRequirements } from "./claim-requirements.mjs?v=20261017-reverse1";
+import { suggestClaimRequirements } from "./claim-suggestions.mjs?v=20261017-radar1";
+import { buildInvestigationRadar } from "./investigation-radar.mjs?v=20261017-radar1";
 import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
 import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-reverse1";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-radar1";
 import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-reverse1";
-import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-reverse1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-radar1";
 import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-reverse1";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-reverse1";
 import { simulateEvidenceRemoval, simulateSourceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-reverse1";
@@ -14,6 +16,7 @@ import { configureService, getServiceUrl, connectService, disconnectService, ser
 const STORAGE_KEY = "evidence-desk-investigations-v1";
 const UI_STORAGE_KEY = "evidence-desk-ui-v1";
 const SEED_DATA_REVISION = "20261014-lai-assistant";
+const proposalDraftMemory = new Map();
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -2870,6 +2873,7 @@ function renderShell(content) {
 }
 
 function renderDashboard() {
+  captureProposalEdits();
   const filteredInvestigations = investigations.filter(investigationMatchesFilters);
   const localizedTestPlan =
     state.locale === "pt"
@@ -3201,6 +3205,7 @@ function renderDashboard() {
 }
 
 function renderNewInvestigation() {
+  captureProposalEdits();
   const fields = [
     ["title", t("investigationTitle"), t("investigationTitlePlaceholder")],
     ["country", t("country"), t("countryPlaceholder")],
@@ -3325,6 +3330,7 @@ function validateDraft() {
 }
 
 function renderInvestigation() {
+  captureProposalEdits();
   const item = getCurrentInvestigation();
   if (!item) { state.view = 'dashboard'; renderDashboard(); return; }
   const tabGroups = [
@@ -4333,6 +4339,7 @@ function renderRequestBoard(item) {
 
 function renderEditorialWorkspace(item) {
   return `
+    ${renderInvestigationRadar(item)}
     ${renderEditorialQueue(item)}
     ${renderActionPlan(item)}
     ${renderGaps(item)}
@@ -4418,19 +4425,19 @@ function renderIntelligenceOverview(item) {
   const reviewClaims = result.claims.filter(c => c.editorialApproval !== true);
   const escape = value => escapeHtml(String(value ?? ""));
   const gapItems = unresolved.slice(0, 4).map(g => `<li>${escape(g.label || g.id)}</li>`).join("");
-  const actionItems = result.proposedActions.slice(0, 4).map(a => `<li><strong>${escape(a.title)}</strong> — ${escape(a.rationale)}</li>`).join("");
+  const radarCount = buildInvestigationRadar(item, {limit:4}).total;
   return `<section class="panel intelligence-overview" aria-label="${escape(title)}">
     <div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div><span class="pill neutral">Beta · regras verificáveis</span></div>
     <div class="intelligence-metrics">
       <div><strong>${result.graph.nodes.filter(n => n.kind === "evidence" && ["verified", "verificado", "verificada"].includes(String(n.status || "").toLowerCase())).length}</strong><span>${escape(verified)}</span></div>
       <div><strong>${unresolved.length}</strong><span>${escape(gaps)}</span></div>
       <div><strong>${reviewClaims.length}</strong><span>${escape(claims)}</span></div>
-      <div><strong>${result.proposedActions.length}</strong><span>${escape(actions)}</span></div>
+      <div><strong>${radarCount}</strong><span>${escape(actions)}</span></div>
     </div>
     <div class="intelligence-columns"><div><h3>${escape(missing)}</h3>${gapItems ? `<ul>${gapItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="plan">${escape(openPlan)}</button></div>
-    <div><h3>${escape(next)}</h3>${actionItems ? `<ul>${actionItems}</ul>` : "<p>—</p>"}<button class="button secondary" data-action="tab" data-tab="editorial">${escape(openEditorial)}</button></div></div>
+    <div><h3>${escape(next)}</h3><p>Revise as propostas priorizadas no radar abaixo. Aceitar cria uma tarefa; não comprova a afirmação.</p><button class="button secondary" data-action="tab" data-tab="editorial">${escape(openEditorial)}</button></div></div>
     <p class="muted">${escape(caution)}</p>
-  </section>${renderClaimGapDependencies(item)}`;
+  </section>${renderInvestigationRadar(item)}${renderClaimGapDependencies(item)}`;
 }
 
 function renderEvidenceMap(item) {
@@ -6106,6 +6113,7 @@ function renderReverseInvestigation(item) {
     <p>Parta da afirmação e registre os documentos, dados ou checagens necessários. Requisitos são planejamento, não provas.</p>
     <label>Afirmação em análise<select data-reverse-claim>${claims.map((entry,index) => `<option value="${esc(entry.id || 'claim-' + index)}" ${index === claimIndex ? 'selected' : ''}>${esc(entry.statement || entry.text || 'Afirmação ' + (index+1))}</option>`).join('')}</select></label><p role="status" data-reverse-notice></p>
     <p class="muted">${assessment.counts.open} em aberto · ${assessment.counts.partial} parciais · ${assessment.counts.documented} documentados pela repórter. Nenhuma aprovação editorial é automática.</p>
+    ${renderClaimSuggestions(item, claim, claimId)}
     <form data-role="requirement-add" data-claim-id="${esc(claimId)}"><label>Requisito a verificar<textarea name="requirementText" rows="2" maxlength="6000" required placeholder="Ex.: localizar os contratos originais do período investigado"></textarea></label><label>Tipo de verificação<select name="requirementKind"><option value="document">Documento</option><option value="data">Dados</option><option value="interview">Entrevista</option><option value="verification">Checagem</option></select></label><button class="button secondary" type="submit">Adicionar requisito</button><p role="status" data-requirement-notice></p></form>
     <div class="stack">${requirements.map((requirement,index) => {
       const audit = assessment.requirements[index];
@@ -6121,6 +6129,130 @@ function renderReverseInvestigation(item) {
         </form></details>`;
     }).join('')}</div>
   </section>`;
+}
+
+function proposalFactorText(value) {
+  if (value == null || value === '') return 'não informado';
+  if (typeof value === 'object' && !Array.isArray(value) && ('item' in value || 'claims' in value)) {
+    const parts = [value.item ? 'item: ' + value.item : '', Array.isArray(value.claims) && value.claims.some(Boolean) ? 'afirmações: ' + value.claims.filter(Boolean).join(', ') : ''].filter(Boolean);
+    return parts.join('; ') || 'não informado';
+  }
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
+function proposalDraftKey(caseId, fingerprint) {
+  return JSON.stringify([caseId, fingerprint]);
+}
+
+function captureProposalEdit(form) {
+  const input = form.querySelector('[name="proposalText"]');
+  if (!input) return;
+  const key = proposalDraftKey(form.dataset.caseId,form.dataset.proposalFingerprint);
+  const original = form.dataset.originalText ?? input.defaultValue;
+  if (input.value === original) proposalDraftMemory.delete(key);
+  else proposalDraftMemory.set(key,input.value);
+}
+
+function captureProposalEdits() {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('[data-role="claim-suggestion"], [data-role="radar-proposal"]').forEach(captureProposalEdit);
+}
+
+function renderProposalCard(proposal, mode, claimId = '', caseId = state.currentId) {
+  const esc = value => escapeHtml(String(value ?? ''));
+  const text = mode === 'claim' ? proposal.text : proposal.title;
+  const editedText = proposalDraftMemory.get(proposalDraftKey(caseId,proposal.fingerprint)) ?? text;
+  const rationale = Array.isArray(proposal.rationale) ? proposal.rationale.map(entry => `${entry.factor}: ${proposalFactorText(entry.value)} (${entry.points} pontos)`).join(' · ') : proposal.rationale;
+  const basis = mode === 'claim' ? proposal.basisExcerpt : proposal.basis.excerpt;
+  return `<form class="proposal-card" data-role="${mode === 'claim' ? 'claim-suggestion' : 'radar-proposal'}" data-case-id="${esc(caseId)}" data-original-text="${esc(text)}" data-proposal-id="${esc(proposal.id)}" data-proposal-fingerprint="${esc(proposal.fingerprint)}" data-claim-id="${esc(claimId)}">
+    <h4>${esc(text)}</h4>
+    ${mode === 'radar' ? `<p class="muted">Prioridade: ${esc(proposal.priority)} · Esforço: ${proposal.effort.known ? esc(proposalFactorText(proposal.effort.value)) : 'não informado'}${proposal.waiting ? ' · Aguarda dependências' : ''}</p>` : ''}
+    <details><summary>Por que esta sugestão apareceu?</summary><p>${esc(rationale)}</p><blockquote>${esc(basis)}</blockquote><p class="muted">${mode === 'claim' ? 'Trecho da afirmação escrita pela jornalista; não é prova documental. A regra sugere uma verificação, sem interpretar o texto como fato.' : 'Registro da própria investigação. A prioridade organiza trabalho e não mede a veracidade da afirmação.'}</p>${mode === 'radar' && proposal.unresolvedDependencyIds.length ? `<p>Dependências ainda abertas: ${esc(proposal.unresolvedDependencyIds.join(', '))}${proposal.dependencyCycle ? ' · Há um ciclo nas dependências registradas.' : ''}</p>` : ''}</details>
+    <details><summary>Editar antes de aceitar</summary><label>Texto para registrar<textarea name="proposalText" rows="3" maxlength="12000" required>${esc(editedText)}</textarea></label><p class="muted">Edições ficam nesta sessão até aceitar ou rejeitar a sugestão.</p></details>
+    <div class="button-row"><button class="button secondary" type="submit">${mode === 'claim' ? 'Aceitar requisito' : 'Criar tarefa'}</button><button class="button secondary" type="button" data-action="reject-proposal">Rejeitar sugestão</button></div><p data-proposal-notice role="status"></p>
+  </form>`;
+}
+
+function claimProposals(item, claim, claimId) {
+  return suggestClaimRequirements({claimId, text:String(claim.statement || claim.text || claim.claim || claim.title || ''), requirements:claim.requirements || [], decisions:item.claimSuggestionDecisions || [], locale:state.locale});
+}
+
+function renderClaimSuggestions(item, claim, claimId) {
+  try {
+    const proposals = claimProposals(item,claim,claimId);
+    return `<details class="claim-suggestions"><summary>Sugestões automáticas de verificação (${proposals.length})</summary><p class="muted">Regras de linguagem propõem requisitos a partir da afirmação. Revise ou edite antes de aceitar. Não há análise semântica por IA nem verificação de fatos neste recurso.</p>${proposals.map(proposal => renderProposalCard(proposal,'claim',claimId,item.id)).join('') || '<p>Nenhuma sugestão nova para esta versão da afirmação. Decisões anteriores e requisitos existentes são respeitados.</p>'}</details>`;
+  } catch (error) { return `<p role="status">Sugestões indisponíveis: ${escapeHtml(String(error.message))} Seus registros foram mantidos.</p>`; }
+}
+
+function renderInvestigationRadar(item) {
+  try {
+    const radar = buildInvestigationRadar(item,{limit:4});
+    return `<section class="panel investigation-radar"><p class="eyebrow">Radar de caminhos · regras explicáveis</p><h3>Próximos movimentos de apuração</h3><p class="muted">${radar.total} proposta(s) disponíveis · ${radar.waiting} aguardando dependências. Mostramos até quatro por vez. Esforço e dependências só aparecem quando registrados.</p>${radar.proposals.map(proposal => renderProposalCard(proposal,'radar','',item.id)).join('') || '<p>Nenhuma nova proposta com base nos registros atuais. Sugestões aceitas ou rejeitadas não são repetidas sem mudança do registro de origem.</p>'}</section>`;
+  } catch (error) { return `<section class="panel"><h3>Radar de caminhos</h3><p role="status">Não foi possível organizar as propostas: ${escapeHtml(String(error.message))}. Os registros foram preservados.</p></section>`; }
+}
+
+function hasPendingProposalEdits(item, activeForm) {
+  const addDirty = [...document.querySelectorAll('[data-role="requirement-add"]')].some(form => form.querySelector('[name="requirementText"]').value.trim());
+  const reviewDirty = [...document.querySelectorAll('[data-role="requirement-review"]')].some(form => {
+    const claim = (item.claims || []).find((entry,index) => (entry.id || 'claim-' + index) === form.dataset.claimId);
+    const requirement = claim?.requirements?.find(entry => entry.id === form.dataset.requirementId);
+    if (!requirement) return false;
+    const ids = [...form.querySelectorAll('[name="requirementEvidence"]:checked')].map(input => input.value).sort();
+    return form.querySelector('[name="requirementStatus"]').value !== requirement.status || form.querySelector('[name="requirementNotes"]').value !== requirement.notes || JSON.stringify(ids) !== JSON.stringify([...requirement.evidenceIds].sort());
+  });
+  const proposalDirty = [...document.querySelectorAll('[data-role="claim-suggestion"], [data-role="radar-proposal"]')].some(form => {
+    const input = form.querySelector('[name="proposalText"]');
+    return form !== activeForm && input.value !== (form.dataset.originalText ?? input.defaultValue);
+  });
+  return addDirty || reviewDirty || proposalDirty;
+}
+
+function bindAutomaticProposals() {
+  document.querySelectorAll('[data-role="claim-suggestion"], [data-role="radar-proposal"]').forEach(form => {
+    form.querySelector('[name="proposalText"]').addEventListener?.('input', () => captureProposalEdit(form));
+    function decide(accepted) {
+      const item = getCurrentInvestigation();
+      const notice = form.querySelector('[data-proposal-notice]');
+      if (hasPendingProposalEdits(item,form)) { notice.textContent = 'Salve ou remova as outras alterações pendentes primeiro. Seu preenchimento foi mantido.'; return; }
+      const claimMode = form.dataset.role === 'claim-suggestion';
+      const claim = (item.claims || []).find((entry,index) => (entry.id || 'claim-' + index) === form.dataset.claimId);
+      try {
+        const proposals = claimMode ? (claim ? claimProposals(item,claim,form.dataset.claimId) : []) : buildInvestigationRadar(item,{limit:100}).proposals;
+        const proposal = proposals.find(entry => entry.id === form.dataset.proposalId);
+        if (!proposal || proposal.fingerprint !== form.dataset.proposalFingerprint) { notice.textContent = 'O registro de origem mudou ou esta proposta já foi decidida. Atualize o painel antes de continuar.'; return; }
+        const text = form.querySelector('[name="proposalText"]').value.trim();
+        if (accepted && !text) { notice.textContent = 'Informe o texto que deseja registrar.'; return; }
+        const decisionField = claimMode ? 'claimSuggestionDecisions' : 'radarDecisions';
+        const previousDecisions = item[decisionField]; const previousLog = item.transparencyLog;
+        const previousRequirements = claim?.requirements; const previousActions = item.actionItems;
+        const decision = {fingerprint:proposal.fingerprint,proposalId:proposal.id,status:accepted ? 'accepted' : 'rejected',actor:'Repórter',createdAt:new Date().toISOString(),basisExcerpt:claimMode ? proposal.basisExcerpt : proposal.basis.excerpt,rule:proposal.rule || 'recorded-priority',...(claimMode ? {claimId:form.dataset.claimId} : {})};
+        if (accepted && claimMode) {
+          if ((claim.requirements || []).some(entry => entry.text.trim().toLocaleLowerCase() === text.toLocaleLowerCase())) { notice.textContent = 'Já existe um requisito com este texto. Revise o registro existente.'; return; }
+          const requirement = createClaimRequirement({text,kind:proposal.kind});
+          decision.createdRequirementId = requirement.id;
+          claim.requirements = [...(claim.requirements || []),requirement];
+        } else if (accepted) {
+          const taskId = 'radar-task-' + crypto.randomUUID();
+          decision.createdTaskId = taskId;
+          item.actionItems = [...(item.actionItems || []),{id:taskId,action:text,status:'Planejada',priority:proposal.priority,source:'Radar de caminhos',owner:'Repórter',dueDate:'',type:'Verificação',rationale:'Proposta revisada e aceita pela jornalista. ' + proposal.rationale.map(entry => entry.factor + ': ' + proposalFactorText(entry.value)).join(' · '),output:'Registro rastreável da checagem e de seus limites',originRadarFingerprint:proposal.fingerprint,...(proposal.gapId ? {originGapId:proposal.gapId} : {}),...(proposal.requirementId ? {originRequirementId:proposal.requirementId} : {}),...(proposal.claimId ? {target_claim_id:proposal.claimId} : {}),dependencyIds:proposal.dependencyIds}];
+        }
+        item[decisionField] = [...(item[decisionField] || []),decision];
+        item.transparencyLog = [...(item.transparencyLog || []),{date:todayIsoDate(),actor:'Repórter',origin:claimMode ? 'claim-suggestion' : 'investigation-radar',event:(accepted ? 'Sugestão aceita: ' : 'Sugestão rejeitada: ') + (accepted ? text : (proposal.text || proposal.title)),status:'Decisão editorial registrada',nextStep:'Verificar documentação e contexto; aceitar a sugestão não comprova a afirmação.'}];
+        if (!saveInvestigations()) {
+          item[decisionField] = previousDecisions; item.transparencyLog = previousLog;
+          if (claim) claim.requirements = previousRequirements;
+          item.actionItems = previousActions;
+          notice.textContent = 'Não foi possível salvar a decisão. Seu preenchimento foi mantido e nenhum registro foi criado.';
+          return;
+        }
+        proposalDraftMemory.delete(proposalDraftKey(item.id,proposal.fingerprint));
+        form.querySelector('[name="proposalText"]').value = form.dataset.originalText ?? form.querySelector('[name="proposalText"]').defaultValue;
+        renderInvestigation();
+      } catch (error) { notice.textContent = 'Decisão não registrada: ' + error.message; }
+    }
+    form.addEventListener('submit', event => { event.preventDefault(); decide(true); });
+    form.querySelector('[data-action="reject-proposal"]').addEventListener('click', () => decide(false));
+  });
 }
 
 function bindReverseInvestigation() {
@@ -7240,6 +7372,7 @@ function bindActions() {
   bindLaiItemChecklist();
   bindRobustnessSimulator();
   bindReverseInvestigation();
+  bindAutomaticProposals();
   document.querySelectorAll('[data-action="save-source-origin"]').forEach(button => button.addEventListener('click', () => {
     const index = Number(button.dataset.sourceIndex);
     const item = getCurrentInvestigation();
@@ -7617,7 +7750,7 @@ function bindActions() {
 }
 
 window.addEventListener('beforeunload', event => {
-  if (!unsavedMaterialCases.size) return;
+  if (!unsavedMaterialCases.size && !proposalDraftMemory.size) return;
   event.preventDefault(); event.returnValue = '';
 });
 
