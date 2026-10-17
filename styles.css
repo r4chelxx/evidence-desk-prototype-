@@ -3028,3 +3028,13 @@ button:disabled {
 .proposal-card summary { cursor: pointer; padding-block: .4rem; }
 .proposal-card blockquote { margin-inline: 0; padding-inline-start: .8rem; border-inline-start: 3px solid var(--border, #ddd); white-space: pre-wrap; }
 .proposal-card [data-proposal-notice]:empty { display: none; }
+
+.citation-maker { margin-block: .75rem; }
+.citation-maker form { display: grid; gap: .65rem; padding-block: .65rem; }
+.citation-maker label { display: grid; gap: .35rem; }
+.citation-maker textarea { width: 100%; min-width: 0; box-sizing: border-box; white-space: pre-wrap; }
+.citation-maker textarea[readonly] { background: color-mix(in srgb, var(--surface, #fff) 92%, var(--accent, #222)); cursor: text; }
+.quick-note-history blockquote { margin-inline: 0; padding-inline-start: .8rem; border-inline-start: 3px solid var(--border, #ddd); white-space: pre-wrap; overflow-wrap: anywhere; }
+.material-changes ol { display: grid; gap: .75rem; padding-inline-start: 1.25rem; }
+.material-changes li { padding-inline-start: .3rem; }
+.material-changes li strong { display: block; margin-block: .2rem; }

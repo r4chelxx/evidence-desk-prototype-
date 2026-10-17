@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { createMaterialRecord } from '../material-provenance.mjs';
+import { createInvestigationCheckpoint, diffInvestigationCheckpoints } from '../investigation-changes.mjs';
+import { randomUUID } from 'node:crypto';
 const source = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
+const changeCode = source.slice(source.indexOf('function materialChangeSummary(diff) {'), source.indexOf('function bindMaterialCitations() {'));
 const notesCode = source.slice(source.indexOf('function bindQuickNotes() {'), source.indexOf('function bindActions() {'));
 const attachmentStart = source.indexOf("  document.querySelectorAll('[data-role=\"original-attachment-file\"]')", source.indexOf('function bindActions() {'));
 const attachmentCode = source.slice(attachmentStart, source.indexOf("  document.querySelectorAll('[data-action=\"download-local-attachment\"]')", attachmentStart));
@@ -15,8 +18,8 @@ function setup(saved = true) {
  const form = {dataset:{}, addEventListener(name,fn){handlers[name]=fn;},querySelector(selector){return selector.includes('textarea') ? textarea : selector.includes('attachment-notice') ? notice : selector.includes('submit') ? submit : {value:''};}};
  const input = {files:[{name:'original.txt'}], value:'original.txt', closest(){return form;},addEventListener(name,fn){handlers.attachment=fn;}};
  let renders=0, deleted=0;
- const context = vm.createContext({document:{querySelectorAll(selector){return selector.includes('original-attachment-file') ? [input] : selector.includes('quick-note') ? [form] : [];}},getCurrentInvestigation:()=>item,state:{locale:'pt'},createMaterialRecord,restoreMaterialDraft:()=>{},captureMaterialDraft:()=>{},investigationStorage:()=>null,loadMaterialDraft:()=>({status:'loaded'}),clearMaterialDraft:()=>({saved:true}),materialDraftMemory:new Map(),unsavedMaterialCases:new Set(),storeAttachment:async()=>({id:'file-1',name:'original.txt',size:12,sha256:'a'.repeat(64)}),deleteAttachment:async()=>{deleted++;},saveInvestigations:()=>saved,todayIsoDate:()=> '2026-10-17',renderInvestigation:()=>{renders++;}});
- vm.runInContext(notesCode + '\nbindQuickNotes();\n' + attachmentCode, context);
+ const context = vm.createContext({document:{querySelectorAll(selector){return selector.includes('original-attachment-file') ? [input] : selector.includes('quick-note') ? [form] : [];}},getCurrentInvestigation:()=>item,state:{locale:'pt'},createMaterialRecord,createInvestigationCheckpoint,diffInvestigationCheckpoints,crypto:{randomUUID},restoreMaterialDraft:()=>{},captureMaterialDraft:()=>{},investigationStorage:()=>null,loadMaterialDraft:()=>({status:'loaded'}),clearMaterialDraft:()=>({saved:true}),materialDraftMemory:new Map(),unsavedMaterialCases:new Set(),storeAttachment:async()=>({id:'file-1',name:'original.txt',size:12,sha256:'a'.repeat(64)}),deleteAttachment:async()=>{deleted++;},saveInvestigations:()=>saved,todayIsoDate:()=> '2026-10-17',renderInvestigation:()=>{renders++;}});
+ vm.runInContext(changeCode + '\n' + notesCode + '\nbindQuickNotes();\n' + attachmentCode, context);
  return {item,handlers,textarea,form,notice,submit,input,get renders(){return renders;},get deleted(){return deleted;}};
 }
 test('attaching retains draft and submitting preserves the original reference', async()=>{
@@ -26,6 +29,7 @@ test('attaching retains draft and submitting preserves the original reference', 
  env.handlers.submit({preventDefault(){}});
  assert.equal(env.item.reporterNotes[0].attachmentId,'file-1');
  assert.equal(env.item.reporterNotes[0].verificationStatus,'unverified'); assert.equal(env.renders,1);
+ assert.equal(env.item.materialChangeEvents[0].causalityInferred,false);
 });
 test('metadata save failure removes orphan bytes and retains the draft', async()=>{
  const env=setup(false); await env.handlers.attachment();

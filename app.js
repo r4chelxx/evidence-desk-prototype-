@@ -1,11 +1,13 @@
 import { createClaimRequirement, updateClaimRequirement, assessClaimRequirements } from "./claim-requirements.mjs?v=20261017-reverse1";
 import { suggestClaimRequirements } from "./claim-suggestions.mjs?v=20261017-radar1";
 import { buildInvestigationRadar } from "./investigation-radar.mjs?v=20261017-radar1";
+import { createMaterialCitation, validateMaterialCitation } from "./material-citations.mjs?v=20261017-material-insight1";
+import { createInvestigationCheckpoint, diffInvestigationCheckpoints } from "./investigation-changes.mjs?v=20261017-material-insight1";
 import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
 import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-radar1";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-material-insight1";
 import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-reverse1";
-import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-radar1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-material-insight1";
 import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-reverse1";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-reverse1";
 import { simulateEvidenceRemoval, simulateSourceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-reverse1";
@@ -2203,6 +2205,9 @@ function createEmptyInvestigation(draft) {
     requestComparisons: [],
     gaps: [],
     claims: [],
+    reporterNotes: [],
+    materialCitations: [],
+    materialChangeEvents: [],
   };
 }
 
@@ -4464,6 +4469,29 @@ function renderEvidenceMap(item) {
   return `<section class="panel intelligence-map" aria-label="${escape(title)}"><div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div></div><div class="intelligence-map-grid">${sections}</div><p class="muted">${escape(caveat)}</p></section>`;
 }
 
+function renderMaterialHistory(item) {
+  const notes = item.reporterNotes || [];
+  const citations = item.materialCitations || [];
+  if (!notes.length) return '';
+  const locale = state.locale || 'pt';
+  const historyTitle = locale === 'en' ? 'Captured materials' : locale === 'es' ? 'Materiales registrados' : 'Materiais registrados';
+  return `<details class="quick-note-history"><summary>${historyTitle} (${notes.length})</summary><ol>${notes.slice(-6).reverse().map(note => {
+    const linked = citations.filter(citation => citation.noteId === note.id);
+    return `<li><small>${escapeHtml(String(note.createdAt || ''))}</small><p>${escapeHtml(String(note.text || ''))}</p><p class="muted">${escapeHtml(({note:'Anotação',document:'Trecho de documento',response:'Resposta recebida',lead:'Pista a verificar'})[note.materialKind] || 'Anotação')} · ${escapeHtml(String(note.materialOrigin || 'Origem não informada'))} · Não verificado</p>
+      ${note.attachmentId ? `<p class="muted">Original: ${escapeHtml(String(note.originalAttachment?.name || 'Arquivo vinculado'))}</p>${note.attachmentStatus === 'missing' ? '<p role="status">Original ausente nesta cópia. Consulte o backup completo.</p>' : `<button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(note.attachmentId))}">Abrir original vinculado</button>`}${note.originalAttachment?.sha256 ? `<details><summary>Identificação do original</summary><p class="file-checksum">SHA-256: ${escapeHtml(note.originalAttachment.sha256)}</p><p>Entrada: ${escapeHtml(String(note.originalAttachment.createdAt || note.createdAt))} · Registro v${Number(note.version) || 1}</p></details>` : ''}` : ''}
+      ${note.text ? `<details class="citation-maker"><summary>Selecionar trecho citável</summary><p class="muted">Selecione no campo abaixo exatamente o trecho que deseja guardar. O trecho continua não verificado até a conferência do original.</p><form data-role="material-citation" data-note-id="${escapeHtml(String(note.id))}"><label>Texto do material<textarea name="citationSource" rows="5" readonly>${escapeHtml(note.text)}</textarea></label><label>Localizador no original (opcional)<input name="citationLocator" maxlength="500" placeholder="Página, linha, seção ou timestamp"></label><button class="button secondary" type="submit">Guardar seleção</button><p data-citation-notice role="status"></p></form></details>` : ''}
+      ${linked.length ? `<details><summary>Trechos guardados (${linked.length})</summary><ol>${linked.map(citation => `<li><blockquote>${escapeHtml(citation.text)}</blockquote><p class="muted">${escapeHtml(citation.locator || 'Sem localizador')} · Não verificado${citation.sha256 ? ` · SHA-256 do original: ${escapeHtml(citation.sha256)}` : ''}</p></li>`).join('')}</ol></details>` : ''}
+      ${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === 'en' ? 'Hypothesis' : locale === 'es' ? 'Hipótesis' : 'Hipótese'}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === 'en' ? 'Open question' : locale === 'es' ? 'Pregunta pendiente' : 'Questão em aberto'}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === 'en' ? 'Source lead' : locale === 'es' ? 'Pista de fuente' : 'Pista de fonte'}</button></div>`}
+    </li>`;
+  }).join('')}</ol></details>`;
+}
+
+function renderMaterialChanges(item) {
+  const events = item.materialChangeEvents || [];
+  if (!events.length) return '';
+  return `<section class="panel material-changes"><p class="eyebrow">O que mudou</p><h2>Mudanças registradas após novos materiais</h2><p class="muted">Este histórico compara registros explícitos. Proximidade no tempo não prova que o material causou a mudança.</p><ol>${events.slice(-6).reverse().map(event => `<li><small>${escapeHtml(String(event.createdAt || ''))}</small><strong>${escapeHtml(String(event.label || 'Registros atualizados'))}</strong><p>${escapeHtml(String(event.summary || ''))}</p><p class="muted">Material de referência: ${escapeHtml(String(event.sourceMaterialId || 'não informado'))} · Causalidade não inferida</p></li>`).join('')}</ol></section>`;
+}
+
 function renderOverview(item) {
   const locale = state.locale || "pt";
   const words = {
@@ -4474,7 +4502,7 @@ function renderOverview(item) {
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
     <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label for="original-attachment-file">Original (até 20 MB)</label><input id="original-attachment-file" type="file" data-role="original-attachment-file"><span data-role="attachment-notice" role="status" aria-live="polite"></span><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save material" : locale === "es" ? "Guardar material" : "Salvar material"}</button><button type="button" class="button secondary" data-action="discard-material-draft">Limpar rascunho</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div><p data-role="material-draft-notice" class="muted" role="status" aria-live="polite"></p></form>
-    ${(item.reporterNotes || []).length ? `<details class="quick-note-history"><summary>${locale === "en" ? "Field notes" : locale === "es" ? "Notas de campo" : "Anotações da apuração"} (${item.reporterNotes.length})</summary><ol>${item.reporterNotes.slice(-6).reverse().map(note => `<li><small>${escapeHtml(String(note.createdAt || ""))}</small><p>${escapeHtml(String(note.text || ""))}</p><p class="muted">${escapeHtml(({note:"Anotação",document:"Trecho de documento",response:"Resposta recebida",lead:"Pista a verificar"})[note.materialKind] || "Anotação")} · ${escapeHtml(String(note.materialOrigin || "Origem não informada"))} · Não verificado</p>${note.attachmentId ? `<p class="muted">Original: ${escapeHtml(String(note.originalAttachment?.name || 'Arquivo vinculado'))}</p>${note.attachmentStatus === 'missing' ? '<p role="status">Original ausente nesta cópia. Consulte o backup completo.</p>' : `<button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(note.attachmentId))}">Abrir original vinculado</button>`}${note.originalAttachment?.sha256 ? `<details><summary>Identificação do original</summary><p class="file-checksum">SHA-256: ${escapeHtml(note.originalAttachment.sha256)}</p><p>Entrada: ${escapeHtml(String(note.originalAttachment.createdAt || note.createdAt))} · Registro v${Number(note.version) || 1}</p></details>` : ''}` : ''}${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === "en" ? "Hypothesis" : locale === "es" ? "Hipótesis" : "Hipótese"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === "en" ? "Open question" : locale === "es" ? "Pregunta pendiente" : "Questão em aberto"}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === "en" ? "Source lead" : locale === "es" ? "Pista de fuente" : "Pista de fonte"}</button></div>`}</li>`).join("")}</ol></details>` : ""}
+    ${renderMaterialHistory(item)}
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
       <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
@@ -4482,6 +4510,7 @@ function renderOverview(item) {
       <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
       <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
     </div><p class="muted">${words[7]}</p></section>
+    ${renderMaterialChanges(item)}
     ${renderIntelligenceOverview(item)}
     <details class="advanced-investigation"><summary>${words[6]}</summary>${renderDetailedOverview(item)}</details>`;
 }
@@ -7127,6 +7156,15 @@ function investigationExportPayload(item) {
   };
 }
 
+function remapMaterialCitationAttachments(citations = [], notes = []) {
+  return citations.map(citation => {
+    const note = notes.find(entry => entry.id === citation.noteId);
+    const remapped = citation.attachmentId && note?.attachmentId ? {...citation,attachmentId:note.attachmentId} : citation;
+    validateMaterialCitation(remapped,{notes});
+    return remapped;
+  });
+}
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -7159,6 +7197,53 @@ function exportCurrentInvestigationJson(button) {
   }
 }
 
+function materialChangeSummary(diff) {
+  const labels = {notes:'Materiais',citations:'Trechos citáveis',hypotheses:'Hipóteses',sources:'Fontes',gaps:'Lacunas',requirements:'Requisitos',evidence:'Evidências documentadas',actions:'Ações',decisions:'Decisões sobre sugestões'};
+  const countChanges = (diff.changes || []).filter(change => change.type === 'count');
+  const summary = countChanges.map(change => `${labels[change.collection] || change.collection}: ${change.before} → ${change.after}`).join(' · ');
+  return summary + (diff.truncated ? ` · ${diff.total - diff.changes.length} mudança(s) adicional(is) não exibida(s)` : '');
+}
+
+function recordMaterialChange(item, before, sourceMaterialId, label) {
+  const after = createInvestigationCheckpoint(item);
+  const diff = diffInvestigationCheckpoints(before,after,{sourceMaterialId});
+  if (!diff.total) return null;
+  const event = {id:'material-change-' + crypto.randomUUID(),createdAt:new Date().toISOString(),sourceMaterialId,label,summary:materialChangeSummary(diff),changes:diff.changes,total:diff.total,truncated:diff.truncated,causalityInferred:false};
+  item.materialChangeEvents = [...(item.materialChangeEvents || []),event];
+  return event;
+}
+
+function bindMaterialCitations() {
+  document.querySelectorAll('[data-role="material-citation"]').forEach(form => form.addEventListener('submit', event => {
+    event.preventDefault();
+    const item = getCurrentInvestigation();
+    const note = (item.reporterNotes || []).find(entry => entry.id === form.dataset.noteId);
+    const source = form.querySelector('[name="citationSource"]');
+    const notice = form.querySelector('[data-citation-notice]');
+    if (!note || !source) { notice.textContent = 'O material de origem não está mais disponível.'; return; }
+    const previousCitations = item.materialCitations || [];
+    const previousEvents = item.materialChangeEvents || [];
+    const previousUpdatedAt = item.updatedAt;
+    try {
+      const before = createInvestigationCheckpoint(item);
+      const citation = createMaterialCitation(note,{start:source.selectionStart,end:source.selectionEnd,locator:form.querySelector('[name="citationLocator"]')?.value || null});
+      validateMaterialCitation(citation,{notes:item.reporterNotes || []});
+      if (previousCitations.some(entry => entry.noteId === citation.noteId && entry.start === citation.start && entry.end === citation.end && (entry.locator || '') === (citation.locator || ''))) { notice.textContent = 'Este mesmo trecho e localizador já foram guardados.'; return; }
+      item.materialCitations = [...previousCitations,citation];
+      recordMaterialChange(item,before,note.id,'Trecho selecionado manualmente no material');
+      item.updatedAt = todayIsoDate();
+      if (!saveInvestigations()) {
+        item.materialCitations = previousCitations; item.materialChangeEvents = previousEvents; item.updatedAt = previousUpdatedAt;
+        notice.textContent = 'Não foi possível salvar o trecho. A seleção foi mantida no campo.'; return;
+      }
+      renderInvestigation();
+    } catch (error) {
+      item.materialCitations = previousCitations; item.materialChangeEvents = previousEvents; item.updatedAt = previousUpdatedAt;
+      notice.textContent = error.message;
+    }
+  }));
+}
+
 function bindNoteClassification() {
   document.querySelectorAll('[data-action="classify-note"]').forEach(button => button.addEventListener('click', () => {
     const item = getCurrentInvestigation();
@@ -7166,11 +7251,26 @@ function bindNoteClassification() {
     const kind = button.dataset.kind;
     if (!note || note.classifiedAs || !['hypothesis','gap','source'].includes(kind)) return;
     const id = 'from-note-' + note.id;
-    if (kind === 'hypothesis') item.hypotheses = [...(item.hypotheses || []), {id, text:note.text, evidence:'A verificar — material não verificado', status:'A verificar', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
-    if (kind === 'gap') item.gaps = [...(item.gaps || []), {id, description:note.text, status:'Aberta', originNoteId:note.id, materialOrigin:note.materialOrigin || null}];
-    if (kind === 'source') item.sources = [...(item.sources || []), {id, name:note.text, type:'Pista não verificada', status:'A verificar', use:'Verificar identidade e pertinência', limits:'Origem: material de entrada não verificado', originNoteId:note.id, provenance:note.materialOrigin || null}];
-    note.classifiedAs = kind;
-    touchInvestigation(item);
+    const previousHypotheses = item.hypotheses || [], previousGaps = item.gaps || [], previousSources = item.sources || [];
+    const previousEvents = item.materialChangeEvents || [], previousUpdatedAt = item.updatedAt;
+    try {
+      const before = createInvestigationCheckpoint(item);
+      if (kind === 'hypothesis') item.hypotheses = [...previousHypotheses, {id, text:note.text, evidence:'A verificar — material não verificado', status:'A verificar', originNoteId:note.id, originMaterialId:note.id, materialOrigin:note.materialOrigin || null}];
+      if (kind === 'gap') item.gaps = [...previousGaps, {id, description:note.text, status:'Aberta', originNoteId:note.id, originMaterialId:note.id, materialOrigin:note.materialOrigin || null}];
+      if (kind === 'source') item.sources = [...previousSources, {id, name:note.text, type:'Pista não verificada', status:'A verificar', use:'Verificar identidade e pertinência', limits:'Origem: material de entrada não verificado', originNoteId:note.id, originMaterialId:note.id, provenance:note.materialOrigin || null}];
+      note.classifiedAs = kind;
+      recordMaterialChange(item,before,note.id,'Material classificado manualmente como ' + ({hypothesis:'hipótese',gap:'lacuna',source:'pista de fonte'})[kind]);
+    } catch (error) {
+      item.hypotheses = previousHypotheses; item.gaps = previousGaps; item.sources = previousSources;
+      item.materialChangeEvents = previousEvents; delete note.classifiedAs;
+      window.alert('Classificação não registrada: ' + error.message); return;
+    }
+    item.updatedAt = todayIsoDate();
+    if (!saveInvestigations()) {
+      item.hypotheses = previousHypotheses; item.gaps = previousGaps; item.sources = previousSources;
+      item.materialChangeEvents = previousEvents; item.updatedAt = previousUpdatedAt; delete note.classifiedAs;
+      window.alert('Não foi possível salvar a classificação. O material original foi preservado.'); return;
+    }
     renderInvestigation();
   }));
 }
@@ -7285,9 +7385,20 @@ function bindQuickNotes() {
       return;
     }
     const previousNotes = item.reporterNotes || [];
-    item.reporterNotes = [...previousNotes, createMaterialRecord({text, kind:materialKind, origin:materialOrigin, attachment})];
+    const previousEvents = item.materialChangeEvents || [];
+    const previousUpdatedAt = item.updatedAt;
+    let material;
+    try {
+      const before = createInvestigationCheckpoint(item);
+      material = createMaterialRecord({text, kind:materialKind, origin:materialOrigin, attachment});
+      item.reporterNotes = [...previousNotes, material];
+      recordMaterialChange(item,before,material.id,'Novo material registrado');
+    } catch (error) {
+      item.reporterNotes = previousNotes; item.materialChangeEvents = previousEvents;
+      window.alert('Material não registrado: ' + error.message); captureMaterialDraft(form); return;
+    }
     item.updatedAt = todayIsoDate();
-    if (!saveInvestigations()) { item.reporterNotes = previousNotes; captureMaterialDraft(form); return; }
+    if (!saveInvestigations()) { item.reporterNotes = previousNotes; item.materialChangeEvents = previousEvents; item.updatedAt = previousUpdatedAt; captureMaterialDraft(form); return; }
     const priorDraft = loadMaterialDraft(investigationStorage(), item.id);
     const cleared = ['empty','loaded'].includes(priorDraft.status) ? clearMaterialDraft(investigationStorage(), item.id) : {saved:false};
     materialDraftMemory.delete(item.id); unsavedMaterialCases.delete(item.id);
@@ -7366,6 +7477,7 @@ function bindActions() {
     } catch (error) { window.alert('Não foi possível abrir o anexo: ' + error.message); }
   }));
   bindQuickNotes();
+  bindMaterialCitations();
   bindQuickNoteImport();
   bindNoteClassification();
   bindSilenceTracking();
@@ -7429,9 +7541,11 @@ function bindActions() {
         if (payload.schema === 'evidence-desk-complete-backup-v1') {
           restoredAttachments = await restoreAttachmentBundle(imported.id, payload.attachments);
           imported.reporterNotes = remapMaterialAttachments(imported.reporterNotes || [], imported.localAttachments || [], restoredAttachments);
+          imported.materialCitations = remapMaterialCitationAttachments(imported.materialCitations || [],imported.reporterNotes);
           imported.localAttachments = restoredAttachments;
         } else if ((imported.localAttachments || []).length) {
           imported.reporterNotes = remapMaterialAttachments(imported.reporterNotes || [], imported.localAttachments || [], []);
+          imported.materialCitations = remapMaterialCitationAttachments(imported.materialCitations || [],imported.reporterNotes);
           imported.localAttachments = [];
           window.alert('O JSON importado não contém os arquivos originais. Os metadados de anexos foram removidos desta cópia para evitar referências inválidas.');
         }
