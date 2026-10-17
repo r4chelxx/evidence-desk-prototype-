@@ -55,8 +55,10 @@ export function detectContradictions(caseData = {}) {
 export function auditClaims(caseData = {}) {
   return list(caseData.claims).filter(x => key(x?.id)).map(claim => {
     const validEvidence = new Set(list(caseData.evidence).filter(e => key(e?.id) && key(e?.source_id) && list(caseData.sources).some(s => key(s?.id) === key(e.source_id))).map(e => key(e.id)));
-    const relations = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && validEvidence.has(key(r.evidence_id)));
-    const supporting = relations.filter(r => r.relation === "supports");
+    const existingEvidence = new Set(list(caseData.evidence).filter(e => key(e?.id)).map(e => key(e.id)));
+    // Missing provenance cannot qualify support, but must not hide a recorded caveat.
+    const relations = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && existingEvidence.has(key(r.evidence_id)));
+    const supporting = relations.filter(r => r.relation === "supports" && validEvidence.has(key(r.evidence_id)));
     const contradictory = relations.filter(r => r.relation === "contradicts");
     const limiting = relations.filter(r => r.relation === "limits");
     const unresolved = list(caseData.evidenceRelations).filter(r => r.claim_id === claim.id && r.relation === "supports" && !validEvidence.has(key(r.evidence_id)));

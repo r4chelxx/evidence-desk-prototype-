@@ -33,12 +33,16 @@ async function transact(mode, operation) {
     });
   } finally { db.close(); }
 }
+async function checksum(blob) {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+}
 export async function storeAttachment(investigationId, file) {
   const error = validateAttachment(file);
   if (error) throw new Error(error);
   if (!investigationId) throw new Error('Investigação não identificada.');
   const id = 'attachment-' + (globalThis.crypto?.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2));
-  const record = { id, investigationId: String(investigationId), name: file.name, type: file.type || 'application/octet-stream', size: file.size, createdAt: new Date().toISOString(), blob: file };
+  const record = { id, investigationId: String(investigationId), name: file.name, type: file.type || 'application/octet-stream', size: file.size, sha256: await checksum(file), lastModified: Number.isFinite(file.lastModified) ? file.lastModified : null, createdAt: new Date().toISOString(), blob: file };
   await transact('readwrite', store => store.put(record));
   const { blob, ...metadata } = record;
   return metadata;
@@ -60,11 +64,13 @@ export async function exportAttachmentBundle(investigationId, metadata = []) {
   for (const entry of metadata) {
     const record = await readAttachment(entry.id, investigationId);
     if (!record) throw new Error('Anexo ausente: ' + entry.name + '. Backup interrompido para evitar arquivo incompleto.');
+    const sha256 = await checksum(record.blob);
+    if (record.sha256 && record.sha256 !== sha256) throw new Error("Integridade do anexo comprometida: " + record.name);
     const buffer = await record.blob.arrayBuffer();
     const bytes = new Uint8Array(buffer);
     let binary = '';
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
-    files.push({ name: record.name, type: record.type, size: record.size, createdAt: record.createdAt, base64: btoa(binary) });
+    files.push({ name: record.name, type: record.type, size: record.size, createdAt: record.createdAt, lastModified: record.lastModified, sha256, base64: btoa(binary) });
   }
   return files;
 }
@@ -79,7 +85,8 @@ export async function restoreAttachmentBundle(investigationId, files = []) {
       const binary = atob(file.base64);
       const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
       if (bytes.length !== file.size) throw new Error('Tamanho do anexo não corresponde ao backup: ' + file.name);
-      const blob = new File([bytes], file.name, { type: file.type || 'application/octet-stream' });
+      const blob = new File([bytes], file.name, { type: file.type || 'application/octet-stream', ...(Number.isFinite(file.lastModified) ? {lastModified: file.lastModified} : {}) });
+      if (file.sha256 && file.sha256 !== await checksum(blob)) throw new Error('Integridade do anexo não corresponde ao backup: ' + file.name);
       restored.push(await storeAttachment(investigationId, blob));
     }
     return restored;

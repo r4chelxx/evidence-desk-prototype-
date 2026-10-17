@@ -36,3 +36,11 @@ test("claim support requires evidence with a traceable source", () => {
   assert.equal(auditClaims(traced)[0].status,"review-required");
   assert.equal(auditClaims(traced)[0].editorialApproval,false);
 });
+
+ test("untraced counterevidence remains visible but missing evidence cannot contradict", () => {
+ const base = {claims:[{id:"c"}], sources:[{id:"s"}], evidence:[{id:"support",source_id:"s"},{id:"warning"}], evidenceRelations:[{claim_id:"c",evidence_id:"support",relation:"supports"},{claim_id:"c",evidence_id:"warning",relation:"limits"}]};
+ assert.equal(auditClaims(base)[0].status,"qualified");
+ const conflict={...base,evidenceRelations:[...base.evidenceRelations,{claim_id:"c",evidence_id:"warning",relation:"contradicts"}]};
+ assert.equal(auditClaims(conflict)[0].status,"contradicted");
+ assert.equal(auditClaims({...conflict,evidence:base.evidence.slice(0,1)})[0].status,"review-required");
+ });

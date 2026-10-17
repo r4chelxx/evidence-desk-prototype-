@@ -42,10 +42,14 @@ test('attachment round trip retains original bytes and isolates investigations',
     const original = new File([Uint8Array.from([0, 1, 2, 127, 255])], 'original.bin', { type: 'application/octet-stream' });
     const meta = await storeAttachment('investigation-A', original);
     assert.equal(meta.size, 5);
+    assert.match(meta.sha256, /^[a-f0-9]{64}$/);
     assert.equal(await readAttachment(meta.id, 'investigation-B'), null);
     const backup = await exportAttachmentBundle('investigation-A', [meta]);
     assert.equal(backup.length, 1);
+    assert.equal(backup[0].sha256, meta.sha256);
+    await assert.rejects(restoreAttachmentBundle("tampered", [{...backup[0], base64: btoa("abcde")}]), /Integridade/);
     const restored = await restoreAttachmentBundle('investigation-C', backup);
+    assert.equal(restored[0].sha256, meta.sha256);
     const record = await readAttachment(restored[0].id, 'investigation-C');
     assert.deepEqual(new Uint8Array(await record.blob.arrayBuffer()), new Uint8Array(await original.arrayBuffer()));
   } finally {
