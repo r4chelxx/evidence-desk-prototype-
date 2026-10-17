@@ -4,7 +4,7 @@ import { validateMaterialCitation } from './material-citations.mjs?v=20261017-ma
 // Validate portable investigations before touching browser storage or attachments.
 const schemas = new Set(['evidence-desk-investigation-v0.1', 'evidence-desk-complete-backup-v1']);
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'verifiedEvidence', 'reporterNotes', 'methodRules', 'claimSuggestionDecisions', 'radarDecisions', 'materialCitations', 'materialChangeEvents'];
+const objectLists = ['actionItems', 'sourceDiscovery', 'transparencyLog', 'followUpDrafts', 'qaChecklist', 'processGuide', 'hypotheses', 'evidenceBlocks', 'sources', 'requests', 'requestComparisons', 'gaps', 'claims', 'localAttachments', 'evidence', 'evidenceRelations', 'methodologicalEvents', 'observations', 'quickNotes', 'verifiedEvidence', 'reporterNotes', 'methodRules', 'claimSuggestionDecisions', 'radarDecisions', 'laiItemSuggestionDecisions', 'materialCitations', 'materialChangeEvents'];
 export function validateInvestigationImport(payload, defaults = {}) {
   if (!object(payload)) throw new Error('O arquivo deve conter uma investigação.');
   if ('schema' in payload && !schemas.has(payload.schema)) throw new Error('Versão de backup não reconhecida.');
@@ -28,8 +28,11 @@ export function validateInvestigationImport(payload, defaults = {}) {
   check(item, defaults, 'investigation');
   for (const field of objectLists) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => !object(entry)))) throw new Error('Lista de registros inválida: ' + field);
   for (const field of ['secondaryQuestions', 'nextReviewItems']) if (field in item && (!Array.isArray(item[field]) || item[field].some(entry => typeof entry !== 'string'))) throw new Error('Lista de textos inválida: ' + field);
-  for (const field of ['claimSuggestionDecisions', 'radarDecisions']) for (const decision of item[field] || []) {
+  for (const field of ['claimSuggestionDecisions', 'radarDecisions', 'laiItemSuggestionDecisions']) for (const decision of item[field] || []) {
     if (typeof decision.fingerprint !== 'string' || !decision.fingerprint || !['accepted','rejected'].includes(decision.status)) throw new Error('Decisão de sugestão inválida.');
+  }
+  for (const decision of item.laiItemSuggestionDecisions || []) {
+    if (!Number.isSafeInteger(decision.requestIndex) || decision.requestIndex < 0 || typeof decision.itemId !== 'string' || !decision.itemId || typeof decision.materialId !== 'string' || !decision.materialId || !Number.isFinite(Date.parse(decision.createdAt))) throw new Error('Decisão de comparação de item inválida.');
   }
   for (const citation of item.materialCitations || []) validateMaterialCitation(citation,{notes:item.reporterNotes || []});
   for (const event of item.materialChangeEvents || []) {

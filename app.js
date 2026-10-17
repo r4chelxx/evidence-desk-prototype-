@@ -3,11 +3,13 @@ import { suggestClaimRequirements } from "./claim-suggestions.mjs?v=20261017-rad
 import { buildInvestigationRadar } from "./investigation-radar.mjs?v=20261017-radar1";
 import { createMaterialCitation, validateMaterialCitation } from "./material-citations.mjs?v=20261017-material-insight1";
 import { createInvestigationCheckpoint, diffInvestigationCheckpoints } from "./investigation-changes.mjs?v=20261017-material-insight1";
+import { createMaterialViewer, selectMaterialSegment } from "./material-viewer.mjs?v=20261017-lai-viewer1";
+import { suggestLaiItemComparisons } from "./lai-item-comparison.mjs?v=20261017-lai-viewer1";
 import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
 import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
-import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-material-insight1";
+import { loadInvestigationStore, saveInvestigationStore, recoverInvestigationStore } from "./investigation-storage.mjs?v=20261017-lai-viewer1";
 import { createMaterialRecord, remapMaterialAttachments } from "./material-provenance.mjs?v=20261017-reverse1";
-import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-material-insight1";
+import { validateInvestigationImport } from "./investigation-import.mjs?v=20261017-lai-viewer1";
 import { storeAttachment, readAttachment, deleteAttachment, exportAttachmentBundle, restoreAttachmentBundle } from "./local-attachments.mjs?v=20261017-reverse1";
 import { summarizeLegacyInvestigation, adaptLegacyInvestigation } from "./investigation-adapter.mjs?v=20261017-reverse1";
 import { simulateEvidenceRemoval, simulateSourceRemoval, analyzeSourceIndependence } from "./investigation-intelligence.mjs?v=20261017-reverse1";
@@ -2208,6 +2210,7 @@ function createEmptyInvestigation(draft) {
     reporterNotes: [],
     materialCitations: [],
     materialChangeEvents: [],
+    laiItemSuggestionDecisions: [],
   };
 }
 
@@ -3981,6 +3984,7 @@ function renderLaiAssistant(item) {
           <p>Textos são lidos neste navegador. PDFs precisam do serviço de extração; até 5 MB por arquivo. Não há OCR. Confira o texto extraído antes de analisar.</p>
           <p data-lai-file-notice role="status"></p>
           <label>Conteúdo dos anexos (texto transcrito)<textarea data-lai-attachments rows="4" placeholder="Cole o conteúdo consultado. Links e arquivos não transcritos não serão analisados."></textarea></label>
+          <section class="lai-local-comparison"><h4>Encontrar trechos para revisar item a item</h4><p class="muted">A busca localiza apenas termos coincidentes no texto já colado. Não decide se o item foi atendido nem interpreta ausência de correspondência.</p><button type="button" class="button secondary" data-action="compare-lai-items">Procurar trechos nos textos</button><div data-lai-item-suggestions aria-live="polite"></div></section>
           <p>Ao analisar, o pedido, a resposta e os textos dos anexos serão enviados ao serviço de IA. Confira os dados antes de enviar.</p>
           <button type="button" class="button secondary" data-action="analyze-lai" disabled>Analisar pedido × resposta com IA</button>
           <div data-lai-analysis aria-live="polite"></div>
@@ -4114,6 +4118,84 @@ async function checkLaiService() {
     : 'IA indisponível nesta hospedagem. Você pode registrar e conferir a resposta manualmente.';
   notice.textContent += pdfExtraction ? ' Extração de PDF disponível.' : ' Importação de texto disponível; extração de PDF indisponível.';
   document.querySelectorAll('[data-action="analyze-lai"]').forEach(button => { button.disabled = !available; });
+}
+
+function currentLaiItemSuggestions(item, card, limit = 4) {
+  const requestIndex = Number(card.dataset.laiRequest);
+  const request = item.requests?.[requestIndex];
+  if (!request) throw new Error('O pedido não foi encontrado.');
+  const response = card.querySelector('[data-lai-response]').value;
+  const attachments = card.querySelector('[data-lai-attachments]').value;
+  const materials = [
+    {id:`request-${requestIndex}-response`,title:'Resposta integral',kind:'response',text:response},
+    {id:`request-${requestIndex}-attachments`,title:'Anexos transcritos',kind:'attachments',text:attachments},
+  ].filter(material => material.text.trim());
+  if (!materials.length) throw new Error('Cole a resposta ou o texto dos anexos antes de procurar trechos.');
+  const result = suggestLaiItemComparisons({items:request.itemChecklist || [],materials,decisions:item.laiItemSuggestionDecisions || [],limit,locale:state.locale});
+  return {requestIndex,request,materials,result};
+}
+
+function renderLaiItemSuggestions(card, bundle) {
+  const target = card.querySelector('[data-lai-item-suggestions]');
+  const {result,materials} = bundle;
+  target.innerHTML = `<p class="muted">${result.total} sugestão(ões) lexical(is) · ${result.itemsWithoutMatches} item(ns) sem coincidência. ${escapeHtml(result.limitation)}</p>${result.suggestions.map(suggestion => {
+    const material = materials.find(entry => entry.id === suggestion.materialId);
+    return `<article class="lai-item-suggestion" data-lai-suggestion-id="${escapeHtml(suggestion.id)}"><h5>${escapeHtml(suggestion.requestedText)}</h5><p>Termos coincidentes: ${escapeHtml(suggestion.matchedTerms.join(', '))} · cobertura lexical ${suggestion.score}%</p><blockquote>${escapeHtml(suggestion.excerpt)}</blockquote><p class="muted">${escapeHtml(material?.title || suggestion.materialId)} · ${escapeHtml(suggestion.rationale)}</p><div class="button-row"><button type="button" class="button secondary" data-action="accept-lai-item-suggestion">Usar trecho para revisão</button><button type="button" class="button secondary" data-action="reject-lai-item-suggestion">Rejeitar sugestão</button></div><p data-lai-suggestion-notice role="status"></p></article>`;
+  }).join('') || '<p>Nenhum trecho novo foi sugerido. Isso não significa ausência de resposta.</p>'}`;
+  target.querySelectorAll('[data-lai-suggestion-id]').forEach(panel => {
+    function decide(accepted) {
+      const item = getCurrentInvestigation();
+      const notice = panel.querySelector('[data-lai-suggestion-notice]');
+      let current;
+      try { current = currentLaiItemSuggestions(item,card,20); } catch (error) { notice.textContent = error.message; return; }
+      const suggestion = current.result.suggestions.find(entry => entry.id === panel.dataset.laiSuggestionId);
+      const original = bundle.result.suggestions.find(entry => entry.id === panel.dataset.laiSuggestionId);
+      if (!suggestion || !original || suggestion.fingerprint !== original.fingerprint) { notice.textContent = 'Os textos mudaram ou esta sugestão já foi decidida. Procure novamente.'; return; }
+      const entryIndex = (current.request.itemChecklist || []).findIndex(entry => entry.id === suggestion.itemId);
+      const entry = current.request.itemChecklist?.[entryIndex];
+      if (!entry) { notice.textContent = 'O item solicitado não foi encontrado.'; return; }
+      const reviewForm = [...card.querySelectorAll('[data-role="checklist-review"]')].find(form => form.dataset.itemId === entry.id);
+      if (accepted && reviewForm) {
+        const dirty = ['status','responseExcerpt','locator','notes','targetClaimId'].some(name => (reviewForm.querySelector(`[name="${name}"]`).value || null) !== (entry[name] || null));
+        if (dirty) { notice.textContent = 'Salve ou descarte a conferência já preenchida antes de usar este trecho. Nada foi alterado.'; return; }
+      }
+      const previousEntries = current.request.itemChecklist || [];
+      const previousDecisions = item.laiItemSuggestionDecisions || [];
+      const previousLog = item.transparencyLog || [];
+      try {
+        const material = current.materials.find(value => value.id === suggestion.materialId);
+        if (accepted) {
+          const locator = `${material?.title || 'Texto recebido'} · caracteres ${suggestion.start + 1}–${suggestion.end}`;
+          const updated = updateChecklistItem(entry,{status:entry.status,responseExcerpt:suggestion.excerpt,locator,notes:entry.notes,targetClaimId:entry.targetClaimId});
+          current.request.itemChecklist = previousEntries.map((value,index) => index === entryIndex ? updated : value);
+        }
+        const decision = {fingerprint:suggestion.fingerprint,status:accepted ? 'accepted' : 'rejected',requestIndex:current.requestIndex,itemId:suggestion.itemId,materialId:suggestion.materialId,createdAt:new Date().toISOString(),actor:'Repórter'};
+        item.laiItemSuggestionDecisions = [...previousDecisions,decision];
+        item.transparencyLog = [...previousLog,{date:todayIsoDate(),actor:'Repórter',origin:'lai-item-comparison',event:(accepted ? 'Trecho lexical aceito para revisão: ' : 'Sugestão lexical rejeitada: ') + suggestion.requestedText,status:'Decisão editorial registrada; situação do item não alterada automaticamente',nextStep:'Conferir o contexto e escolher manualmente a situação do item.'}];
+        if (!saveInvestigations()) throw new Error('Não foi possível salvar a decisão.');
+        if (accepted && reviewForm) {
+          const saved = current.request.itemChecklist[entryIndex];
+          reviewForm.querySelector('[name="responseExcerpt"]').value = saved.responseExcerpt;
+          reviewForm.querySelector('[name="locator"]').value = saved.locator;
+          reviewForm.querySelector('[data-checklist-notice]').textContent = 'Trecho guardado para revisão. A situação do item continua inalterada.';
+        }
+        const next = currentLaiItemSuggestions(item,card,4); card.laiItemSuggestionBundle = next; renderLaiItemSuggestions(card,next);
+      } catch (error) {
+        current.request.itemChecklist = previousEntries; item.laiItemSuggestionDecisions = previousDecisions; item.transparencyLog = previousLog;
+        notice.textContent = error.message + ' Seus textos foram mantidos.';
+      }
+    }
+    panel.querySelector('[data-action="accept-lai-item-suggestion"]').addEventListener('click',()=>decide(true));
+    panel.querySelector('[data-action="reject-lai-item-suggestion"]').addEventListener('click',()=>decide(false));
+  });
+}
+
+function bindLocalLaiItemComparisons() {
+  document.querySelectorAll('[data-lai-request]').forEach(card => card.querySelector('[data-action="compare-lai-items"]')?.addEventListener('click', () => {
+    const target = card.querySelector('[data-lai-item-suggestions]');
+    try { const bundle = currentLaiItemSuggestions(getCurrentInvestigation(),card,4); card.laiItemSuggestionBundle = bundle; renderLaiItemSuggestions(card,bundle); }
+    catch (error) { target.textContent = error.message; }
+  }));
 }
 
 function renderLaiAnalysis(analysis) {
@@ -4477,9 +4559,11 @@ function renderMaterialHistory(item) {
   const historyTitle = locale === 'en' ? 'Captured materials' : locale === 'es' ? 'Materiales registrados' : 'Materiais registrados';
   return `<details class="quick-note-history"><summary>${historyTitle} (${notes.length})</summary><ol>${notes.slice(-6).reverse().map(note => {
     const linked = citations.filter(citation => citation.noteId === note.id);
+    let viewer = null;
+    try { if (note.text) viewer = createMaterialViewer(note.text); } catch { /* The full note remains visible and preserved below. */ }
     return `<li><small>${escapeHtml(String(note.createdAt || ''))}</small><p>${escapeHtml(String(note.text || ''))}</p><p class="muted">${escapeHtml(({note:'Anotação',document:'Trecho de documento',response:'Resposta recebida',lead:'Pista a verificar'})[note.materialKind] || 'Anotação')} · ${escapeHtml(String(note.materialOrigin || 'Origem não informada'))} · Não verificado</p>
       ${note.attachmentId ? `<p class="muted">Original: ${escapeHtml(String(note.originalAttachment?.name || 'Arquivo vinculado'))}</p>${note.attachmentStatus === 'missing' ? '<p role="status">Original ausente nesta cópia. Consulte o backup completo.</p>' : `<button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(note.attachmentId))}">Abrir original vinculado</button>`}${note.originalAttachment?.sha256 ? `<details><summary>Identificação do original</summary><p class="file-checksum">SHA-256: ${escapeHtml(note.originalAttachment.sha256)}</p><p>Entrada: ${escapeHtml(String(note.originalAttachment.createdAt || note.createdAt))} · Registro v${Number(note.version) || 1}</p></details>` : ''}` : ''}
-      ${note.text ? `<details class="citation-maker"><summary>Selecionar trecho citável</summary><p class="muted">Selecione no campo abaixo exatamente o trecho que deseja guardar. O trecho continua não verificado até a conferência do original.</p><form data-role="material-citation" data-note-id="${escapeHtml(String(note.id))}"><label>Texto do material<textarea name="citationSource" rows="5" readonly>${escapeHtml(note.text)}</textarea></label><label>Localizador no original (opcional)<input name="citationLocator" maxlength="500" placeholder="Página, linha, seção ou timestamp"></label><button class="button secondary" type="submit">Guardar seleção</button><p data-citation-notice role="status"></p></form></details>` : ''}
+      ${viewer ? `<details class="citation-maker"><summary>Visualizar e selecionar trecho citável${viewer.pagination === 'explicit' ? ` · ${viewer.segments.filter(segment => segment.pageNumber !== null).length} página(s)` : ''}</summary><p class="muted">Selecione exatamente um trecho em uma seção. Páginas só aparecem quando o texto contém marcador explícito; confira sempre o original.</p><form data-role="material-citation" data-note-id="${escapeHtml(String(note.id))}">${viewer.segments.map((segment,index) => `<section class="material-viewer-segment"><label>${segment.pageNumber !== null ? `Página ${segment.pageNumber}` : viewer.pagination === 'separated' ? `Seção ${index + 1} · página não informada` : 'Texto sem paginação informada'}<textarea name="citationSegment" data-segment-id="${escapeHtml(segment.id)}" rows="5" readonly>${escapeHtml(segment.text)}</textarea></label></section>`).join('')}<label>Localizador no original (opcional)<input name="citationLocator" maxlength="500" placeholder="Página, linha, seção ou timestamp"></label><button class="button secondary" type="submit">Guardar seleção</button><p data-citation-notice role="status"></p></form></details>` : note.text ? '<p role="status">O visualizador não pôde abrir este texto. O material original foi preservado.</p>' : ''}
       ${linked.length ? `<details><summary>Trechos guardados (${linked.length})</summary><ol>${linked.map(citation => `<li><blockquote>${escapeHtml(citation.text)}</blockquote><p class="muted">${escapeHtml(citation.locator || 'Sem localizador')} · Não verificado${citation.sha256 ? ` · SHA-256 do original: ${escapeHtml(citation.sha256)}` : ''}</p></li>`).join('')}</ol></details>` : ''}
       ${note.classifiedAs ? `<span class="pill neutral">${escapeHtml(String(note.classifiedAs))}</span>` : `<div class="quick-note-actions"><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="hypothesis">${locale === 'en' ? 'Hypothesis' : locale === 'es' ? 'Hipótesis' : 'Hipótese'}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="gap">${locale === 'en' ? 'Open question' : locale === 'es' ? 'Pregunta pendiente' : 'Questão em aberto'}</button><button class="button secondary" type="button" data-action="classify-note" data-note-id="${escapeHtml(String(note.id))}" data-kind="source">${locale === 'en' ? 'Source lead' : locale === 'es' ? 'Pista de fuente' : 'Pista de fonte'}</button></div>`}
     </li>`;
@@ -7218,15 +7302,20 @@ function bindMaterialCitations() {
     event.preventDefault();
     const item = getCurrentInvestigation();
     const note = (item.reporterNotes || []).find(entry => entry.id === form.dataset.noteId);
-    const source = form.querySelector('[name="citationSource"]');
+    const sources = [...form.querySelectorAll('[name="citationSegment"]')];
     const notice = form.querySelector('[data-citation-notice]');
-    if (!note || !source) { notice.textContent = 'O material de origem não está mais disponível.'; return; }
+    if (!note || !sources.length) { notice.textContent = 'O material de origem não está mais disponível.'; return; }
     const previousCitations = item.materialCitations || [];
     const previousEvents = item.materialChangeEvents || [];
     const previousUpdatedAt = item.updatedAt;
     try {
       const before = createInvestigationCheckpoint(item);
-      const citation = createMaterialCitation(note,{start:source.selectionStart,end:source.selectionEnd,locator:form.querySelector('[name="citationLocator"]')?.value || null});
+      const selected = sources.filter(source => source.selectionEnd > source.selectionStart);
+      if (selected.length !== 1) throw new Error('Selecione um trecho em exatamente uma página ou seção.');
+      const viewer = createMaterialViewer(note.text);
+      const authoredLocator = form.querySelector('[name="citationLocator"]')?.value.trim();
+      const selection = selectMaterialSegment(viewer,selected[0].dataset.segmentId,{start:selected[0].selectionStart,end:selected[0].selectionEnd,...(authoredLocator ? {locator:authoredLocator} : {})});
+      const citation = createMaterialCitation(note,selection);
       validateMaterialCitation(citation,{notes:item.reporterNotes || []});
       if (previousCitations.some(entry => entry.noteId === citation.noteId && entry.start === citation.start && entry.end === citation.end && (entry.locator || '') === (citation.locator || ''))) { notice.textContent = 'Este mesmo trecho e localizador já foram guardados.'; return; }
       item.materialCitations = [...previousCitations,citation];
@@ -7482,6 +7571,7 @@ function bindActions() {
   bindNoteClassification();
   bindSilenceTracking();
   bindLaiItemChecklist();
+  bindLocalLaiItemComparisons();
   bindRobustnessSimulator();
   bindReverseInvestigation();
   bindAutomaticProposals();
@@ -7755,8 +7845,11 @@ function bindActions() {
       const notes = card.querySelector('[data-lai-notes]');
       if (notes.value === card.laiCandidate.generatedNotes) notes.value = '';
       delete card.laiCandidate;
+      delete card.laiItemSuggestionBundle;
       card.querySelector('[data-lai-result]').value = 'unknown';
       card.querySelector('[data-lai-analysis]').textContent = 'Os textos mudaram. Analise novamente para atualizar a comparação.';
+      const localSuggestions = card.querySelector('[data-lai-item-suggestions]');
+      if (localSuggestions) localSuggestions.textContent = 'Os textos mudaram. Procure novamente para atualizar os trechos sugeridos.';
     });
   });
   document.querySelectorAll('[data-lai-request]').forEach(card => {
