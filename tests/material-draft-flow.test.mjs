@@ -7,7 +7,8 @@ import { loadMaterialDraft, saveMaterialDraft, hasMaterialDraft } from '../mater
 const source = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const helpers = source.slice(source.indexOf('const materialDraftMemory = new Map();'), source.indexOf('function bindQuickNotes() {'));
 const unloadStart = source.indexOf("window.addEventListener('beforeunload', event => {");
-const unload = source.slice(unloadStart, source.indexOf('\n\nif (state.view', unloadStart));
+const unloadEnd = source.indexOf('if (state.view', unloadStart);
+const unload = source.slice(unloadStart, unloadEnd);
 function storage() {
   const values = new Map();
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };

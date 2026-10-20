@@ -127,8 +127,9 @@ See `GITHUB_PAGES_DEPLOY.md`.
 
 ## Current test cases
 
-- Violence obstetrics and public data transparency in Bahia, Brazil.
 - School technology contracts and public accountability in the United States.
+
+Only synthetic demonstration cases belong in the public repository. Import real investigations locally and keep their operational details in access-controlled storage.
 
 ## Product rule
 
