@@ -10,6 +10,20 @@ function normalize(value) {
   return value.normalize('NFKC').toLocaleLowerCase();
 }
 
+function normalizedWithOffsets(value) {
+  let text = ''; const starts = []; const ends = [];
+  for (let index = 0; index < value.length;) {
+    const codePoint = value.codePointAt(index);
+    const width = codePoint > 0xffff ? 2 : 1;
+    const raw = value.slice(index, index + width);
+    const part = normalize(raw);
+    text += part;
+    for (let offset = 0; offset < part.length; offset++) { starts.push(index); ends.push(index + width); }
+    index += width;
+  }
+  return { text, starts, ends };
+}
+
 function locatorFor(text, offset) {
   const prefix = text.slice(0, offset);
   const markers = [...prefix.matchAll(/^[\t ]*\[(?:P[áa]gina|Page)[\t ]+(\d{1,6})\][\t ]*$/gimu)];
