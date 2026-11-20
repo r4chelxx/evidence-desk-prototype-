@@ -13,13 +13,18 @@ function normalize(value) {
 function normalizedWithOffsets(value) {
   let text = ''; const starts = []; const ends = [];
   for (let index = 0; index < value.length;) {
-    const codePoint = value.codePointAt(index);
-    const width = codePoint > 0xffff ? 2 : 1;
-    const raw = value.slice(index, index + width);
+    const segmentStart = index;
+    const first = value.codePointAt(index);
+    index += first > 0xffff ? 2 : 1;
+    while (index < value.length) {
+      const mark = value.codePointAt(index);
+      if (!/\\p{M}/u.test(String.fromCodePoint(mark))) break;
+      index += mark > 0xffff ? 2 : 1;
+    }
+    const raw = value.slice(segmentStart, index);
     const part = normalize(raw);
     text += part;
-    for (let offset = 0; offset < part.length; offset++) { starts.push(index); ends.push(index + width); }
-    index += width;
+    for (let offset = 0; offset < part.length; offset++) { starts.push(segmentStart); ends.push(index); }
   }
   return { text, starts, ends };
 }
@@ -58,31 +63,3 @@ export function searchLiteralMaterials(materials, query, { limit = MAX_LITERAL_R
     const normalized = normalizedWithOffsets(material.text);
     const normalizedText = normalized.text;
     let cursor = 0;
-    while (cursor <= normalizedText.length - normalizedQuery.length) {
-      const start = normalizedText.indexOf(normalizedQuery, cursor);
-      if (start === -1) break;
-      const normalizedEnd = start + normalizedQuery.length;
-      const originalStart = normalized.starts[start];
-      const originalEnd = normalized.ends[normalizedEnd - 1];
-      total++;
-      if (results.length < limit) {
-        const excerpt = excerptFor(material.text, originalStart, originalEnd, context);
-        results.push({
-          materialId: material.id,
-          materialName: material.originalAttachment?.name || material.materialOrigin || material.id,
-          match: material.text.slice(originalStart, originalEnd),
-          start: originalStart,
-          end: originalEnd,
-          locator: locatorFor(material.text, originalStart),
-          excerpt: excerpt.text,
-          excerptStart: excerpt.start,
-          excerptEnd: excerpt.end,
-          verificationStatus: material.verificationStatus || 'unverified',
-        });
-      }
-      // Advance by one code unit so overlapping literal occurrences are not silently lost.
-      cursor = start + 1;
-    }
-  }
-  return { query: query.trim(), total, results };
-}
