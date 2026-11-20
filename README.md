@@ -2,11 +2,11 @@
 
 Static MVP prototype for **Evidence Desk**, a workflow tool for investigative journalists.
 
-The prototype tests whether a journalist can move from:
+The RJI MVP tests whether a journalist can move from:
 
-`investigative question -> jurisdiction -> hypotheses -> evidence blocks -> sources/requests -> deadlines -> editorial queue -> transparency log -> request comparison -> follow-ups -> gaps -> claims -> QA -> methodology`
+`investigative question -> context -> hypotheses -> materials -> literal search -> citations -> editorial decisions -> claims -> QA -> methodology -> export`
 
-without backend, login, external integrations or AI.
+inside a private investigation workspace. The public Radar 1.0 remains a metadata catalog; request/FOIA, community and feed workflows are future modules, not MVP acceptance criteria.
 
 The Pages demo remains static. An optional local Node 24 adapter now connects the
 structured LAI form to OpenAI Responses with a strict JSON schema. It is **not
@@ -63,6 +63,15 @@ saved locally and do not become transparency events until the reporter records
 the review. Service passwords and session tokens are never saved with drafts.
 
 Run contract and failure-handling checks with `node --test tests/*.test.mjs`.
+
+## RJI MVP scope currently enabled
+
+- Private investigation workspace with persisted local records and explicit export/recovery behavior.
+- Original material preservation, provenance and citation locators.
+- Literal local search without an AI call, including source/attachment and verification status.
+- Human review checkpoints before editorial use.
+- Core navigation limited to overview, context, plan, editorial, claims, story, methodology and QA.
+- Request/FOIA, community, feed and relationship modules remain preserved for later integration and are intentionally absent from the core navigation.
 
 ## Current prototype scope
 
