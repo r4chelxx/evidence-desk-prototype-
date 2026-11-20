@@ -10,6 +10,25 @@ function normalize(value) {
   return value.normalize('NFKC').toLocaleLowerCase();
 }
 
+function normalizedWithOffsets(value) {
+  let text = ''; const starts = []; const ends = [];
+  for (let index = 0; index < value.length;) {
+    const segmentStart = index;
+    const first = value.codePointAt(index);
+    index += first > 0xffff ? 2 : 1;
+    while (index < value.length) {
+      const mark = value.codePointAt(index);
+      if (!/\p{M}/u.test(String.fromCodePoint(mark))) break;
+      index += mark > 0xffff ? 2 : 1;
+    }
+    const raw = value.slice(segmentStart, index);
+    const part = normalize(raw);
+    text += part;
+    for (let offset = 0; offset < part.length; offset++) { starts.push(segmentStart); ends.push(index); }
+  }
+  return { text, starts, ends };
+}
+
 function locatorFor(text, offset) {
   const prefix = text.slice(0, offset);
   const markers = [...prefix.matchAll(/^[\t ]*\[(?:P[áa]gina|Page)[\t ]+(\d{1,6})\][\t ]*$/gimu)];
@@ -41,22 +60,25 @@ export function searchLiteralMaterials(materials, query, { limit = MAX_LITERAL_R
   const results = [];
   let total = 0;
   for (const material of materials) {
-    const normalizedText = normalize(material.text);
+    const normalized = normalizedWithOffsets(material.text);
+    const normalizedText = normalized.text;
     let cursor = 0;
     while (cursor <= normalizedText.length - normalizedQuery.length) {
       const start = normalizedText.indexOf(normalizedQuery, cursor);
       if (start === -1) break;
-      const end = start + normalizedQuery.length;
+      const normalizedEnd = start + normalizedQuery.length;
+      const originalStart = normalized.starts[start];
+      const originalEnd = normalized.ends[normalizedEnd - 1];
       total++;
       if (results.length < limit) {
-        const excerpt = excerptFor(material.text, start, end, context);
+        const excerpt = excerptFor(material.text, originalStart, originalEnd, context);
         results.push({
           materialId: material.id,
           materialName: material.originalAttachment?.name || material.materialOrigin || material.id,
-          match: material.text.slice(start, end),
-          start,
-          end,
-          locator: locatorFor(material.text, start),
+          match: material.text.slice(originalStart, originalEnd),
+          start: originalStart,
+          end: originalEnd,
+          locator: locatorFor(material.text, originalStart),
           excerpt: excerpt.text,
           excerptStart: excerpt.start,
           excerptEnd: excerpt.end,
