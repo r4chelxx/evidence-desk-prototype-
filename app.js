@@ -4,6 +4,7 @@ import { buildInvestigationRadar } from "./investigation-radar.mjs?v=20261017-ra
 import { createMaterialCitation, validateMaterialCitation } from "./material-citations.mjs?v=20261017-material-insight1";
 import { createInvestigationCheckpoint, diffInvestigationCheckpoints } from "./investigation-changes.mjs?v=20261017-material-insight1";
 import { createMaterialViewer, selectMaterialSegment } from "./material-viewer.mjs?v=20261017-lai-viewer1";
+import { searchLiteralMaterials } from "./material-search.mjs?v=20261120-mvp-search1";
 import { suggestLaiItemComparisons } from "./lai-item-comparison.mjs?v=20261017-lai-viewer1";
 import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
 import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
@@ -82,6 +83,7 @@ const state = {
   currentId: savedCurrentId,
   currentTab: savedUiState.currentTab || "overview",
   laiSelections: savedUiState.laiSelections || {},
+  literalSearch: { query: "", result: null, error: "", caseId: null },
   reverseSelections: savedUiState.reverseSelections || {},
   locale: savedUiState.locale || "pt",
   filters: {
@@ -4551,6 +4553,17 @@ function renderEvidenceMap(item) {
   return `<section class="panel intelligence-map" aria-label="${escape(title)}"><div class="section-header"><div><p class="eyebrow">Evidence Desk · Intelligence</p><h2>${escape(title)}</h2></div></div><div class="intelligence-map-grid">${sections}</div><p class="muted">${escape(caveat)}</p></section>`;
 }
 
+function renderLiteralSearch(item) {
+  const search = state.literalSearch.caseId === item.id ? state.literalSearch : { query: "", result: null, error: "", caseId: item.id };
+  const results = search.result?.results || [];
+  const resultMarkup = search.result ? `<p class="muted">${search.result.total} ocorrência(s) encontrada(s) em ${new Set(results.map(result => result.materialId)).size} material(is). A busca é literal e não usa IA.</p>${results.length ? `<ol class="literal-search-results">${results.map(result => `<li><strong>${escapeHtml(result.materialName)}</strong><small>${escapeHtml(result.locator)} · ${result.start}-${result.end}</small><blockquote>${escapeHtml(result.excerpt)}</blockquote></li>`).join("")}</ol>` : "<p class=\"muted\">Nenhuma ocorrência nos materiais desta pauta.</p>"}` : "";
+  return `<section class="panel literal-search" aria-label="Busca literal nos materiais">
+    <div class="section-header"><div><p class="eyebrow">MVP · Busca determinística</p><h2>Buscar nos materiais</h2></div><span class="pill neutral">Sem IA</span></div>
+    <p class="muted">Pesquisa somente os materiais desta pauta e mostra o trecho, o arquivo e o localizador. O resultado não é evidência verificada por si só.</p>
+    <form data-role="literal-search"><label for="literal-search-input">Termo ou frase</label><input id="literal-search-input" name="query" maxlength="500" value="${escapeHtml(search.query)}" placeholder="Ex.: contrato, orçamento, data"><button class="button secondary" type="submit">Buscar</button><p data-literal-search-notice role="status">${escapeHtml(search.error || "")}</p></form>
+    ${resultMarkup}
+  </section>`;
+}
 function renderMaterialHistory(item) {
   const notes = item.reporterNotes || [];
   const citations = item.materialCitations || [];
@@ -4586,6 +4599,7 @@ function renderOverview(item) {
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
     <form class="quick-note-form" data-role="quick-note"><label for="quick-note-input">${locale === "en" ? "Quick field note" : locale === "es" ? "Nota rápida de campo" : "Nota rápida de apuração"}</label><textarea id="quick-note-input" name="note" rows="2" maxlength="6000" placeholder="${locale === "en" ? "Paste a finding, a question or an observation…" : locale === "es" ? "Pegue un hallazgo, pregunta u observación…" : "Cole uma descoberta, pergunta ou observação…"}"></textarea><label>Tipo de material <select name="materialKind"><option value="note">Anotação ou descoberta</option><option value="document">Trecho de documento</option><option value="response">Resposta recebida</option><option value="lead">Pista a verificar</option></select></label><label>Origem ou referência (opcional) <input name="materialOrigin" maxlength="500" placeholder="Órgão, documento, URL ou pessoa"></label><div class="quick-note-actions"><label for="original-attachment-file">Original (até 20 MB)</label><input id="original-attachment-file" type="file" data-role="original-attachment-file"><span data-role="attachment-notice" role="status" aria-live="polite"></span><span class="muted">Anexos ficam neste navegador. Para levá-los junto, use “Backup completo com anexos”.</span></div><div class="quick-note-actions"><label class="button secondary" for="quick-note-file">${locale === "en" ? "Import text" : locale === "es" ? "Importar texto" : "Importar texto"}</label><input id="quick-note-file" type="file" accept=".txt,.md,.csv,.tsv,.json,text/plain,text/markdown,text/csv,application/json" class="visually-hidden" data-role="quick-note-file"><button class="button" type="submit">${locale === "en" ? "Save material" : locale === "es" ? "Guardar material" : "Salvar material"}</button><button type="button" class="button secondary" data-action="discard-material-draft">Limpar rascunho</button><span class="muted">${locale === "en" ? "A note is not verified evidence." : locale === "es" ? "Una nota no es evidencia verificada." : "Uma anotação não é evidência verificada."}</span></div><p data-role="material-draft-notice" class="muted" role="status" aria-live="polite"></p></form>
+    ${renderLiteralSearch(item)}
     ${renderMaterialHistory(item)}
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
@@ -7364,6 +7378,20 @@ function bindNoteClassification() {
   }));
 }
 
+function bindLiteralSearch() {
+  document.querySelectorAll("[data-role=\"literal-search\"]").forEach(form => form.addEventListener("submit", event => {
+    event.preventDefault();
+    const item = getCurrentInvestigation();
+    const query = form.querySelector("[name=\"query\"]")?.value || "";
+    try {
+      const result = searchLiteralMaterials(item?.reporterNotes || [], query);
+      state.literalSearch = { query: query.trim(), result, error: "", caseId: item?.id || null };
+    } catch (error) {
+      state.literalSearch = { query, result: null, error: error.message, caseId: item?.id || null };
+    }
+    renderInvestigation();
+  }));
+}
 function bindQuickNoteImport() {
   document.querySelectorAll('[data-role="quick-note-file"]').forEach(input => input.addEventListener('change', async () => {
     const file = input.files?.[0];
@@ -7565,6 +7593,7 @@ function bindActions() {
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (error) { window.alert('Não foi possível abrir o anexo: ' + error.message); }
   }));
+  bindLiteralSearch();
   bindQuickNotes();
   bindMaterialCitations();
   bindQuickNoteImport();
