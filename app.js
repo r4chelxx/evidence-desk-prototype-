@@ -5,6 +5,7 @@ import { createMaterialCitation, validateMaterialCitation } from "./material-cit
 import { createInvestigationCheckpoint, diffInvestigationCheckpoints } from "./investigation-changes.mjs?v=20261017-material-insight1";
 import { createMaterialViewer, selectMaterialSegment } from "./material-viewer.mjs?v=20261017-lai-viewer1";
 import { searchLiteralMaterials } from "./material-search.mjs?v=20261120-mvp-search1";
+import { MVP_CORE_TABS, isMvpCoreTab, normalizeMvpTab } from "./mvp-scope.mjs?v=20261120-mvp-scope1";
 import { suggestLaiItemComparisons } from "./lai-item-comparison.mjs?v=20261017-lai-viewer1";
 import { loadMaterialDraft, saveMaterialDraft, clearMaterialDraft, hasMaterialDraft } from "./material-drafts.mjs?v=20261017-reverse1";
 import { createChecklistItem, updateChecklistItem, summarizeChecklist, canTrackGap } from "./lai-item-checklist.mjs?v=20261017-reverse1";
@@ -81,7 +82,7 @@ const savedCurrentId = investigations.some((item) => item.id === savedUiState.cu
 const state = {
   view: savedCurrentId && !storeState.blocked ? (savedUiState.view || "dashboard") : "dashboard",
   currentId: savedCurrentId,
-  currentTab: savedUiState.currentTab || "overview",
+  currentTab: normalizeMvpTab(savedUiState.currentTab || "overview"),
   laiSelections: savedUiState.laiSelections || {},
   literalSearch: { query: "", result: null, error: "", caseId: null },
   reverseSelections: savedUiState.reverseSelections || {},
@@ -3022,8 +3023,7 @@ function renderDashboard() {
           <p>${item.centralQuestion}</p>
           <div class="metrics-grid compact">
             <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-            <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
-            <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
+                  <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
@@ -3355,7 +3355,6 @@ function renderInvestigation() {
       label: t("navGroupInvestigate"),
       tabs: [
         ["plan", t("planTab")],
-        ["requests", t("requestsWorkspace")],
       ],
     },
     {
@@ -3374,7 +3373,7 @@ function renderInvestigation() {
       ],
     },
   ];
-  const tabs = tabGroups.flatMap((group) => group.tabs);
+  const tabs = tabGroups.flatMap((group) => group.tabs).filter(([id]) => isMvpCoreTab(id));
 
   if (!tabs.some(([id]) => id === state.currentTab)) {
     state.currentTab = "overview";
@@ -3422,6 +3421,7 @@ function renderInvestigation() {
 }
 
 function renderTab(item) {
+  if (!isMvpCoreTab(state.currentTab)) state.currentTab = normalizeMvpTab(state.currentTab);
   const renderers = {
     overview: renderOverview,
     context: renderContextWorkspace,
@@ -3476,7 +3476,7 @@ function renderDesktopTestRail(item, tabs) {
       <div class="test-rail-meta">
         <span class="pill neutral">${t("tabProgress")}: ${currentIndex + 1}/${tabs.length}</span>
         <span class="pill ${openRisks ? "danger" : "success"}">${openRisks} ${t("summaryRisk").toLowerCase()}</span>
-        <span class="pill ${countLateRequests(item) ? "danger" : "success"}">${countLateRequests(item)} ${t("lateRequests")}</span>
+        ${MVP_CORE_TABS.includes("requests") ? `<span class="pill ${countLateRequests(item) ? "danger" : "success"}">${countLateRequests(item)} ${t("lateRequests")}</span>` : ""}
       </div>
       <div class="test-rail-actions">
         <button class="button secondary active-secondary" data-action="tab" data-tab="${nextTab[0]}">${t("nextArea")}: ${nextTab[1]}</button>
@@ -3549,7 +3549,7 @@ function renderMobileFocusCard(item) {
       </dl>
       <div class="mobile-focus-actions">
         <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("mobileOpenStory")}</button>
-        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("mobileContinueReporting")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("mobileContinueReporting")}</button>
         <button class="button" data-action="tab" data-tab="claims">${t("mobileReviewClaims")}</button>
       </div>
     </section>
@@ -4499,7 +4499,7 @@ function renderClaimGapDependencies(item) {
   if (!linked.length) return '';
   const esc = value => escapeHtml(String(value ?? ''));
   const rows = linked.slice(0,8).map(entry => '<li><strong>' + esc(entry.claim.statement || entry.claim.text || entry.claim.claim || entry.claim.title || 'Afirmação sem título') + '</strong><ul>' + entry.gaps.slice(0,5).map(gap => '<li>' + esc(gap.description || gap.title || '') + (gap.originRequestTitle ? ' <small>· LAI: ' + esc(gap.originRequestTitle) + '</small>' : '') + '</li>').join('') + '</ul></li>').join('');
-  return '<section class="panel claim-gap-dependencies"><div class="section-header"><div><p class="eyebrow">Investigação reversa · vínculos registrados</p><h3>Afirmações com lacunas em aberto</h3></div><span class="pill neutral">' + linked.length + '</span></div><p class="muted">Vínculos definidos pelo jornalista. Uma lacuna não invalida automaticamente uma afirmação.</p><ul>' + rows + '</ul><button class="button secondary" type="button" data-action="tab" data-tab="requests">Revisar pedidos e respostas</button></section>';
+  return '<section class="panel claim-gap-dependencies"><div class="section-header"><div><p class="eyebrow">Investigação reversa · vínculos registrados</p><h3>Afirmações com lacunas em aberto</h3></div><span class="pill neutral">' + linked.length + '</span></div><p class="muted">Vínculos definidos pelo jornalista. Uma lacuna não invalida automaticamente uma afirmação.</p><ul>' + rows + '</ul><button class="button secondary" type="button" data-action="tab" data-tab="plan">Abrir plano de apuração</button></section>';
 }
 function renderIntelligenceOverview(item) {
   const result = summarizeLegacyInvestigation(item);
@@ -4592,9 +4592,9 @@ function renderMaterialChanges(item) {
 function renderOverview(item) {
   const locale = state.locale || "pt";
   const words = {
-    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Registrar pedido ou resposta", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
-    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Log a request or response", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
-    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Registrar solicitud o respuesta", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
+    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Continuar apuração", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
+    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Continue reporting", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
+    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Continuar la apuración", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
@@ -4604,7 +4604,7 @@ function renderOverview(item) {
     ${(item.localAttachments || []).length ? `<details class="quick-note-history"><summary>Anexos locais (${item.localAttachments.length})</summary><ol>${item.localAttachments.map(file => `<li><strong>${escapeHtml(String(file.name))}</strong> <small>${Math.ceil(file.size / 1024)} KB</small> <button type="button" class="button secondary" data-action="download-local-attachment" data-attachment-id="${escapeHtml(String(file.id))}">Abrir original</button></li>`).join("")}</ol></details>` : ""}
     <div class="capture-actions">
       <button class="button" data-action="tab" data-tab="plan">${words[2]}</button>
-      <button class="button secondary" data-action="tab" data-tab="requests">${words[3]}</button>
+      <button class="button secondary" data-action="tab" data-tab="claims">${words[3]}</button>
       <button class="button secondary" data-action="tab" data-tab="editorial">${words[4]}</button>
       <button class="button secondary" data-action="tab" data-tab="story">${words[5]}</button>
     </div><p class="muted">${words[7]}</p></section>
@@ -4631,10 +4631,6 @@ function renderDetailedOverview(item) {
     <section class="metrics-grid">
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
-      <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-      <div><strong>${countReviewedResponses(item)}</strong><span>${t("responses")}</span></div>
-      <div><strong>${countLateRequests(item)}</strong><span>${t("lateRequests")}</span></div>
-      <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>${t("openGaps")}</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>${t("claimsReview")}</span></div>
       <div><strong>${countReviewItems(item)}</strong><span>${t("reviewItems")}</span></div>
@@ -4651,8 +4647,6 @@ function renderDetailedOverview(item) {
       <div class="quick-action-row">
         <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("addHypothesis")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("mapEvidence")}</button>
-        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("registerRequest")}</button>
-        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("reviewResponse")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="editorial">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("openStoryWorkspace")}</button>
@@ -4963,7 +4957,7 @@ function renderStoryMethodologyBridge() {
         <h3>${t("methodologyBridgeCopy")}</h3>
       </div>
       <div class="quick-action-row">
-        <button class="button secondary active-secondary" data-action="tab" data-tab="requests">${t("requestsWorkspace")}</button>
+        <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("planTab")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="qa">${t("openQaCheck")}</button>
         <button class="button" data-action="tab" data-tab="methodology">${t("openMethodologyNote")}</button>
       </div>
@@ -7827,7 +7821,7 @@ function bindActions() {
 
   document.querySelectorAll("[data-action='tab']").forEach((button) => {
     button.addEventListener("click", () => {
-      state.currentTab = button.dataset.tab;
+      state.currentTab = normalizeMvpTab(button.dataset.tab);
       saveUiState();
       renderInvestigation();
     });

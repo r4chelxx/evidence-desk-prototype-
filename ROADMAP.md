@@ -1,5 +1,19 @@
 # Evidence Desk — Roadmap mestre e registro de execução
 
+## Recorte RJI MVP — congelado em 20/11/2026
+
+O caminho crítico do MVP é um espaço privado de investigação: conta e sessão persistentes, criação/importação de pauta, preservação de materiais originais, busca literal local sem IA, citações com localizadores, revisão humana, exportação e exclusão. O catálogo público do Radar 1.0 fornece apenas registros e metadados estáveis.
+
+As telas e a navegação do núcleo não exibem nem dependem do fluxo de pedidos de informação/FOIA. Esse código e os dados legados permanecem preservados como módulo futuro, fora do critério de aceite desta versão. Comunidade, feed, relacionamentos e automações de pedido também ficam fora do caminho crítico.
+
+Critérios desta rodada:
+- as abas do núcleo são overview, contexto, plano, editorial, claims, story, metodologia e QA;
+- materiais e busca literal são acessíveis a partir da investigação;
+- uma aba futura não pode ser aberta por estado salvo nem por clique da interface;
+- dados legados de pedidos não são apagados nem reescritos;
+- testes existentes de importação, armazenamento, citações e módulos futuros continuam válidos.
+
+
 **Revisão de escopo: 17/10/2026.** Este documento recupera o plano consolidado de 15/10 e o confronta com o escopo de evolução, diagnóstico funcional, propostas de simplificação/inovação e brief original. A sequência de tarefas de uma rodada não substitui o escopo completo.
 
 ## Compromissos que orientam todas as frentes
