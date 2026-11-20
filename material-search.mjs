@@ -41,22 +41,25 @@ export function searchLiteralMaterials(materials, query, { limit = MAX_LITERAL_R
   const results = [];
   let total = 0;
   for (const material of materials) {
-    const normalizedText = normalize(material.text);
+    const normalized = normalizedWithOffsets(material.text);
+    const normalizedText = normalized.text;
     let cursor = 0;
     while (cursor <= normalizedText.length - normalizedQuery.length) {
       const start = normalizedText.indexOf(normalizedQuery, cursor);
       if (start === -1) break;
-      const end = start + normalizedQuery.length;
+      const normalizedEnd = start + normalizedQuery.length;
+      const originalStart = normalized.starts[start];
+      const originalEnd = normalized.ends[normalizedEnd - 1];
       total++;
       if (results.length < limit) {
-        const excerpt = excerptFor(material.text, start, end, context);
+        const excerpt = excerptFor(material.text, originalStart, originalEnd, context);
         results.push({
           materialId: material.id,
           materialName: material.originalAttachment?.name || material.materialOrigin || material.id,
-          match: material.text.slice(start, end),
-          start,
-          end,
-          locator: locatorFor(material.text, start),
+          match: material.text.slice(originalStart, originalEnd),
+          start: originalStart,
+          end: originalEnd,
+          locator: locatorFor(material.text, originalStart),
           excerpt: excerpt.text,
           excerptStart: excerpt.start,
           excerptEnd: excerpt.end,
