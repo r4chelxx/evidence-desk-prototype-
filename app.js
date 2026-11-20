@@ -3023,8 +3023,7 @@ function renderDashboard() {
           <p>${item.centralQuestion}</p>
           <div class="metrics-grid compact">
             <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-            <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
-            <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
+                  <div><strong>${countQaBlockers(item)}</strong><span>${t("qaBlockers")}</span></div>
           </div>
           <div class="card-footer">
             <span class="pill ${statusClass(item.status)}">${item.status}</span>
@@ -4593,9 +4592,9 @@ function renderMaterialChanges(item) {
 function renderOverview(item) {
   const locale = state.locale || "pt";
   const words = {
-    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Registrar pedido ou resposta", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
-    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Log a request or response", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
-    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Registrar solicitud o respuesta", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
+    pt: ["Comece pela descoberta", "Registre o que encontrou. A investigação se organiza a partir disso.", "Adicionar fonte ou hipótese", "Continuar apuração", "Revisar pendências", "Preparar reportagem", "Detalhes e ferramentas avançadas", "Os dados são salvos neste navegador. Exporte uma cópia regularmente."],
+    en: ["Start with a discovery", "Record what you found. The investigation takes shape from there.", "Add a source or hypothesis", "Continue reporting", "Review pending items", "Prepare the story", "Details and advanced tools", "Data is saved in this browser. Export a copy regularly."],
+    es: ["Empiece por un hallazgo", "Registre lo que encontró. La investigación se organiza a partir de ahí.", "Agregar fuente o hipótesis", "Continuar la apuración", "Revisar pendientes", "Preparar reportaje", "Detalles y herramientas avanzadas", "Los datos se guardan en este navegador. Exporte una copia regularmente."]
   }[locale] || [];
   return `<section class="content-header investigation-focus"><p class="eyebrow">${t("overview")}</p><h2>${escapeHtml(String(item.centralQuestion || item.title || ""))}</h2><p>${escapeHtml(String(item.description || ""))}</p></section>
     <section class="panel capture-first"><div><p class="eyebrow">Evidence Desk</p><h2>${words[0]}</h2><p>${words[1]}</p></div>
@@ -4632,10 +4631,6 @@ function renderDetailedOverview(item) {
     <section class="metrics-grid">
       <div><strong>${item.hypotheses.length}</strong><span>${t("hypotheses")}</span></div>
       <div><strong>${item.evidenceBlocks.length}</strong><span>${t("evidenceBlocksMetric")}</span></div>
-      <div><strong>${item.requests.length}</strong><span>${t("requests")}</span></div>
-      <div><strong>${countReviewedResponses(item)}</strong><span>${t("responses")}</span></div>
-      <div><strong>${countLateRequests(item)}</strong><span>${t("lateRequests")}</span></div>
-      <div><strong>${countRequestFollowUps(item)}</strong><span>${t("followUps")}</span></div>
       <div><strong>${countOpenGaps(item)}</strong><span>${t("openGaps")}</span></div>
       <div><strong>${countOpenClaims(item)}</strong><span>${t("claimsReview")}</span></div>
       <div><strong>${countReviewItems(item)}</strong><span>${t("reviewItems")}</span></div>
@@ -4652,8 +4647,6 @@ function renderDetailedOverview(item) {
       <div class="quick-action-row">
         <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("addHypothesis")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("mapEvidence")}</button>
-        <button class="button secondary active-secondary" data-action="tab" data-tab="plan">${t("mapEvidence")}</button>
-        <button class="button secondary active-secondary" data-action="tab" data-tab="editorial">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="editorial">${t("openQueue")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="claims">${t("addClaim")}</button>
         <button class="button secondary active-secondary" data-action="tab" data-tab="story">${t("openStoryWorkspace")}</button>
