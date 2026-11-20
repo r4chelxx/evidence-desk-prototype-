@@ -39,6 +39,14 @@ test('empty query is a safe empty result and malformed inputs fail', () => {
   assert.throws(() => searchLiteralMaterials(materials, 'x'.repeat(501)));
 });
 
+test('normalization never changes offsets used for original excerpts', () => {
+  const source = 'Cafe\u0301 — café';
+  const result = searchLiteralMaterials([{id:'unicode', text:source}], 'café');
+  assert.equal(result.total, 2);
+  assert.equal(source.slice(result.results[0].start, result.results[0].end), 'Café');
+  assert.equal(source.slice(result.results[1].start, result.results[1].end), 'café');
+});
+
 test('search is isolated to the supplied collection', () => {
   const result = searchLiteralMaterials([materials[1]], 'água');
   assert.equal(result.total, 0);
