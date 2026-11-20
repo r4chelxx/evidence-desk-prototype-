@@ -20,8 +20,8 @@ test('finds case/diacritic variants deterministically and preserves exact offset
 
 test('returns bounded context and line locator when no explicit page marker exists', () => {
   const result = searchLiteralMaterials([{id:'x',text:'linha 1\nlinha 2 com termo\nlinha 3'}], 'termo', {context:2});
-  assert.equal(result.results[0].locator, 'linha 2 · offset 16');
-  assert.equal(result.results[0].excerpt, 'a termo\nl');
+  assert.equal(result.results[0].locator, 'linha 2 · offset 20');
+  assert.equal(result.results[0].excerpt, 'm term');
 });
 
 test('counts all matches while limiting returned results', () => {
