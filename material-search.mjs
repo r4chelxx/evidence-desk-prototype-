@@ -18,7 +18,7 @@ function normalizedWithOffsets(value) {
     index += first > 0xffff ? 2 : 1;
     while (index < value.length) {
       const mark = value.codePointAt(index);
-      if (!/\\p{M}/u.test(String.fromCodePoint(mark))) break;
+      if (!/\p{M}/u.test(String.fromCodePoint(mark))) break;
       index += mark > 0xffff ? 2 : 1;
     }
     const raw = value.slice(segmentStart, index);
